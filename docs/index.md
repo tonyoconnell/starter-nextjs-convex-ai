@@ -37,8 +37,9 @@ Following BMAD methodology, these documents form the foundation:
 **[technical-guides/](./technical-guides/)**
 - **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Convex logging strategies under $10/month
 - **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
+- **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
 
-### 🚧 Preliminary Work
+### 🚧 Historical Work
 **[preliminary/](./preliminary/)**
 - **[Overview](./preliminary/index.md)** - Early planning documents
 - **[Tech Stack](./preliminary/preliminary-tech-stack.md)** - Technology choices
