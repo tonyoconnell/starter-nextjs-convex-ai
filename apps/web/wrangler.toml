@@ -1,3 +1,0 @@
-name = "starter-nextjs-convex-ai"
-compatibility_date = "2024-07-16"
-pages_build_output_dir = ".vercel/output/static"
