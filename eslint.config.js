@@ -38,6 +38,16 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       'no-console': 'warn',
       'prefer-const': 'error',
+      // Coding standards enforcement
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            'MemberExpression[object.name="process"][property.name="env"]',
+          message:
+            'Direct access to process.env is not allowed. Use centralized configuration instead.',
+        },
+      ],
     },
   },
   {
