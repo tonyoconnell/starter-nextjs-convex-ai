@@ -103,6 +103,15 @@ graph TD
 3. **Quality Review**: `@qa` validates implementation and provides feedback
 4. **Iteration**: Continue until all epic stories complete
 
+### Agent Responsibilities for Story Management
+
+| Agent | Focus | Story Creation | Best For |
+|-------|-------|----------------|----------|
+| **SM** | Sequential story generation | Primary responsibility | Creating next logical story |
+| **PO** | Validation & oversight | Secondary capability | Reviewing story quality |
+
+**Recommendation**: Use `@sm *create` for story creation, then optionally `@po *validate-story-draft` for quality assurance before development.
+
 ## Document Management
 
 ### Template System
