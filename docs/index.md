@@ -23,8 +23,30 @@ This is a Next.js template for building AI-first applications using the BMAD (Br
 Following BMAD methodology, these documents form the foundation:
 
 - **[Project Brief](./project-brief.md)** - Project goals and constraints
-- **[Product Requirements (PRD)](./prd.md)** - Detailed product requirements document
-- **[Architecture](./architecture.md)** - Technical architecture and design decisions
+- **[Product Requirements (PRD)](./prd/)** - Detailed product requirements document (sharded)
+- **[Architecture](./architecture/)** - Technical architecture and design decisions (sharded)
+
+### 📋 Product Requirements (Sharded)
+**[prd/](./prd/)**
+- **[PRD Overview](./prd/index.md)** - Navigation and complete requirements overview
+- **[Epic 1: Platform Foundation](./prd/epic-1.md)** - Monorepo, deployment, and authentication
+- **[Epic 2: UI Toolkit](./prd/epic-2.md)** - Component showcase and theming
+- **[Epic 3: Real-time Logging](./prd/epic-3.md)** - Resilient logging architecture
+- **[Epic 4: Conversational AI](./prd/epic-4.md)** - RAG foundation and chat interface
+- **[Epic 5: Production Features](./prd/epic-5.md)** - Quality of life improvements
+- **[Epic 6: Documentation](./prd/epic-6.md)** - Onboarding and deployment guides
+- **[Epic 7: Hybrid Workflow](./prd/epic-7.md)** - Experimental agent workflow
+
+### 🏗️ Architecture (Sharded)
+**[architecture/](./architecture/)**
+- **[Architecture Overview](./architecture/index.md)** - Complete architecture navigation
+- **[High-Level Architecture](./architecture/high-level-architecture.md)** - System diagrams and patterns
+- **[Tech Stack](./architecture/tech-stack.md)** - Technology choices and versions
+- **[Data Models](./architecture/data-models.md)** - Database schema and relationships
+- **[API Implementation](./architecture/api-implementation-details.md)** - OpenAPI and Convex functions
+- **[Components](./architecture/components.md)** - Component interaction patterns
+- **[Coding Standards](./architecture/coding-standards.md)** - Development conventions
+- **[Security](./architecture/security.md)** - Multi-layered security strategy
 
 ## Documentation Structure
 
@@ -90,8 +112,8 @@ graph TD
 
 1. **Review Core Documents**
    - Read [Project Brief](./project-brief.md) for context
-   - Study [PRD](./prd.md) for requirements
-   - Understand [Architecture](./architecture.md) decisions
+   - Study [PRD Overview](./prd/index.md) for requirements navigation
+   - Understand [Architecture Overview](./architecture/index.md) for technical decisions
 
 2. **Understand the Methodology**
    - Read [BMAD Context Engineering](./methodology/bmad-context-engineering.md)

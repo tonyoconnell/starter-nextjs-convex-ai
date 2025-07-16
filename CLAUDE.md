@@ -95,6 +95,14 @@ This project follows the BMAD (Before, Model, After, Document) method:
 3. Verify and test results
 4. Document changes and learnings
 
+### BMAD Documentation Structure
+The project uses sharded documentation for AI agent consumption:
+- **[docs/prd/](docs/prd/)** - Sharded Product Requirements (Epic 1-7)
+- **[docs/architecture/](docs/architecture/)** - Sharded Architecture components
+- **[docs/methodology/](docs/methodology/)** - BMAD methodology guides
+
+For systematic development, reference specific epics and architectural components as needed.
+
 ### Testing Strategy
 - Unit tests for utilities and hooks
 - Integration tests for Convex functions
