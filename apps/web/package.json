@@ -12,7 +12,7 @@
     "format:check": "prettier --check .",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=starter-nextjs-convex-ai",
-    "build:pages": "next build && npx @cloudflare/next-on-pages",
+    "build:pages": "CI=true next build && npx @cloudflare/next-on-pages",
     "pages:dev": "npx @cloudflare/next-on-pages --watch"
   },
   "dependencies": {
