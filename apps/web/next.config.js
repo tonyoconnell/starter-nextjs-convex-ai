@@ -7,6 +7,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: false,
   },
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
+  output: 'export',
 };
 
 module.exports = nextConfig;
