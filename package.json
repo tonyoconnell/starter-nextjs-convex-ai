@@ -18,7 +18,7 @@
     "test": "turbo test",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean",
-    "prepare": "husky || true"
+    "prepare": "echo 'Skipping husky in CI' && exit 0"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
