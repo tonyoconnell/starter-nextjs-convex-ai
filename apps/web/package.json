@@ -9,9 +9,14 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "pages:build": "npx @cloudflare/next-on-pages",
+    "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=starter-nextjs-convex-ai",
+    "build:pages": "next build && npx @cloudflare/next-on-pages",
+    "pages:dev": "npx @cloudflare/next-on-pages --watch"
   },
   "dependencies": {
+    "@cloudflare/next-on-pages": "^1.13.12",
     "next": "14.2.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
