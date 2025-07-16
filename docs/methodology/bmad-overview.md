@@ -4,6 +4,66 @@
 
 The **BMAD (Before, Model, After, Document) Methodology** is an integrated system for agentic software development that transforms how developers direct AI agents to build robust, maintainable applications. This starter template includes a complete BMAD implementation designed to accelerate development through systematic AI workforce management.
 
+## Daily Development Workflow
+
+### Your Standard Story Implementation Process
+
+This is the typical workflow you follow for each story implementation:
+
+#### 1. Create Story Draft
+
+Start with the Story Manager to create a new user story:
+
+```bash
+@sm *create                    # Create next user story from sharded PRD
+```
+
+#### 2. Validate Story Draft (Optional but Recommended)
+
+Before implementation, validate the story has proper acceptance criteria:
+
+```bash
+@po *validate-story-draft      # Ensure story is ready for development
+```
+
+#### 3. Switch to Developer and Implement
+
+Change to the developer agent and implement the story:
+
+```bash
+@dev                          # Activate developer agent
+# Implement the story following acceptance criteria
+```
+
+#### 4. Test and UAT
+
+After implementation, work with QA to validate the implementation:
+
+```bash
+@qa                           # Activate QA agent
+# QA will help create UAT plan using story template or custom approach
+# QA will review implementation against acceptance criteria
+```
+
+#### 5. Backpropagate Documentation
+
+Use the KDD agent to update documentation based on what was learned:
+
+```bash
+@kdd *update-documentation    # Knowledge-driven development documentation update
+@kdd *capture-learnings       # Document implementation insights
+```
+
+### Quick Command Reference
+
+| Command                      | Purpose                                   | Agent |
+| ---------------------------- | ----------------------------------------- | ----- |
+| `@sm *create`                | Create next user story                    | SM    |
+| `@po *validate-story-draft`  | Validate story quality                    | PO    |
+| `@dev`                       | Implement story                           | Dev   |
+| `@qa`                        | Create UAT plan and review implementation | QA    |
+| `@kdd *update-documentation` | Update docs with learnings                | KDD   |
+
 ## Core Philosophy
 
 BMAD operates on the principle that in the age of AI development, the primary bottleneck is not writing code, but effectively directing AI agents to build production-quality applications. The methodology provides:
@@ -17,27 +77,30 @@ BMAD operates on the principle that in the age of AI development, the primary bo
 
 ### Agent Ecosystem
 
-The BMAD system includes 7 specialized AI agents, each with defined personas and capabilities:
+The BMAD system includes 8 specialized AI agents, each with defined personas and capabilities:
 
-| Agent | Role | Primary Functions |
-|-------|------|-------------------|
-| **Analyst** 📊 | Business Analyst | Project briefs, market research, brainstorming |
-| **PM** 📋 | Product Manager | PRDs, requirements management, story prioritization |
-| **UX Expert** 🎨 | UX/UI Designer | Frontend specifications, user research, design systems |
-| **Architect** 🏗️ | Solution Architect | Technical architecture, system design, technology decisions |
-| **Product Owner** 📝 | Product Owner | Backlog management, story validation, process stewardship |
-| **Dev** 💻 | Senior Developer | Implementation, code review, technical execution |
-| **QA** 🔍 | Quality Assurance | Testing, code review, quality validation |
+| Agent                | Role                         | Primary Functions                                             |
+| -------------------- | ---------------------------- | ------------------------------------------------------------- |
+| **Analyst** 📊       | Business Analyst             | Project briefs, market research, brainstorming                |
+| **PM** 📋            | Product Manager              | PRDs, requirements management, story prioritization           |
+| **UX Expert** 🎨     | UX/UI Designer               | Frontend specifications, user research, design systems        |
+| **Architect** 🏗️     | Solution Architect           | Technical architecture, system design, technology decisions   |
+| **Product Owner** 📝 | Product Owner                | Backlog management, story validation, process stewardship     |
+| **Dev** 💻           | Senior Developer             | Implementation, code review, technical execution              |
+| **QA** 🔍            | Quality Assurance            | Testing, code review, quality validation                      |
+| **KDD** 📚           | Knowledge-Driven Development | Documentation updates, learning capture, knowledge management |
 
 ### Workflow Types
 
 **Greenfield Development**: Complete application development from concept to deployment
+
 - Full-stack applications
-- Frontend-only projects  
+- Frontend-only projects
 - Backend/API services
 - Rapid prototypes and MVPs
 
 **Brownfield Development**: Feature addition and enhancement for existing codebases
+
 - Epic creation for complex features
 - Story-driven development
 - Incremental improvements
@@ -49,9 +112,12 @@ The BMAD system includes 7 specialized AI agents, each with defined personas and
 Agents are activated using the `@agent-name` syntax:
 
 ```bash
+@sm              # Activate Story Manager
 @po              # Activate Product Owner
-@architect       # Activate Solution Architect  
+@architect       # Activate Solution Architect
 @dev             # Activate Developer
+@qa              # Activate QA Engineer
+@kdd             # Activate Knowledge-Driven Development
 ```
 
 ### Agent Commands
@@ -59,10 +125,13 @@ Agents are activated using the `@agent-name` syntax:
 Each agent supports specific commands prefixed with `*`:
 
 ```bash
-@po *help                    # Show available commands
-@po *create-story           # Create next user story
-@po *execute-checklist      # Run quality validation
-@po *shard-doc docs/prd.md  # Split document for AI consumption
+@sm *create                  # Create next user story
+@po *validate-story-draft    # Validate story quality before development
+@po *execute-checklist       # Run quality validation
+@po *shard-doc docs/prd.md   # Split document for AI consumption
+@qa                          # Work with QA for UAT planning and implementation review
+@kdd *update-documentation   # Update documentation with learnings
+@kdd *capture-learnings      # Document implementation insights
 ```
 
 ### Slash Commands
@@ -105,10 +174,10 @@ graph TD
 
 ### Agent Responsibilities for Story Management
 
-| Agent | Focus | Story Creation | Best For |
-|-------|-------|----------------|----------|
+| Agent  | Focus                       | Story Creation         | Best For                    |
+| ------ | --------------------------- | ---------------------- | --------------------------- |
 | **SM** | Sequential story generation | Primary responsibility | Creating next logical story |
-| **PO** | Validation & oversight | Secondary capability | Reviewing story quality |
+| **PO** | Validation & oversight      | Secondary capability   | Reviewing story quality     |
 
 **Recommendation**: Use `@sm *create` for story creation, then optionally `@po *validate-story-draft` for quality assurance before development.
 
@@ -133,6 +202,7 @@ Large documents are automatically split into digestible chunks for AI consumptio
 ```
 
 Creates:
+
 - `docs/prd/index.md` - Overview and navigation
 - `docs/prd/epic-1.md` - Individual epic details
 - `docs/prd/epic-2.md` - Sequential epic breakdown
@@ -178,7 +248,7 @@ The system includes pre-configured permissions for seamless operation:
   "permissions": {
     "allow": [
       "Bash(git commit:*)",
-      "Bash(git push:*)", 
+      "Bash(git push:*)",
       "Bash(git add:*)",
       "Bash(npx bmad:*)"
     ]
@@ -270,4 +340,4 @@ The BMAD system is designed for extensibility:
 
 ---
 
-*This methodology represents a foundational approach to Context Engineering, enabling developers to effectively direct AI agents in building production-quality software systems.*
+_This methodology represents a foundational approach to Context Engineering, enabling developers to effectively direct AI agents in building production-quality software systems._
