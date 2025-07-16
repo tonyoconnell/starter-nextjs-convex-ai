@@ -37,23 +37,27 @@ This template provides a foundational solution for developers, architects, and t
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/appydave/starter-nextjs-convex-ai.git
 cd starter-nextjs-convex-ai
 ```
 
 2. Install dependencies:
+
 ```bash
 bun install
 ```
 
 3. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 # Edit .env.local with your configuration
 ```
 
 4. Start the development servers:
+
 ```bash
 # Terminal 1: Start Convex backend
 bunx convex dev
@@ -110,7 +114,7 @@ starter-nextjs-convex-ai/
 ├── docs/                # Comprehensive documentation
 │   ├── methodology/     # BMAD method guides
 │   ├── technical-guides/# Implementation guides
-│   └── preliminary/     # Planning documents
+│   └── historical/      # Planning documents
 ├── CLAUDE.md            # Claude Code specific instructions
 └── README.md            # This file
 ```
@@ -129,6 +133,7 @@ This project follows the BMAD (Before, Model, After, Document) methodology:
 ### AI-Assisted Development
 
 1. **Setup Chrome DevTools Integration**
+
    ```bash
    bun chrome:debug      # Start Chrome with debugging
    bun claude:bridge     # Start log capture bridge
@@ -171,19 +176,25 @@ Comprehensive documentation is available in the `/docs` directory:
 ## Key Innovations
 
 ### Chrome DevTools to Claude Code Bridge
+
 Seamless integration between browser debugging and AI assistance:
+
 - Zero-friction console log capture
 - Automatic context preservation
 - E2E test integration
 
 ### Cost-Conscious Architecture
+
 Built to scale efficiently on modern platforms:
+
 - Hybrid logging pattern for < $10/month operation
 - Smart error sampling with Sentry
 - Convex-first data strategy
 
 ### AI-Native Development Flow
+
 Every aspect optimized for AI collaboration:
+
 - Context-rich documentation
 - Specialized agent personas
 - Continuous feedback loops
@@ -193,6 +204,7 @@ Every aspect optimized for AI collaboration:
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
 Areas for contribution:
+
 - Additional agent personas
 - Integration patterns
 - Cost optimization strategies
@@ -218,4 +230,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-*Built with AI assistance for the AI-assisted development era.*
+_Built with AI assistance for the AI-assisted development era._

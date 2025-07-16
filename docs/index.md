@@ -27,7 +27,9 @@ Following BMAD methodology, these documents form the foundation:
 - **[Architecture](./architecture/)** - Technical architecture and design decisions (sharded)
 
 ### 📋 Product Requirements (Sharded)
+
 **[prd/](./prd/)**
+
 - **[PRD Overview](./prd/index.md)** - Navigation and complete requirements overview
 - **[Epic 1: Platform Foundation](./prd/epic-1.md)** - Monorepo, deployment, and authentication
 - **[Epic 2: UI Toolkit](./prd/epic-2.md)** - Component showcase and theming
@@ -38,7 +40,9 @@ Following BMAD methodology, these documents form the foundation:
 - **[Epic 7: Hybrid Workflow](./prd/epic-7.md)** - Experimental agent workflow
 
 ### 🏗️ Architecture (Sharded)
+
 **[architecture/](./architecture/)**
+
 - **[Architecture Overview](./architecture/index.md)** - Complete architecture navigation
 - **[High-Level Architecture](./architecture/high-level-architecture.md)** - System diagrams and patterns
 - **[Tech Stack](./architecture/tech-stack.md)** - Technology choices and versions
@@ -51,21 +55,27 @@ Following BMAD methodology, these documents form the foundation:
 ## Documentation Structure
 
 ### 📚 Methodology
+
 **[methodology/](./methodology/)**
+
 - **[BMAD Context Engineering](./methodology/bmad-context-engineering.md)** - Structured AI development approach
 - **[Agentic Architect Developer Persona](./methodology/agentic-architect-developer-persona.md)** - AI personas for requirements gathering
 
 ### 🔧 Technical Guides
+
 **[technical-guides/](./technical-guides/)**
+
 - **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Convex logging strategies under $10/month
 - **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
 - **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
 
 ### 🚧 Historical Work
-**[preliminary/](./preliminary/)**
-- **[Overview](./preliminary/index.md)** - Early planning documents
-- **[Tech Stack](./preliminary/preliminary-tech-stack.md)** - Technology choices
-- **[Epics](./preliminary/preliminary-epics.md)** - Feature breakdown
+
+**[historical/](./historical/)**
+
+- **[Overview](./historical/index.md)** - Early planning documents
+- **[Tech Stack](./historical/preliminary-tech-stack.md)** - Technology choices
+- **[Epics](./historical/preliminary-epics.md)** - Feature breakdown
 
 ## Development Workflow
 
@@ -131,19 +141,25 @@ graph TD
 ## Key Innovations
 
 ### 1. Chrome DevTools to Claude Code Bridge
+
 Seamless integration between browser debugging and AI assistance:
+
 - Zero-friction console log capture
 - Automatic context preservation
 - E2E test integration
 
 ### 2. Cost-Conscious Architecture
+
 Built to scale efficiently:
+
 - Hybrid logging pattern
 - Smart error sampling
 - Convex-first data strategy
 
 ### 3. AI-Native Development Flow
+
 Every aspect optimized for AI collaboration:
+
 - Context-rich story files
 - Specialized agent personas
 - Continuous feedback loops
@@ -151,6 +167,7 @@ Every aspect optimized for AI collaboration:
 ## Contributing
 
 This template is designed to evolve. Contributions are welcome in:
+
 - Additional agent personas
 - Integration patterns
 - Cost optimization strategies
@@ -165,4 +182,4 @@ This template is designed to evolve. Contributions are welcome in:
 
 ---
 
-*This project demonstrates how AI can be a true development partner when given proper context and structure. It's not about replacing developers, but amplifying their capabilities through intelligent collaboration.*
+_This project demonstrates how AI can be a true development partner when given proper context and structure. It's not about replacing developers, but amplifying their capabilities through intelligent collaboration._
