@@ -40,25 +40,25 @@ The system will be a full-stack, edge-first application built within a TypeScrip
 graph TD
     subgraph "User Interaction"
         direction LR
-        User[👤 User / Context Engineer]
+        User[User / Context Engineer]
     end
 
     subgraph "Cloudflare Edge"
         direction TB
-        CDN[Cloudflare CDN/Pages]
-        Workers[Cloudflare Workers <br> (Middleware, Auth, API Routes)]
+        CDN[Cloudflare CDN / Pages]
+        Workers[Cloudflare Workers - Middleware\nAuth\nAPI Routes]
     end
-    
+
     subgraph "Real-time Backend"
         direction TB
-        Convex[Convex <br> (Database, Functions, Sockets)]
+        Convex[Convex - Database\nFunctions\nSockets]
     end
 
     subgraph "AI & Development Ecosystem"
         direction TB
-        AIAgents[🤖 AI Agent Workforce]
-        Knowledge[Knowledge Base <br> (Vectorize DB)]
-        GitHub[GitHub <br> (Repo, Actions CI/CD)]
+        AIAgents[AI Agent Workforce]
+        Knowledge[Knowledge Base - Vector DB]
+        GitHub[GitHub - Repo\nActions CI/CD]
     end
 
     User -- "HTTPS Request" --> CDN
