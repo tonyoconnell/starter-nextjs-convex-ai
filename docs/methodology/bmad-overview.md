@@ -37,12 +37,15 @@ Change to the developer agent and implement the story:
 
 #### 4. Test and UAT
 
-After implementation, work with QA to validate the implementation:
+After implementation, generate UAT plan for user acceptance testing:
 
 ```bash
-@qa                           # Activate QA agent
-# QA will help create UAT plan using story template or custom approach
-# QA will review implementation against acceptance criteria
+# Option 1: Developer offers UAT generation at story completion
+# Dev agent will ask: "Would you like me to generate a UAT plan?"
+
+# Option 2: Generate UAT plan manually
+@qa *generate-uat             # Generate user-focused UAT plan
+# Creates UAT plan with URLs, user actions, and visual verification only
 ```
 
 #### 5. Backpropagate Documentation
@@ -56,13 +59,13 @@ Use the KDD agent to update documentation based on what was learned:
 
 ### Quick Command Reference
 
-| Command                      | Purpose                                   | Agent |
-| ---------------------------- | ----------------------------------------- | ----- |
-| `@sm *create`                | Create next user story                    | SM    |
-| `@po *validate-story-draft`  | Validate story quality                    | PO    |
-| `@dev`                       | Implement story                           | Dev   |
-| `@qa`                        | Create UAT plan and review implementation | QA    |
-| `@kdd *update-documentation` | Update docs with learnings                | KDD   |
+| Command                      | Purpose                        | Agent |
+| ---------------------------- | ------------------------------ | ----- |
+| `@sm *create`                | Create next user story         | SM    |
+| `@po *validate-story-draft`  | Validate story quality         | PO    |
+| `@dev`                       | Implement story                | Dev   |
+| `@qa *generate-uat`          | Generate user-focused UAT plan | QA    |
+| `@kdd *update-documentation` | Update docs with learnings     | KDD   |
 
 ## Core Philosophy
 
@@ -129,7 +132,8 @@ Each agent supports specific commands prefixed with `*`:
 @po *validate-story-draft    # Validate story quality before development
 @po *execute-checklist       # Run quality validation
 @po *shard-doc docs/prd.md   # Split document for AI consumption
-@qa                          # Work with QA for UAT planning and implementation review
+@qa *generate-uat            # Generate user-focused UAT plan
+@qa *review                  # Review implementation against acceptance criteria
 @kdd *update-documentation   # Update documentation with learnings
 @kdd *capture-learnings      # Document implementation insights
 ```

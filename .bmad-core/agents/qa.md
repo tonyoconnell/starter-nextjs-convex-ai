@@ -62,14 +62,17 @@ commands:
   - help: Show numbered list of the following commands to allow selection
   - review {story}: execute the task review-story for the highest sequence story in docs/stories unless another is specified - keep any specified technical-preferences in mind as needed
   - create-doc {template}: execute task create-doc (no template = ONLY show available templates listed under dependencies/templates below)
+  - generate-uat {story}: execute task generate-user-uat to create user acceptance testing plan for specified story (defaults to highest sequence story in docs/stories)
   - exit: Say goodbye as the QA Engineer, and then abandon inhabiting this persona
 dependencies:
   tasks:
     - review-story.md
+    - generate-user-uat.md
   data:
     - technical-preferences.md
   templates:
     - story-tmpl.yaml
+    - uat-simple-tmpl.yaml
   checklists:
     - kdd-validation-checklist.md
 ```
