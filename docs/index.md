@@ -69,6 +69,39 @@ Following BMAD methodology, these documents form the foundation:
 - **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
 - **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
 
+### 📚 Knowledge-Driven Development (KDD)
+
+**Knowledge Libraries for systematic development:**
+
+#### [Patterns Library](./patterns/)
+
+Established architectural patterns and best practices:
+
+- **[Frontend Patterns](./patterns/frontend-patterns.md)** - React, Next.js, and UI patterns
+- **[Backend Patterns](./patterns/backend-patterns.md)** - Convex, API, and server-side patterns
+- **[Testing Patterns](./patterns/testing-patterns.md)** - Testing strategies across all layers
+- **[Architecture Patterns](./patterns/architecture-patterns.md)** - System design patterns
+- **[Development Workflow Patterns](./patterns/development-workflow-patterns.md)** - Process and collaboration patterns
+
+#### [Examples Library](./examples/)
+
+Real implementation examples from the project:
+
+- **[Monorepo Setup](./examples/monorepo-setup/)** - Complete Bun/Turborepo configuration example
+- **[Frontend Examples](./examples/frontend/)** - React and Next.js implementation examples
+- **[Backend Examples](./examples/backend/)** - Convex function examples
+- **[Testing Examples](./examples/testing/)** - Comprehensive testing examples
+- **[Configuration Examples](./examples/configuration/)** - Project configuration examples
+
+#### [Lessons Learned](./lessons-learned/)
+
+Cross-story insights and knowledge capture:
+
+- **[Story Lessons](./lessons-learned/stories/)** - Insights from individual story implementations
+- **[Technology Lessons](./lessons-learned/technology/)** - Technology-specific learnings
+- **[Process Lessons](./lessons-learned/process/)** - Development workflow insights
+- **[Anti-Patterns](./lessons-learned/anti-patterns/)** - Approaches to avoid
+
 ### 🚧 Historical Work
 
 **[historical/](./historical/)**
