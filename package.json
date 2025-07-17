@@ -18,6 +18,8 @@
     "test": "turbo test",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean",
+    "convex:dev": "cd apps/convex && npx convex dev",
+    "convex:deploy": "cd apps/convex && npx convex deploy",
     "prepare": "echo 'Skipping husky in CI' && exit 0"
   },
   "devDependencies": {

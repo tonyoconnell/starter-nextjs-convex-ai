@@ -188,3 +188,58 @@ git push origin main  # Triggers automatic deployment
    - Optimize images with Next.js Image
    - Implement proper loading states
    - Cache Convex queries appropriately
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Claude Navigation & Directory Awareness
+
+**CRITICAL**: Claude must maintain directory context awareness to prevent navigation errors.
+
+### Navigation Best Practices
+
+1. **Always verify current directory before file operations:**
+   ```bash
+   pwd  # Check current working directory
+   ```
+
+2. **Use absolute paths when referencing project files:**
+   ```bash
+   # Good
+   /Users/.../starter-nextjs-convex-ai/.bmad-core/
+   
+   # Avoid relative paths that lose context
+   ../../../.bmad-core/
+   ```
+
+3. **Explicitly navigate when changing directories:**
+   ```bash
+   cd /Users/.../starter-nextjs-convex-ai  # Return to project root
+   ```
+
+4. **When using LS tool, pay attention to the path context shown in output**
+
+5. **For hidden directories (starting with .), use explicit listing:**
+   ```bash
+   ls -la | grep "^\."  # List hidden files/directories
+   ```
+
+### Common Directory Locations
+
+- **Project Root**: `/Users/.../starter-nextjs-convex-ai/`
+- **Web App**: `apps/web/`
+- **Convex Backend**: `apps/convex/`
+- **Documentation**: `docs/`
+- **Agent Configs**: `.bmad-core/` (if exists)
+- **Claude Config**: `.claude/` (if exists)
+
+### Troubleshooting Navigation Issues
+
+If you get "file not found" errors:
+1. Run `pwd` to check current location
+2. Navigate to project root: `cd /Users/.../starter-nextjs-convex-ai`
+3. Use absolute paths for subsequent operations
+4. Verify directory exists before accessing
