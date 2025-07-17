@@ -1,0 +1,7 @@
+{
+  "functions": ".",
+  "generateCommonJSWrapper": false,
+  "node": {
+    "18": true
+  }
+}
