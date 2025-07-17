@@ -71,6 +71,15 @@ Following BMAD methodology, these documents form the foundation:
 
 ### 📚 Knowledge-Driven Development (KDD)
 
+**Comprehensive guides and systematic knowledge libraries:**
+
+#### [Implementation Guides](./guides/)
+
+Complete implementation and usage guides:
+
+- **[KDD Setup Guide](./guides/kdd-setup-guide.md)** - Complete implementation guide with quick start, real examples, and advanced usage
+- **[KDD YouTube Script](./guides/kdd-youtube-script.md)** - Structured presentation script for sharing KDD methodology
+
 **Knowledge Libraries for systematic development:**
 
 #### [Patterns Library](./patterns/)
