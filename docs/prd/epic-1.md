@@ -54,6 +54,42 @@
 5.  A basic client-side protected component or page is created that is only visible to authenticated users.
 
 ---
+## Story 1.8: Extended Authentication Features
+*As a user, I want comprehensive authentication features including password management, social login, and security controls, so that I have a complete, production-ready authentication experience.*
+
+**Acceptance Criteria:**
+1. Users can change their password through a secure change password form.
+2. Users can reset their password via email when forgotten.
+3. New user accounts require email verification before full activation.
+4. Users can sign in with GitHub OAuth integration.
+5. Users can sign in with Google OAuth integration.
+6. Users can edit their profile information (name, email, avatar).
+7. Users can view and manage their active sessions.
+8. Users have optional two-factor authentication (2FA) for enhanced security.
+9. Users can enable "Remember Me" functionality for persistent sessions.
+10. Account lockout protection prevents brute force attacks.
+11. Users can deactivate or delete their accounts.
+12. All authentication events are logged for security audit.
+
+**Technical Requirements:**
+- Integrate BetterAuth social providers (GitHub, Google)
+- Implement secure password reset flow with time-limited tokens
+- Add email verification system with activation links
+- Create 2FA system with TOTP (Time-based One-Time Password)
+- Implement session management dashboard
+- Add security audit logging
+- Ensure GDPR compliance for account deletion
+- Maintain backward compatibility with existing authentication
+
+**Security Considerations:**
+- All password reset tokens expire within 1 hour
+- Email verification links expire within 24 hours
+- Failed login attempts trigger progressive delays
+- 2FA backup codes for recovery scenarios
+- Secure session storage and rotation
+- Rate limiting on authentication endpoints
+
+---
 ## Story 1.6: Automated CI/CD Pipeline
 *As a developer, I want a CI/CD pipeline in GitHub Actions, so that every push to the main branch is automatically tested and deployed.*
 

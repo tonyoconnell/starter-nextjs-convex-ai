@@ -2,6 +2,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import React from 'react';
 import { ConvexClientProvider } from './providers';
+import { AuthProvider } from '../components/auth/auth-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,7 +20,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ConvexClientProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ConvexClientProvider>
       </body>
     </html>

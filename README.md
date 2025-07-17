@@ -33,6 +33,7 @@ This template provides a foundational solution for developers, architects, and t
 - Git
 - Chrome/Chromium browser (for dev tools integration)
 - Claude Code account (for AI assistance)
+- Convex account (sign up at [convex.dev](https://convex.dev))
 
 ### Installation
 
@@ -49,24 +50,44 @@ cd starter-nextjs-convex-ai
 bun install
 ```
 
-3. Set up environment variables:
+3. Set up Convex Backend:
 
 ```bash
-cp .env.example .env.local
-# Edit .env.local with your configuration
-```
+# Navigate to Convex directory
+cd apps/convex
 
-4. Start the development servers:
-
-```bash
-# Terminal 1: Start Convex backend
+# Initialize Convex (if not already done)
 bunx convex dev
 
-# Terminal 2: Start Next.js with Claude integration
-bun dev:claude
+# This will:
+# - Create a new Convex project or connect to existing
+# - Generate environment variables
+# - Deploy initial schema and functions
+# - Start the development server
 ```
 
-5. Open http://localhost:3000 in your browser
+4. Configure Environment Variables:
+
+```bash
+# Copy Convex URL from terminal output to web app
+cd ../web
+cp .env.local.example .env.local
+
+# Edit .env.local with your Convex URL:
+# NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+```
+
+5. Start the development servers:
+
+```bash
+# Terminal 1: Start Convex backend (if not already running)
+cd apps/convex && bunx convex dev
+
+# Terminal 2: Start Next.js with Claude integration
+cd apps/web && bun dev:claude
+```
+
+6. Open http://localhost:3000 in your browser
 
 ### Quick Commands
 
@@ -97,6 +118,113 @@ bunx convex deploy   # Deploy Convex functions
 bun chrome:debug     # Start Chrome with debugging port
 bun claude:bridge    # Start Claude Dev Bridge for log capture
 ```
+
+## Convex Backend Setup
+
+### Understanding Convex Integration
+
+This project uses Convex as the backend-as-a-service for real-time data, authentication, and serverless functions. The Convex backend is located in `apps/convex/` and provides:
+
+- **Real-time Database**: Reactive queries that update automatically
+- **Authentication**: Secure user management and session handling
+- **Serverless Functions**: Backend logic without server management
+- **Type Safety**: Full TypeScript integration with the frontend
+
+### Initial Convex Setup
+
+1. **Create a Convex Account**: Sign up at [convex.dev](https://convex.dev) if you haven't already.
+
+2. **Initialize Your Convex Project**:
+   ```bash
+   cd apps/convex
+   bunx convex dev
+   ```
+   
+   This will:
+   - Prompt you to create a new project or connect to an existing one
+   - Generate deployment URLs and environment variables
+   - Deploy the initial schema and functions
+   - Start the development server
+
+3. **Configure Environment Variables**:
+   ```bash
+   # Copy the Convex URL from the terminal output
+   cd ../web
+   echo "NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud" > .env.local
+   ```
+
+### Convex Development Workflow
+
+**Schema Changes**: Edit `apps/convex/schema.ts` to define your data structure
+```typescript
+// Example: Adding a new table
+export default defineSchema({
+  users: defineTable({
+    name: v.string(),
+    email: v.string(),
+  }).index("by_email", ["email"]),
+});
+```
+
+**Backend Functions**: Create functions in `apps/convex/` directory
+```typescript
+// Example: Query function
+export const getUsers = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("users").collect();
+  },
+});
+```
+
+**Frontend Integration**: Use Convex hooks in React components
+```typescript
+// Example: Using the query in a component
+import { useQuery } from "convex/react";
+import { api } from "../convex/api";
+
+export function UsersList() {
+  const users = useQuery(api.users.getUsers);
+  return <div>{users?.map(user => <p key={user._id}>{user.name}</p>)}</div>;
+}
+```
+
+### Convex Authentication
+
+The project includes a complete authentication system:
+
+- **User Registration**: Email/password signup with secure hashing
+- **Login/Logout**: Session-based authentication
+- **Protected Routes**: Client-side route protection
+- **User Management**: Profile updates and session management
+
+Test the authentication:
+1. Start the development server
+2. Visit `/register` to create an account
+3. Visit `/login` to sign in
+4. Access `/protected` to see authenticated content
+
+### Convex Deployment
+
+**Development**: `bunx convex dev` - Auto-deploys changes to development environment
+**Production**: `bunx convex deploy` - Deploys to production environment
+
+### Common Issues & Solutions
+
+**"Cannot connect to Convex"**:
+- Ensure `NEXT_PUBLIC_CONVEX_URL` is set in `.env.local`
+- Check that Convex dev server is running
+- Verify your Convex deployment is active
+
+**"Schema validation errors"**:
+- Check your schema definition in `apps/convex/schema.ts`
+- Ensure all required fields are present
+- Use the Convex dashboard to inspect your data
+
+**"Function not found"**:
+- Verify function is exported in the correct file
+- Check that Convex dev server has recompiled
+- Ensure you're importing from the correct API path
 
 ## Project Structure
 
