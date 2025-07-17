@@ -274,6 +274,112 @@ This document outlines established patterns for development processes, tooling, 
 
 ## Deployment Workflow Patterns
 
+### Cloudflare Pages Deployment Pattern
+
+**Context**: Deploying Next.js applications to Cloudflare Pages with CI/CD integration
+**Implementation**:
+
+**Core Configuration Requirements**:
+
+- Build Command: `bun run build && bun run pages:build`
+- Output Directory: `.vercel/output/static`
+- Root Directory: `apps/web`
+- Environment Variables: `HUSKY=0` (disables git hooks in CI)
+- Compatibility Flags: `nodejs_compat` (enables Node.js runtime features)
+
+**Next.js Configuration**:
+
+```javascript
+const nextConfig = {
+  transpilePackages: ['@repo/ui'],
+  eslint: { ignoreDuringBuilds: false },
+  typescript: { ignoreBuildErrors: false },
+  trailingSlash: true,
+  images: { unoptimized: true },
+  output: 'export',
+};
+```
+
+**Package Scripts**:
+
+```json
+{
+  "build": "next build",
+  "pages:build": "npx @cloudflare/next-on-pages",
+  "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=starter-nextjs-convex-ai",
+  "build:pages": "CI=true next build && npx @cloudflare/next-on-pages"
+}
+```
+
+**Critical Anti-Patterns to Avoid**:
+
+- Never use wrangler.toml for Cloudflare Pages projects (causes configuration conflicts)
+- Never skip nodejs_compat compatibility flag (causes runtime errors)
+- Never allow husky scripts to run in CI (causes build failures)
+
+**Example**: See Story 1.3 implementation in `apps/web/` directory
+
+**Rationale**: Enables reliable, fast deployment to global edge network with proper CI integration
+
+### CI Environment Compatibility Pattern
+
+**Context**: Ensuring build scripts work correctly in CI environments
+**Implementation**:
+
+**Environment Detection**:
+
+```json
+{
+  "scripts": {
+    "prepare": "echo 'Skipping husky in CI' && exit 0"
+  }
+}
+```
+
+**Environment Variables for CI**:
+
+- `HUSKY=0` - Disables Husky git hooks
+- `CI=true` - Enables CI-specific behavior in build tools
+
+**CI-Aware Package Scripts**:
+
+- Check for CI environment before running development-only scripts
+- Use exit codes to gracefully skip development setup
+- Provide clear logging for debugging CI issues
+
+**Example**: Root `package.json` with CI-aware prepare script
+
+**Rationale**: Prevents CI failures due to development environment assumptions
+
+### Manual vs Auto-Deployment Workflow
+
+**Context**: Understanding different deployment approaches for testing vs production
+**Implementation**:
+
+**Manual Deployment (Development/Testing)**:
+
+- Uses Wrangler CLI: `wrangler pages deploy`
+- Local build artifacts deployment
+- Full control over deployment timing
+- Good for testing configuration changes
+
+**Auto-Deployment (Production)**:
+
+- Git integration with Cloudflare Pages
+- Automatic deployment on push to main branch
+- CI/CD pipeline handles build process
+- Preview deployments for feature branches
+
+**Configuration Strategy**:
+
+- Set up auto-deployment for main branch (production)
+- Use manual deployment for testing and development
+- Configure preview deployments for all non-production branches
+
+**Example**: Cloudflare Pages Git integration configured for `main` branch production deployment
+
+**Rationale**: Provides flexibility for development while ensuring reliable production deployment
+
 ### Continuous Integration
 
 **Context**: Automated testing and validation
