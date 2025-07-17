@@ -68,6 +68,15 @@ Following BMAD methodology, these documents form the foundation:
 - **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Convex logging strategies under $10/month
 - **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
 - **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
+- **[Authentication Architecture](./technical-guides/authentication-architecture.md)** - Complete authentication system architecture and security patterns
+- **[Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)** - Step-by-step Cloudflare Pages deployment guide
+- **[Cloudflare Pages Troubleshooting](./technical-guides/cloudflare-pages-deployment-troubleshooting.md)** - Systematic troubleshooting for deployment issues
+
+### 🧪 Testing
+
+**[testing/](./testing/)**
+
+- **[UAT Plan 1.5](./testing/uat-plan-1.5.md)** - User Acceptance Tests for Story 1.5: Foundational Authentication
 
 ### 📚 Knowledge-Driven Development (KDD)
 

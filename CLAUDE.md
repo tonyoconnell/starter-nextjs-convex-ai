@@ -195,6 +195,27 @@ NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 
+## File Creation Discovery Protocol
+
+Before creating ANY new files, Claude MUST follow this discovery protocol:
+
+1. **Check Project Navigation**
+   - Read `docs/index.md` first (central documentation navigation)
+   - Check for existing patterns and directory structures
+   - Look for relevant sections that show where new content should go
+
+2. **Check BMAD Methodology**
+   - Look for `.bmad-core/tasks/` directory for task-specific guidance
+   - Check for templates in `.bmad-core/templates/`
+   - Follow established naming conventions (e.g., `uat-plan-{epic}.{story}.md`)
+
+3. **Verify File Placement**
+   - Ensure new files follow existing documentation hierarchy
+   - Update `docs/index.md` when adding new documentation
+   - Use established directory patterns (e.g., `docs/testing/` for UAT files)
+
+This protocol prevents incorrect file placement and maintains project consistency.
+
 ## Claude Navigation & Directory Awareness
 
 **CRITICAL**: Claude must maintain directory context awareness to prevent navigation errors.
