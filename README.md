@@ -152,21 +152,27 @@ This project follows the BMAD (Before, Model, After, Document) methodology:
 
 ### Deployment
 
-The template is configured for zero-config deployment:
+The template is configured for edge deployment on Cloudflare Pages:
 
 ```bash
-# Deploy to Cloudflare Pages
+# Deploy to Cloudflare Pages (automatic on git push)
 git push origin main
+
+# Manual deployment (if needed)
+npx wrangler pages deploy apps/web/.vercel/output/static --project-name=your-project
 
 # Deploy Convex backend
 bunx convex deploy --prod
 ```
+
+📖 **Important**: For first-time deployment setup, see the **[Cloudflare Pages Setup Guide](./docs/technical-guides/cloudflare-pages-setup.md)** for detailed configuration instructions.
 
 ## Documentation
 
 Comprehensive documentation is available in the `/docs` directory:
 
 - **[Getting Started Guide](./docs/index.md)** - Overview and quick start
+- **[Cloudflare Pages Setup](./docs/technical-guides/cloudflare-pages-setup.md)** - Complete deployment setup guide
 - **[Project Brief](./docs/project-brief.md)** - Vision and objectives
 - **[Product Requirements](./docs/prd.md)** - Detailed specifications
 - **[Architecture Guide](./docs/architecture.md)** - Technical decisions

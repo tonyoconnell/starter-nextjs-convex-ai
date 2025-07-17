@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a Next.js template designed for AI-first development using:
+
 - **Next.js** (App Router) with TypeScript
 - **Convex** for backend and real-time features
 - **Tailwind CSS** + **ShadCN UI** for styling
@@ -36,6 +37,12 @@ bun typecheck        # Run TypeScript compiler checks
 bunx convex dev      # Start Convex development server
 bunx convex deploy   # Deploy Convex functions
 
+# Cloudflare Pages Deployment
+cd apps/web
+bun run build:pages  # Build for Cloudflare Pages (includes CI=true flag)
+bun run pages:deploy # Manual deployment via Wrangler CLI
+bun run pages:dev    # Local development with Cloudflare Pages emulation
+
 # Claude Integration
 bun chrome:debug     # Start Chrome with debugging port
 bun claude:bridge    # Start Claude Dev Bridge for log capture
@@ -44,6 +51,7 @@ bun claude:bridge    # Start Claude Dev Bridge for log capture
 ## Architecture & Key Patterns
 
 ### Directory Structure
+
 ```
 /
 ├── apps/web/           # Next.js application
@@ -89,14 +97,18 @@ bun claude:bridge    # Start Claude Dev Bridge for log capture
 ## Development Workflow
 
 ### AI-Assisted Development
+
 This project follows the BMAD (Before, Model, After, Document) method:
+
 1. Capture context before starting tasks
 2. Use Claude for implementation
 3. Verify and test results
 4. Document changes and learnings
 
 ### BMAD Documentation Structure
+
 The project uses sharded documentation for AI agent consumption:
+
 - **[docs/prd/](docs/prd/)** - Sharded Product Requirements (Epic 1-7)
 - **[docs/architecture/](docs/architecture/)** - Sharded Architecture components
 - **[docs/methodology/](docs/methodology/)** - BMAD methodology guides
@@ -104,15 +116,54 @@ The project uses sharded documentation for AI agent consumption:
 For systematic development, reference specific epics and architectural components as needed.
 
 ### Testing Strategy
+
 - Unit tests for utilities and hooks
 - Integration tests for Convex functions
 - E2E tests for critical user flows
 - Claude integration captures test results automatically
 
 ### Deployment
-- Automatic deployment to Cloudflare Pages on push to main
+
+#### Cloudflare Pages Configuration
+
+- **Auto-deployment**: Configured for `main` branch via Git integration
+- **Build Command**: `bun run build && bun run pages:build`
+- **Output Directory**: `.vercel/output/static`
+- **Root Directory**: `apps/web`
+- **Environment Variables**: `HUSKY=0` (required for CI)
+- **Compatibility Flags**: `nodejs_compat` (required for Node.js runtime)
+
+#### Critical Requirements
+
+- **Next.js Config**: Must use `output: 'export'` for static generation
+- **Images**: Must set `images: { unoptimized: true }` for Cloudflare compatibility
+- **No wrangler.toml**: Use only Cloudflare Pages dashboard configuration
+- **CI Compatibility**: Husky scripts must be disabled in CI environment
+
+#### Deployment Commands
+
+```bash
+# Local testing
+cd apps/web && bun run build:pages
+
+# Manual deployment (testing only)
+bun run pages:deploy
+
+# Auto-deployment (production)
+git push origin main  # Triggers automatic deployment
+```
+
+#### Troubleshooting
+
+- See [Deployment Troubleshooting Guide](docs/technical-guides/cloudflare-pages-deployment-troubleshooting.md)
+- Check build logs in Cloudflare Pages dashboard
+- Verify compatibility flags are enabled for both Production and Preview environments
+
+#### Convex Backend
+
 - Convex functions deploy separately via `bunx convex deploy`
-- Environment variables managed through Cloudflare dashboard
+- Independent of Cloudflare Pages deployment
+- Environment variables managed through Convex dashboard
 
 ## Important Conventions
 
