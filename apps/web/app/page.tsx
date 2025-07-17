@@ -5,7 +5,7 @@ export default function HomePage() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
-              Welcome
+              Welcome - Auto Deploy Test
             </h1>
             <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl">
               to the Agentic Starter Template
