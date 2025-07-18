@@ -380,6 +380,134 @@ const nextConfig = {
 
 **Rationale**: Provides flexibility for development while ensuring reliable production deployment
 
+### GitHub Actions + Bun + Turborepo CI/CD Pattern
+
+**Context**: Implementing comprehensive CI/CD pipeline for monorepo with Bun and Turborepo
+**Implementation**:
+
+**Core Pipeline Structure**:
+
+```yaml
+jobs:
+  lint: # ESLint validation
+  test: # Unit tests + Type checking
+  test-e2e: # E2E tests (conditional)
+  build: # Production build + Cloudflare Pages build
+  deploy: # Deploy to Cloudflare Pages (main branch only)
+```
+
+**Key Configuration Elements**:
+
+- **Environment Variables**: `HUSKY=0`, `NODE_ENV=production`
+- **Bun Setup**: `oven-sh/setup-bun@v1` with latest version
+- **Frozen Lockfile**: `bun install --frozen-lockfile` for reproducible builds
+- **Job Dependencies**: Sequential execution with `needs` for proper build order
+
+**Turborepo Integration**:
+
+```json
+{
+  "scripts": {
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "typecheck": "turbo typecheck"
+  }
+}
+```
+
+**Example**: See `.github/workflows/ci.yml` - Complete CI/CD pipeline with all stages
+
+**Rationale**: Provides fast, reliable monorepo builds with proper dependency management and parallel job execution
+
+### Graceful Test Handling Pattern
+
+**Context**: Handling optional test suites that may not exist in early development
+**Implementation**:
+
+**Conditional E2E Test Execution**:
+
+```yaml
+- name: Check if E2E tests exist
+  id: check-e2e
+  run: |
+    if [ -d "tests" ] && [ "$(ls -A tests 2>/dev/null)" ]; then
+      echo "e2e_exists=true" >> $GITHUB_OUTPUT
+    else
+      echo "e2e_exists=false" >> $GITHUB_OUTPUT
+    fi
+
+- name: Install Playwright browsers
+  if: steps.check-e2e.outputs.e2e_exists == 'true'
+  run: bunx playwright install --with-deps
+
+- name: Run E2E tests
+  if: steps.check-e2e.outputs.e2e_exists == 'true'
+  run: bun run test:e2e
+
+- name: Skip E2E tests
+  if: steps.check-e2e.outputs.e2e_exists == 'false'
+  run: echo "No E2E tests found, skipping..."
+```
+
+**Benefits**:
+
+- Pipeline doesn't fail when test suites are not yet implemented
+- Clear logging indicates when tests are skipped vs failed
+- Automatic activation when tests are added to the project
+- Maintains CI reliability during early development phases
+
+**Example**: E2E test job in CI pipeline with directory existence checking
+
+**Rationale**: Enables incremental test suite development without breaking CI pipeline
+
+### ESLint + Next.js + GitHub Actions Compatibility Pattern
+
+**Context**: Resolving ESLint flat config compatibility issues in CI environments
+**Implementation**:
+
+**Root Package Configuration**:
+
+```json
+{
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.37.0",
+    "@typescript-eslint/parser": "^8.37.0"
+  }
+}
+```
+
+**Web App Configuration**:
+
+```json
+{
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^15.4.1"
+  }
+}
+```
+
+**Key Compatibility Requirements**:
+
+- Use ESLint v8.x (not v9.x) for Next.js compatibility
+- Install `@eslint/eslintrc` in web app for legacy config support
+- Use compatible versions of TypeScript ESLint plugins
+- Ensure eslint-config-next supports the ESLint version
+
+**CI Integration**:
+
+```yaml
+- name: Run ESLint
+  run: bun run lint # Uses turbo to run lint across all packages
+```
+
+**Example**: Package.json configurations in root and `apps/web/` directories
+
+**Rationale**: Ensures ESLint works reliably across local development, CI environments, and all monorepo packages
+
 ### Continuous Integration
 
 **Context**: Automated testing and validation
@@ -389,24 +517,25 @@ const nextConfig = {
 - Validate pattern compliance automatically
 - Check documentation updates
 - Require review approvals
+- Use parallel job execution for faster feedback
 
-**Example**: _(Will be populated from actual implementations)_
+**Example**: Complete GitHub Actions pipeline with lint, test, build, and deploy stages
 
-**Rationale**: Ensures quality standards are met before deployment
+**Rationale**: Ensures quality standards are met before deployment with fast feedback loops
 
 ### Deployment Pipeline
 
 **Context**: Automated deployment process
 **Implementation**:
 
-- Deploy on merge to main branch
-- Use staging environments for validation
-- Implement rollback procedures
-- Monitor deployments for issues
+- Deploy on merge to main branch only
+- Use artifact upload/download for build sharing between jobs
+- Implement conditional deployment based on branch and event type
+- Monitor deployments through Cloudflare Pages dashboard
 
-**Example**: _(Will be populated from actual implementations)_
+**Example**: Deploy job with proper dependency management and artifact handling
 
-**Rationale**: Enables rapid, reliable deployments
+**Rationale**: Enables rapid, reliable deployments with proper build artifact management
 
 ## Monitoring & Feedback Patterns
 
