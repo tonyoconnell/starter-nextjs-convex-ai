@@ -17,7 +17,10 @@ Lessons are organized by:
 
 ### [Story-Specific Lessons](stories/)
 
-Insights from individual story implementations, organized by story number.
+Insights from individual story implementations, organized by story number:
+
+- **[Story 1.6 Lessons](./stories/story-1-6-lessons.md)** - CI/CD Pipeline implementation learnings
+- **[Story 1.7 Lessons](./stories/story-1-7-lessons.md)** - Port Management and AI-Development Integration learnings
 
 ### [Technology Lessons](technology/)
 

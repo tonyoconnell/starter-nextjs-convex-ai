@@ -4,8 +4,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { authService, User, AuthState } from '../../lib/auth';
 
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  register: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  register: (
+    name: string,
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -21,11 +28,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshUser = async () => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
-    
+
     try {
       const user = await authService.getCurrentUser();
       const sessionToken = authService.getSessionToken();
-      
+
       setAuthState({
         user,
         sessionToken,
@@ -41,10 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const login = async (email: string, password: string) => {
-    setAuthState(prev => ({ ...prev, isLoading: true }));
-    
     const result = await authService.login(email, password);
-    
+
     if (result.success) {
       setAuthState({
         user: result.user,
@@ -53,17 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       return { success: true };
     } else {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      // Don't change loading state on error to prevent re-renders
       return { success: false, error: result.error };
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    setAuthState(prev => ({ ...prev, isLoading: true }));
-    
     const result = await authService.register(name, email, password);
-    
+
     if (result.success) {
+      setAuthState(prev => ({ ...prev, isLoading: true }));
       // After registration, automatically log in
       const loginResult = await authService.login(email, password);
       if (loginResult.success) {
@@ -77,16 +81,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       return { success: true };
     } else {
-      setAuthState(prev => ({ ...prev, isLoading: false }));
+      // Don't change loading state on error to prevent re-renders
       return { success: false, error: result.error };
     }
   };
 
   const logout = async () => {
     setAuthState(prev => ({ ...prev, isLoading: true }));
-    
+
     await authService.logout();
-    
+
     setAuthState({
       user: null,
       sessionToken: null,
@@ -106,11 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextType {
