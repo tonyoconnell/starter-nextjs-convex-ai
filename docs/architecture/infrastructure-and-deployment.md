@@ -91,9 +91,63 @@ const nextConfig = {
 
 ## Deployment Workflows
 
-### Auto-Deployment Workflow (Recommended)
+### CI/CD Pipeline Architecture
 
-**Trigger**: Push to `main` branch
+**Platform**: GitHub Actions + Cloudflare Pages integration
+**Workflow**: Complete automated pipeline from code commit to production deployment
+
+**Pipeline Stages**:
+
+1. **Lint Stage**: ESLint validation across monorepo packages
+2. **Test Stage**: Unit tests and TypeScript type checking
+3. **E2E Stage**: End-to-end tests (conditional execution)
+4. **Build Stage**: Production build + Cloudflare Pages static generation
+5. **Deploy Stage**: Automated deployment to Cloudflare Pages (main branch only)
+
+**Key Features**:
+
+- **Job Orchestration**: Proper dependency management with `needs` keyword
+- **Artifact Management**: Build artifacts shared between jobs
+- **Conditional Execution**: Graceful handling of optional test suites
+- **Environment Compatibility**: CI-specific configuration for reliable builds
+- **Monorepo Support**: Turborepo integration for efficient task execution
+
+### Auto-Deployment Workflow (CI/CD)
+
+**Trigger**: Push to `main` branch via GitHub Actions pipeline
+**Process**:
+
+1. **Code Quality Validation**: Lint and test stages run in parallel
+2. **E2E Validation**: Conditional E2E tests based on test suite availability
+3. **Build Process**: Production build with artifact generation
+4. **Artifact Management**: Build outputs uploaded for deployment job
+5. **Automated Deployment**: Cloudflare Pages deployment with artifact download
+6. **Global Distribution**: Automatic cache invalidation and CDN distribution
+
+**CI/CD Configuration**:
+
+```yaml
+# GitHub Actions Pipeline Structure
+jobs:
+  lint: # ESLint validation
+  test: # Unit tests + TypeScript
+  test-e2e: # E2E tests (conditional)
+  build: # Production build + artifacts
+  deploy: # Cloudflare Pages deployment
+```
+
+**Deployment Configuration**:
+
+- Production Branch: `main`
+- Preview Branches: All non-production branches
+- Build Command: `bun run build && bun run pages:build`
+- Output Directory: `.vercel/output/static`
+- Root Directory: `apps/web`
+- Environment Variables: `HUSKY=0`, `NODE_ENV=production`
+
+### Legacy Auto-Deployment Workflow (Git Integration)
+
+**Trigger**: Push to `main` branch via Cloudflare Git integration
 **Process**:
 
 1. GitHub webhook triggers Cloudflare Pages build
@@ -103,13 +157,7 @@ const nextConfig = {
 5. Deploy to production URL
 6. Cache invalidation and global distribution
 
-**Configuration**:
-
-- Production Branch: `main`
-- Preview Branches: All non-production branches
-- Build Command: `bun run build && bun run pages:build`
-- Output Directory: `.vercel/output/static`
-- Root Directory: `apps/web`
+**Note**: This approach is being phased out in favor of GitHub Actions CI/CD pipeline for better control and artifact management.
 
 ### Manual Deployment Workflow (Development/Testing)
 

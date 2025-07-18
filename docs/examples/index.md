@@ -20,6 +20,10 @@ Convex function examples showing data operations, authentication, and API patter
 
 Comprehensive testing examples across unit, integration, and end-to-end testing.
 
+### [CI/CD Deployment Examples](cicd-deployment/)
+
+Complete CI/CD and deployment examples demonstrating automated pipeline implementation.
+
 ### [Configuration Examples](configuration/)
 
 Examples of project configuration, environment setup, and tooling configuration.

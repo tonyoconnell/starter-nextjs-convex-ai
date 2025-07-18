@@ -109,6 +109,7 @@ Real implementation examples from the project:
 - **[Frontend Examples](./examples/frontend/)** - React and Next.js implementation examples
 - **[Backend Examples](./examples/backend/)** - Convex function examples
 - **[Testing Examples](./examples/testing/)** - Comprehensive testing examples
+- **[CI/CD Deployment Examples](./examples/cicd-deployment/)** - Complete CI/CD pipeline and deployment examples
 - **[Configuration Examples](./examples/configuration/)** - Project configuration examples
 
 #### [Lessons Learned](./lessons-learned/)
@@ -116,9 +117,16 @@ Real implementation examples from the project:
 Cross-story insights and knowledge capture:
 
 - **[Story Lessons](./lessons-learned/stories/)** - Insights from individual story implementations
+  - **[Story 1.6 Lessons](./lessons-learned/stories/story-1-6-lessons.md)** - CI/CD Pipeline implementation learnings
 - **[Technology Lessons](./lessons-learned/technology/)** - Technology-specific learnings
 - **[Process Lessons](./lessons-learned/process/)** - Development workflow insights
 - **[Anti-Patterns](./lessons-learned/anti-patterns/)** - Approaches to avoid
+
+#### [Peer Reviews](./peer-reviews/)
+
+Architectural discussions and external feedback:
+
+- **[Convex Structure Analysis](./peer-reviews/convex-structure-analysis.md)** - Review of monorepo structure vs simplified approach
 
 ### 🚧 Historical Work
 
