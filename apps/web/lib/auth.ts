@@ -44,7 +44,22 @@ export class AuthService {
       });
       return { success: true, user: result };
     } catch (error: any) {
-      return { success: false, error: error.message };
+      // Extract the actual error message from Convex error format
+      let errorMessage = 'Registration failed';
+      if (error.message) {
+        // Check if it's a Convex formatted error
+        if (error.message.includes('User with this email already exists')) {
+          errorMessage =
+            'An account with this email already exists. Please sign in instead.';
+        } else if (error.message.includes('Uncaught Error:')) {
+          // Extract the error message after "Uncaught Error:"
+          const match = error.message.match(/Uncaught Error:\s*(.+?)(?:\n|$)/);
+          errorMessage = match ? match[1].trim() : error.message;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      return { success: false, error: errorMessage };
     }
   }
 
@@ -54,17 +69,34 @@ export class AuthService {
         email,
         password,
       });
-      
+
       this.sessionToken = result.sessionToken;
-      
+
       // Store session token
       if (typeof window !== 'undefined') {
         localStorage.setItem('auth_session_token', result.sessionToken);
       }
-      
-      return { success: true, user: result.user, sessionToken: result.sessionToken };
+
+      return {
+        success: true,
+        user: result.user,
+        sessionToken: result.sessionToken,
+      };
     } catch (error: any) {
-      return { success: false, error: error.message };
+      // Extract the actual error message from Convex error format
+      let errorMessage = 'Login failed';
+      if (error.message) {
+        if (error.message.includes('Invalid email or password')) {
+          errorMessage =
+            'Invalid email or password. Please check your credentials.';
+        } else if (error.message.includes('Uncaught Error:')) {
+          const match = error.message.match(/Uncaught Error:\s*(.+?)(?:\n|$)/);
+          errorMessage = match ? match[1].trim() : error.message;
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      return { success: false, error: errorMessage };
     }
   }
 
@@ -75,14 +107,14 @@ export class AuthService {
           sessionToken: this.sessionToken,
         });
       }
-      
+
       this.sessionToken = null;
-      
+
       // Remove session token
       if (typeof window !== 'undefined') {
         localStorage.removeItem('auth_session_token');
       }
-      
+
       return { success: true };
     } catch (error: any) {
       return { success: false, error: error.message };

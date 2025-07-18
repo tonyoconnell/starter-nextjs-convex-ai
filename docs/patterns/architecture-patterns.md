@@ -93,6 +93,58 @@ This document outlines established patterns for system design, project structure
 
 **Rationale**: Enables secure, flexible deployment across environments
 
+### Port Management Architecture
+
+**Context**: Managing development environment port allocation for multi-process workflows
+**Implementation**:
+
+**Core Strategy**:
+
+- **Human Development Ports**: Standard defaults (3000, 6006, 9222)
+- **AI Development Ports**: Offset by +100 (3100, 6106, 9322)
+- **Service Classification**: Local vs hosted service management
+- **Port Range Allocation**: Predictable ranges for future expansion
+
+**Port Allocation Table**:
+
+```
+3000-3099: Human Next.js and related services
+3100-3199: AI Next.js and related services
+4000-4099: Human testing tools
+4100-4199: AI testing tools
+6000-6099: Human development tools (Storybook, etc.)
+6100-6199: AI development tools
+9200-9299: Human debugging tools
+9300-9399: AI debugging tools
+```
+
+**Service Classification System**:
+
+- **Local Services**: Require port management (Next.js, Storybook, Chrome Debug)
+- **Hosted Services**: No port management needed (Convex serverless, Cloudflare Pages)
+- **Dynamic Services**: Auto-allocation with range management (Playwright, test runners)
+
+**Environment Variable Configuration**:
+
+```bash
+# Human development
+PORT=3000
+STORYBOOK_PORT=6006
+CHROME_DEBUG_PORT=9222
+
+# AI development
+PORT=3100
+STORYBOOK_PORT=6106
+CHROME_DEBUG_PORT=9322
+
+# Shared services
+NEXT_PUBLIC_CONVEX_URL=https://your-convex-deployment.convex.cloud
+```
+
+**Example**: [Port Management Configuration Examples](../examples/configuration/port-management-examples.md)
+
+**Rationale**: Enables conflict-free simultaneous human and AI development workflows, essential for AI-first development environments
+
 ### Feature Flags
 
 **Context**: Controlling feature availability

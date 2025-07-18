@@ -15,6 +15,7 @@ This is a Next.js template for building AI-first applications using the BMAD (Br
 ## Quick Links
 
 - **[Getting Started](../README.md)** - Setup and installation
+- **[Development Guide](./development-guide.md)** - Port management and development workflow
 - **[CLAUDE.md](../CLAUDE.md)** - Claude Code specific instructions
 - **[BMAD Method](./methodology/bmad-context-engineering.md)** - Development methodology
 

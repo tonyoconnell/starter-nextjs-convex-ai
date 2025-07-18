@@ -26,7 +26,9 @@ Complete CI/CD and deployment examples demonstrating automated pipeline implemen
 
 ### [Configuration Examples](configuration/)
 
-Examples of project configuration, environment setup, and tooling configuration.
+Examples of project configuration, environment setup, and tooling configuration:
+
+- **[Port Management Examples](./configuration/port-management-examples.md)** - Complete port management configuration examples and scripts
 
 ## Using Reference Examples
 
