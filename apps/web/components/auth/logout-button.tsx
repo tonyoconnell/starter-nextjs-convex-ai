@@ -12,7 +12,7 @@ export function LogoutButton() {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Logout error:', error); // eslint-disable-line no-console
     } finally {
       setIsLoggingOut(false);
     }
