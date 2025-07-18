@@ -63,6 +63,7 @@ If the file doesn't exist, you need to implement the workflow first (see Story 1
 - ✅ Proper job dependencies (build waits for lint/test)
 - ✅ Conditional deployment (main branch only)
 - ✅ Environment variable support
+- ✅ GitHub permissions for deployments (deployments:write)
 
 ---
 
@@ -352,6 +353,22 @@ The pipeline uses these environment variables:
 2. Check the secret name is exactly: `NEXT_PUBLIC_CONVEX_URL`
 3. Verify the workflow file includes the environment variable in the build job
 
+### Deploy Fails: Resource Not Accessible by Integration
+
+**Error**: `RequestError [HttpError]: Resource not accessible by integration`
+
+**Solution**:
+The GitHub token lacks deployment permissions. Add permissions to your workflow:
+
+```yaml
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: read
+```
+
+This must be added at the top level of your `.github/workflows/ci.yml` file after the `on:` section.
+
 ### Deploy Fails: Invalid API Token
 
 **Error**: `authentication failed` or `invalid token`
@@ -509,12 +526,12 @@ For comprehensive testing of your CI/CD pipeline, see:
 
 **Typical pipeline timing**:
 
-- **Lint**: ~10 seconds
-- **Test**: ~12 seconds
-- **E2E Tests**: ~8 seconds (if skipped) / ~60+ seconds (if running)
-- **Build**: ~28 seconds
-- **Deploy**: ~30 seconds
-- **Total**: ~90 seconds for full pipeline
+- **Lint**: ~11 seconds
+- **Test**: ~10 seconds
+- **E2E Tests**: ~9 seconds (if skipped) / ~60+ seconds (if running)
+- **Build**: ~47 seconds
+- **Deploy**: ~29 seconds
+- **Total**: ~1m 36s for full pipeline
 
 **Factors affecting speed**:
 
