@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  deployments: write
+  pull-requests: read
+
 env:
   HUSKY: 0
   NODE_ENV: production
