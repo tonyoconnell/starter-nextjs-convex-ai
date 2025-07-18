@@ -135,11 +135,12 @@ This project uses Convex as the backend-as-a-service for real-time data, authent
 1. **Create a Convex Account**: Sign up at [convex.dev](https://convex.dev) if you haven't already.
 
 2. **Initialize Your Convex Project**:
+
    ```bash
    cd apps/convex
    bunx convex dev
    ```
-   
+
    This will:
    - Prompt you to create a new project or connect to an existing one
    - Generate deployment URLs and environment variables
@@ -156,28 +157,31 @@ This project uses Convex as the backend-as-a-service for real-time data, authent
 ### Convex Development Workflow
 
 **Schema Changes**: Edit `apps/convex/schema.ts` to define your data structure
+
 ```typescript
 // Example: Adding a new table
 export default defineSchema({
   users: defineTable({
     name: v.string(),
     email: v.string(),
-  }).index("by_email", ["email"]),
+  }).index('by_email', ['email']),
 });
 ```
 
 **Backend Functions**: Create functions in `apps/convex/` directory
+
 ```typescript
 // Example: Query function
 export const getUsers = query({
   args: {},
-  handler: async (ctx) => {
-    return await ctx.db.query("users").collect();
+  handler: async ctx => {
+    return await ctx.db.query('users').collect();
   },
 });
 ```
 
 **Frontend Integration**: Use Convex hooks in React components
+
 ```typescript
 // Example: Using the query in a component
 import { useQuery } from "convex/react";
@@ -199,6 +203,7 @@ The project includes a complete authentication system:
 - **User Management**: Profile updates and session management
 
 Test the authentication:
+
 1. Start the development server
 2. Visit `/register` to create an account
 3. Visit `/login` to sign in
@@ -212,16 +217,19 @@ Test the authentication:
 ### Common Issues & Solutions
 
 **"Cannot connect to Convex"**:
+
 - Ensure `NEXT_PUBLIC_CONVEX_URL` is set in `.env.local`
 - Check that Convex dev server is running
 - Verify your Convex deployment is active
 
 **"Schema validation errors"**:
+
 - Check your schema definition in `apps/convex/schema.ts`
 - Ensure all required fields are present
 - Use the Convex dashboard to inspect your data
 
 **"Function not found"**:
+
 - Verify function is exported in the correct file
 - Check that Convex dev server has recompiled
 - Ensure you're importing from the correct API path
@@ -365,3 +373,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 _Built with AI assistance for the AI-assisted development era._
+
+# Testing CI/CD Pipeline
