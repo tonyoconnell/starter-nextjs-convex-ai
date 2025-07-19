@@ -1,7 +1,24 @@
 {
   "extends": ["next/core-web-vitals"],
+  "env": {
+    "jest": true,
+    "node": true
+  },
   "rules": {
     "no-console": "warn",
     "prefer-const": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/__tests__/**/*", "**/*.test.*"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-require-imports": "off",
+        "no-console": "off"
+      }
+    }
+  ]
 }

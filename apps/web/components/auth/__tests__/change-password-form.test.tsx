@@ -1,5 +1,3 @@
-import { test, expect } from 'bun:test';
-
 // Simple test for password change form structure
 test('Password change form has correct structure', () => {
   // Mock DOM elements
