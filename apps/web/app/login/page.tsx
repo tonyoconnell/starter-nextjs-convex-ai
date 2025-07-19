@@ -2,12 +2,14 @@
 
 import { useAuth } from '../../components/auth/auth-provider';
 import { LoginForm } from '../../components/auth/login-form';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
 
-export default function LoginPage() {
+function LoginContent() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -46,8 +48,44 @@ export default function LoginPage() {
             </a>
           </p>
         </div>
+
+        {message && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              {message}
+            </div>
+          </div>
+        )}
+
         <LoginForm />
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+          <div className="text-lg text-gray-600 dark:text-gray-400">
+            Loading...
+          </div>
+        </div>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

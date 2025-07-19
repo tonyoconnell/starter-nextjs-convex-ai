@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useAuth } from './auth-provider';
+import { GitHubOAuthButton } from './github-oauth-button';
+import { GoogleOAuthButton } from './google-oauth-button';
 
 export function RegisterForm() {
   const [name, setName] = useState('');
@@ -78,7 +80,7 @@ export function RegisterForm() {
           value={name}
           onChange={e => setName(e.target.value)}
           disabled={isSubmitting}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-gray-900 placeholder-gray-500"
           placeholder="Enter your full name"
         />
       </div>
@@ -96,7 +98,7 @@ export function RegisterForm() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           disabled={isSubmitting}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-gray-900 placeholder-gray-500"
           placeholder="Enter your email"
         />
       </div>
@@ -114,7 +116,7 @@ export function RegisterForm() {
           value={password}
           onChange={e => setPassword(e.target.value)}
           disabled={isSubmitting}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-gray-900 placeholder-gray-500"
           placeholder="Enter your password (min 6 characters)"
         />
       </div>
@@ -132,7 +134,7 @@ export function RegisterForm() {
           value={confirmPassword}
           onChange={e => setConfirmPassword(e.target.value)}
           disabled={isSubmitting}
-          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-gray-900 placeholder-gray-500"
           placeholder="Confirm your password"
         />
       </div>
@@ -150,6 +152,24 @@ export function RegisterForm() {
       >
         {isSubmitting ? 'Creating account...' : 'Sign Up'}
       </button>
+
+      <div className="mt-6">
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          <GitHubOAuthButton />
+          <GoogleOAuthButton />
+        </div>
+      </div>
     </form>
   );
 }
