@@ -25,7 +25,7 @@
     "convex:deploy": "cd apps/convex && npx convex deploy",
     "ci:status": "./scripts/ci-status.sh",
     "ci:watch": "./scripts/ci-monitor.sh",
-    "ci:logs": "gh run view --log",
+    "ci:logs": "gh run list --branch $(git branch --show-current) --limit 1 --json databaseId --jq '.[0].databaseId' | xargs gh run view --log-failed",
     "push": "./scripts/smart-push.sh",
     "push:no-ci": "./scripts/smart-push.sh false",
     "prepare": "echo 'Skipping husky in CI' && exit 0"
