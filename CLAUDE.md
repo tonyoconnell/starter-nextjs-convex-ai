@@ -33,6 +33,13 @@ bun lint             # Run ESLint
 bun format           # Run Prettier
 bun typecheck        # Run TypeScript compiler checks
 
+# CI Monitoring & Smart Push
+bun run ci:status    # Check CI status for current branch
+bun run ci:watch     # Monitor CI runs with real-time updates
+bun run ci:logs      # View detailed CI logs
+bun run push         # Smart push with pre-validation and CI monitoring
+bun run push:no-ci   # Smart push without CI monitoring
+
 # Convex Backend
 bunx convex dev      # Start Convex development server
 bunx convex deploy   # Deploy Convex functions
@@ -190,10 +197,11 @@ git push origin main  # Triggers automatic deployment
    - Cache Convex queries appropriately
 
 # important-instruction-reminders
+
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## File Creation Discovery Protocol
 
@@ -223,20 +231,23 @@ This protocol prevents incorrect file placement and maintains project consistenc
 ### Navigation Best Practices
 
 1. **Always verify current directory before file operations:**
+
    ```bash
    pwd  # Check current working directory
    ```
 
 2. **Use absolute paths when referencing project files:**
+
    ```bash
    # Good
    /Users/.../starter-nextjs-convex-ai/.bmad-core/
-   
+
    # Avoid relative paths that lose context
    ../../../.bmad-core/
    ```
 
 3. **Explicitly navigate when changing directories:**
+
    ```bash
    cd /Users/.../starter-nextjs-convex-ai  # Return to project root
    ```
@@ -260,6 +271,7 @@ This protocol prevents incorrect file placement and maintains project consistenc
 ### Troubleshooting Navigation Issues
 
 If you get "file not found" errors:
+
 1. Run `pwd` to check current location
 2. Navigate to project root: `cd /Users/.../starter-nextjs-convex-ai`
 3. Use absolute paths for subsequent operations
