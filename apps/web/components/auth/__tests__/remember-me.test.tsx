@@ -1,51 +1,14 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@/lib/test-utils';
 import { LoginForm } from '../login-form';
-import { AuthProvider } from '../auth-provider';
-import { jest } from '@jest/globals';
 
 // Mock the auth service
 const mockLogin = jest.fn();
-const mockAuthService = {
-  login: mockLogin,
-};
-
-jest.mock('../../../lib/auth', () => ({
-  authService: mockAuthService,
-}));
 
 // Mock useRouter
 const mockPush = jest.fn();
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: mockPush,
-  }),
-}));
 
-const MockAuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const mockContextValue = {
-    user: null,
-    sessionToken: null,
-    isLoading: false,
-    login: mockLogin,
-    register: jest.fn(),
-    logout: jest.fn(),
-    refreshUser: jest.fn(),
-    changePassword: jest.fn(),
-    requestPasswordReset: jest.fn(),
-    resetPassword: jest.fn(),
-    getGitHubOAuthUrl: jest.fn(),
-    githubOAuthLogin: jest.fn(),
-    getGoogleOAuthUrl: jest.fn(),
-    googleOAuthLogin: jest.fn(),
-  };
-
-  return (
-    <div data-testid="mock-auth-provider">
-      {/* Mock the context value */}
-      {children}
-    </div>
-  );
-};
+// Tests now use the @/lib/test-utils render function with authState option
 
 describe('Remember Me Functionality', () => {
   beforeEach(() => {
@@ -57,11 +20,12 @@ describe('Remember Me Functionality', () => {
   });
 
   it('renders remember me checkbox', () => {
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     const rememberMeCheckbox = screen.getByRole('checkbox', {
       name: /remember me/i,
@@ -71,11 +35,12 @@ describe('Remember Me Functionality', () => {
   });
 
   it('allows toggling remember me checkbox', () => {
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     const rememberMeCheckbox = screen.getByRole('checkbox', {
       name: /remember me/i,
@@ -94,11 +59,12 @@ describe('Remember Me Functionality', () => {
   });
 
   it('passes rememberMe parameter to login function when checked', async () => {
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -125,11 +91,12 @@ describe('Remember Me Functionality', () => {
   });
 
   it('passes rememberMe as false when checkbox is unchecked', async () => {
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);
@@ -152,11 +119,12 @@ describe('Remember Me Functionality', () => {
   });
 
   it('displays remember me duration text', () => {
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     expect(screen.getByText(/remember me for 30 days/i)).toBeInTheDocument();
   });
@@ -165,11 +133,12 @@ describe('Remember Me Functionality', () => {
     // Mock login to be pending
     mockLogin.mockImplementation(() => new Promise(() => {}));
 
-    render(
-      <MockAuthProvider>
-        <LoginForm />
-      </MockAuthProvider>
-    );
+    render(<LoginForm />, {
+      authState: {
+        login: mockLogin,
+        isAuthenticated: false
+      }
+    });
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/password/i);

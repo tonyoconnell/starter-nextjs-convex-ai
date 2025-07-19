@@ -1,4 +1,3 @@
-import { test, expect } from 'bun:test';
 import { MockEmailService } from '../email-service';
 
 test('MockEmailService singleton works correctly', () => {
