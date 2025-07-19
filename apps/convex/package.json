@@ -7,7 +7,7 @@
     "deploy": "npx convex deploy",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage --passWithNoTests"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
