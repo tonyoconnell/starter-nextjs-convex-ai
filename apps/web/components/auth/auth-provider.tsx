@@ -6,7 +6,8 @@ import { authService, User, AuthState } from '../../lib/auth';
 interface AuthContextType extends AuthState {
   login: (
     email: string,
-    password: string
+    password: string,
+    rememberMe?: boolean
   ) => Promise<{ success: boolean; error?: string }>;
   register: (
     name: string,
@@ -15,6 +16,37 @@ interface AuthContextType extends AuthState {
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  requestPasswordReset: (
+    email: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  resetPassword: (
+    token: string,
+    newPassword: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  getGitHubOAuthUrl: () => Promise<{
+    success: boolean;
+    url?: string;
+    state?: string;
+    error?: string;
+  }>;
+  githubOAuthLogin: (
+    code: string,
+    state?: string
+  ) => Promise<{ success: boolean; error?: string }>;
+  getGoogleOAuthUrl: () => Promise<{
+    success: boolean;
+    url?: string;
+    state?: string;
+    error?: string;
+  }>;
+  googleOAuthLogin: (
+    code: string,
+    state?: string
+  ) => Promise<{ success: boolean; error?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,8 +79,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string) => {
-    const result = await authService.login(email, password);
+  const login = async (
+    email: string,
+    password: string,
+    rememberMe?: boolean
+  ) => {
+    const result = await authService.login(email, password, rememberMe);
 
     if (result.success) {
       setAuthState({
@@ -98,6 +134,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    const result = await authService.changePassword(
+      currentPassword,
+      newPassword
+    );
+    return result;
+  };
+
+  const requestPasswordReset = async (email: string) => {
+    const result = await authService.requestPasswordReset(email);
+    return result;
+  };
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    const result = await authService.resetPassword(token, newPassword);
+    return result;
+  };
+
+  const getGitHubOAuthUrl = async () => {
+    const result = await authService.getGitHubOAuthUrl();
+    return result;
+  };
+
+  const githubOAuthLogin = async (code: string, state?: string) => {
+    const result = await authService.githubOAuthLogin(code, state);
+
+    if (result.success) {
+      setAuthState({
+        user: result.user,
+        sessionToken: result.sessionToken,
+        isLoading: false,
+      });
+      return { success: true };
+    } else {
+      return { success: false, error: result.error };
+    }
+  };
+
+  const getGoogleOAuthUrl = async () => {
+    const result = await authService.getGoogleOAuthUrl();
+    return result;
+  };
+
+  const googleOAuthLogin = async (code: string, state?: string) => {
+    const result = await authService.googleOAuthLogin(code, state);
+
+    if (result.success) {
+      setAuthState({
+        user: result.user,
+        sessionToken: result.sessionToken,
+        isLoading: false,
+      });
+      return { success: true };
+    } else {
+      return { success: false, error: result.error };
+    }
+  };
+
   useEffect(() => {
     refreshUser();
   }, []);
@@ -108,6 +205,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     register,
     logout,
     refreshUser,
+    changePassword,
+    requestPasswordReset,
+    resetPassword,
+    getGitHubOAuthUrl,
+    githubOAuthLogin,
+    getGoogleOAuthUrl,
+    googleOAuthLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

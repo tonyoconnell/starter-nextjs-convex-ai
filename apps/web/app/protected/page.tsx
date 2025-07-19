@@ -93,7 +93,33 @@ export default function ProtectedPage() {
 
           <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-6">
             <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
-              Authentication Features
+              Account Management
+            </h2>
+            <div className="space-y-4">
+              <div className="bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                      Password Security
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Update your password to keep your account secure
+                    </p>
+                  </div>
+                  <a
+                    href="/change-password"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  >
+                    Change Password
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-gray-200 dark:border-gray-600 pt-6">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
+              Authentication Status
             </h2>
             <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md p-4">
               <div className="flex">
