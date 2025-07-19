@@ -30,6 +30,16 @@ export default [
         sessionStorage: 'readonly',
         localStorage: 'readonly',
         crypto: 'readonly',
+        // Jest globals
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
     plugins: {
@@ -59,6 +69,31 @@ export default [
     files: ['**/*.js'],
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
+    },
+  },
+  // Config files and test setup
+  {
+    files: [
+      '**/jest.config.js',
+      '**/jest.setup.js',
+      '**/playwright.config.ts',
+      '**/test-config/**/*',
+      '**/*.config.js',
+      '**/*.config.ts',
+    ],
+    rules: {
+      'no-restricted-syntax': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-console': 'off',
+    },
+  },
+  // Test files
+  {
+    files: ['**/__tests__/**/*', '**/*.test.*', '**/*.spec.*'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off',
+      'no-console': 'off',
     },
   },
   {
