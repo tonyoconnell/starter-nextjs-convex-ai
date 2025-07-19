@@ -97,6 +97,7 @@ export class MockEmailService implements EmailService {
   }
 
   private logEmailToConsole(email: MockEmail): void {
+    /* eslint-disable no-console */
     console.log('📧 MOCK EMAIL SENT');
     console.log('==================');
     console.log(`To: ${email.to}`);
@@ -107,6 +108,7 @@ export class MockEmailService implements EmailService {
     console.log('Body:');
     console.log(email.body);
     console.log('==================');
+    /* eslint-enable no-console */
   }
 
   // Development methods for viewing mock emails
@@ -132,6 +134,7 @@ export class MockEmailService implements EmailService {
 
   clearAllEmails(): void {
     this.emails = [];
+    // eslint-disable-next-line no-console
     console.log('🗑️ All mock emails cleared');
   }
 }

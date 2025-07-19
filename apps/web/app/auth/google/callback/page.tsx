@@ -39,12 +39,6 @@ export default function GoogleCallbackPage() {
       if (state && typeof window !== 'undefined') {
         const storedState = sessionStorage.getItem('google_oauth_state');
         if (storedState && storedState !== state) {
-          console.warn(
-            'State parameter mismatch. Stored:',
-            storedState,
-            'Received:',
-            state
-          );
           setError('Invalid state parameter - possible CSRF attack');
           setIsProcessing(false);
           return;
@@ -54,22 +48,19 @@ export default function GoogleCallbackPage() {
       }
 
       try {
-        console.log('Attempting Google OAuth login with code:', code);
         const result = await googleOAuthLogin(code, state || undefined);
-        console.log('Google OAuth result:', result);
 
         if (result.success) {
-          console.log('Google OAuth success, redirecting to /protected');
           // Redirect to protected page on success
           router.push('/protected');
         } else {
-          console.error('Google OAuth failed:', result.error);
           setError(result.error || 'Google login failed');
           setIsProcessing(false);
         }
-      } catch (err: any) {
-        console.error('Google OAuth error:', err);
-        setError(err.message || 'An unexpected error occurred');
+      } catch (err: unknown) {
+        setError(
+          err instanceof Error ? err.message : 'An unexpected error occurred'
+        );
         setIsProcessing(false);
       }
     };

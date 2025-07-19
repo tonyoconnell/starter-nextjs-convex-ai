@@ -39,12 +39,6 @@ export default function GitHubCallbackPage() {
       if (state && typeof window !== 'undefined') {
         const storedState = sessionStorage.getItem('github_oauth_state');
         if (storedState && storedState !== state) {
-          console.warn(
-            'State parameter mismatch. Stored:',
-            storedState,
-            'Received:',
-            state
-          );
           setError('Invalid state parameter - possible CSRF attack');
           setIsProcessing(false);
           return;
@@ -54,22 +48,19 @@ export default function GitHubCallbackPage() {
       }
 
       try {
-        console.log('Attempting GitHub OAuth login with code:', code);
         const result = await githubOAuthLogin(code, state || undefined);
-        console.log('GitHub OAuth result:', result);
 
         if (result.success) {
-          console.log('GitHub OAuth success, redirecting to /protected');
           // Redirect to protected page on success
           router.push('/protected');
         } else {
-          console.error('GitHub OAuth failed:', result.error);
           setError(result.error || 'GitHub login failed');
           setIsProcessing(false);
         }
-      } catch (err: any) {
-        console.error('GitHub OAuth error:', err);
-        setError(err.message || 'An unexpected error occurred');
+      } catch (err: unknown) {
+        setError(
+          err instanceof Error ? err.message : 'An unexpected error occurred'
+        );
         setIsProcessing(false);
       }
     };
