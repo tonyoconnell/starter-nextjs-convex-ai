@@ -118,3 +118,44 @@ _As a user, I want comprehensive authentication features including password mana
 
 - All password reset tokens expire within 1 hour
 - Email verification links expire within 24 hours
+
+---
+
+## Story 1.9: Comprehensive Testing & Coverage
+
+_As a developer, I want comprehensive test coverage (90-95%) across the entire application, so that I can confidently deploy changes knowing the system is thoroughly validated and regression-free._
+
+**Acceptance Criteria:**
+
+1. Unit tests are implemented for all React components with meaningful test scenarios.
+2. Unit tests cover all utility functions, helpers, and custom hooks.
+3. Integration tests validate all Convex queries, mutations, and backend functions.
+4. End-to-end tests cover critical user journeys (registration, login, logout, protected routes).
+5. Authentication flow tests validate all auth scenarios (email/password, OAuth, password reset).
+6. Test coverage reports show 90-95% coverage across the codebase.
+7. All tests run successfully in the CI/CD pipeline and block deployment on failures.
+8. Test configuration supports both local development and CI environments.
+
+**Technical Requirements:**
+
+- Jest for unit and integration testing
+- React Testing Library for component testing
+- Playwright for end-to-end testing
+- Coverage reporting with threshold enforcement
+- Mock strategies for Convex functions in unit tests
+- Test data factories for consistent test scenarios
+
+**Coverage Targets:**
+
+- Frontend Components: 95% line coverage
+- Utility Functions: 95% line coverage
+- Convex Functions: 90% line coverage
+- Authentication Flows: 95% line coverage
+- Critical User Journeys: 100% E2E coverage
+
+**Quality Gates:**
+
+- All new code must include corresponding tests
+- Coverage thresholds enforced in CI/CD pipeline
+- Tests must be maintainable and fast-executing
+- Flaky tests are not acceptable and must be fixed or removed
