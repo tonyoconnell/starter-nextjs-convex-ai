@@ -1,6 +1,24 @@
 #!/bin/bash
 
-# smart-push.sh - Pre-validated push with CI monitoring
+# smart-push.sh - Intelligent git push with pre-flight checks and CI monitoring
+#
+# What this script does:
+# 1. Checks if you have uncommitted changes (stops if you do)
+# 2. Checks if you have commits ready to push (exits if nothing to push)
+# 3. Runs local validation BEFORE pushing:
+#    - TypeScript type checking
+#    - ESLint code quality checks  
+#    - Production build test
+# 4. Only pushes to remote if all local validation passes
+# 5. Monitors the CI build and reports success/failure
+#
+# This prevents pushing broken code that would fail in CI, saving time
+# and keeping the main branch clean.
+#
+# Usage:
+#   ./scripts/smart-push.sh           # Full validation + CI monitoring
+#   ./scripts/smart-push.sh false     # Skip CI monitoring
+#   ./scripts/smart-push.sh true 600  # Custom timeout (10 minutes)
 
 set -e
 
