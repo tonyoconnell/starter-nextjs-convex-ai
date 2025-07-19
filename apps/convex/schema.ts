@@ -22,6 +22,7 @@ export default defineSchema({
     userId: v.id('users'),
     sessionToken: v.string(),
     expires: v.number(),
+    rememberMe: v.optional(v.boolean()),
   })
     .index('by_session_token', ['sessionToken'])
     .index('by_user_id', ['userId']),
@@ -40,5 +41,14 @@ export default defineSchema({
     id_token: v.optional(v.string()),
   })
     .index('by_provider_account', ['provider', 'providerAccountId'])
+    .index('by_user_id', ['userId']),
+
+  // Password reset tokens
+  password_reset_tokens: defineTable({
+    userId: v.id('users'),
+    token: v.string(),
+    expires: v.number(),
+  })
+    .index('by_token', ['token'])
     .index('by_user_id', ['userId']),
 });
