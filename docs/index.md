@@ -85,10 +85,19 @@ Following BMAD methodology, these documents form the foundation:
 
 #### [Implementation Guides](./guides/)
 
-Complete implementation and usage guides:
+Complete implementation and usage guides for AI agents and developers:
 
-- **[KDD Setup Guide](./guides/kdd-setup-guide.md)** - Complete implementation guide with quick start, real examples, and advanced usage
-- **[KDD YouTube Script](./guides/kdd-youtube-script.md)** - Structured presentation script for sharing KDD methodology
+- **[KDD Implementation Guide](./guides/kdd-implementation-guide.md)** - Complete KDD methodology implementation framework
+- **[KDD Setup Guide](./guides/kdd-setup-guide.md)** - Practical setup guide with quick start and real examples
+- **[Sprint Estimation Implementation Guide](./guides/sprint-estimation-implementation-guide.md)** - BMAD enhancement with sprint planning capabilities
+
+#### [YouTube Briefs](./youtube-briefs/)
+
+Video creation briefs for sharing knowledge and demonstrations:
+
+- **[CI Monitoring Automation Brief](./youtube-briefs/ci-monitoring-automation-brief.md)** - Smart push and CI monitoring system demonstration
+- **[Sprint Estimation Brief](./youtube-briefs/sprint-estimation-brief.md)** - BMAD sprint planning enhancement video guide
+- **[KDD Methodology Brief](./youtube-briefs/kdd-methodology-brief.md)** - Knowledge-Driven Development video presentation guide
 
 **Knowledge Libraries for systematic development:**
 

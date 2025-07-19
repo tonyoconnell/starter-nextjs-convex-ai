@@ -1,30 +1,44 @@
 # Guides Index
 
-This directory contains comprehensive guides for implementing and using various methodologies and systems in this project.
+This directory contains comprehensive implementation guides for AI agents and developers to implement various methodologies and systems in this project.
 
 ## Knowledge-Driven Development (KDD)
 
-### [KDD Setup Guide](./kdd-setup-guide.md)
+### [KDD Implementation Guide](./kdd-implementation-guide.md)
 
 Complete implementation guide for Knowledge-Driven Development methodology:
 
-- Quick 5-minute setup
-- Core concepts and philosophy
-- Detailed implementation steps
-- Real examples from project stories
-- Benefits, ROI, and success metrics
-- Troubleshooting and advanced usage
+- Core philosophy and framework
+- Step-by-step implementation process
+- Knowledge structure setup and organization
+- Story template integration with Documentation Impact Assessment
+- Pattern validation and QA knowledge capture processes
+- Real examples and expected benefits
+- Integration with BMAD methodology and AI development
 
-### [KDD YouTube Script](./kdd-youtube-script.md)
+### [KDD Setup Guide](./kdd-setup-guide.md)
 
-Structured presentation script for sharing KDD methodology:
+Practical setup guide for KDD implementation:
 
-- 15-20 minute video presentation structure
-- Real problem demonstration using Story 1.3
-- Before/after implementation comparison
-- Live implementation walkthrough
-- Measurable results and benefits
-- Production notes and visual elements
+- Quick 5-minute setup process
+- Core concepts and foundational understanding
+- Detailed implementation steps with examples
+- Real project story examples and demonstrations
+- ROI metrics, benefits, and success measurements
+- Troubleshooting common issues and advanced usage
+
+## Sprint Estimation & BMAD Enhancement
+
+### [Sprint Estimation Implementation Guide](./sprint-estimation-implementation-guide.md)
+
+Complete guide for implementing sprint estimation and velocity tracking in BMAD methodology:
+
+- Problem analysis and solution overview
+- Story template enhancement with estimation fields
+- Estimation guidelines and team consistency standards
+- Scrum master agent integration and workflow commands
+- QA section enhancement for velocity data tracking
+- Expected benefits and implementation checklist
 
 ## Additional Resources
 
