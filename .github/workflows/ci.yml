@@ -50,6 +50,8 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run unit tests with coverage
+        env:
+          NODE_ENV: test
         run: |
           cd apps/web && bun run test:ci
           cd ../convex && bun run test:coverage
@@ -63,6 +65,8 @@ jobs:
             apps/convex/coverage
 
       - name: Check coverage thresholds
+        env:
+          NODE_ENV: test
         run: |
           echo "Checking coverage thresholds..."
           cd apps/web && bun run test:coverage || exit 1
