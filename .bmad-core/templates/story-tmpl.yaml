@@ -50,6 +50,45 @@ sections:
     owner: scrum-master
     editors: [scrum-master]
 
+  - id: estimation
+    title: Estimation & Planning
+    instruction: |
+      Provide estimation details for planning and velocity tracking:
+      - Story Points using Fibonacci scale (1,2,3,5,8,13,21)
+      - Estimated complexity assessment 
+      - Time estimate for sprint planning
+      - Risk factors and dependencies
+    elicit: true
+    owner: scrum-master
+    editors: [scrum-master]
+    sections:
+      - id: story-points
+        title: Story Points
+        type: choice
+        choices: [1, 2, 3, 5, 8, 13, 21]
+        instruction: Select story points using Fibonacci scale based on complexity and effort
+        owner: scrum-master
+        editors: [scrum-master]
+      - id: complexity
+        title: Estimated Complexity
+        type: choice
+        choices: [Low, Medium, Medium-High, High, Very High]
+        instruction: Assess implementation complexity based on unknowns and integration requirements
+        owner: scrum-master
+        editors: [scrum-master]
+      - id: time-estimate
+        title: Estimated Time
+        instruction: Provide time estimate for sprint planning (e.g., "2-3 days", "1 week")
+        owner: scrum-master
+        editors: [scrum-master]
+      - id: risk-assessment
+        title: Risk Level
+        type: choice
+        choices: [Low, Medium, High]
+        instruction: Identify risks that could impact delivery timeline
+        owner: scrum-master
+        editors: [scrum-master]
+
   - id: tasks-subtasks
     title: Tasks / Subtasks
     type: bullet-list
@@ -177,5 +216,16 @@ sections:
           - What challenges were encountered and how were they solved?
           - What should future developers know about this approach?
           - What patterns or anti-patterns were discovered?
+        owner: qa-agent
+        editors: [qa-agent]
+      - id: velocity-data
+        title: Velocity Data
+        instruction: |
+          Record actual implementation data for velocity tracking:
+          - Actual time spent vs estimated time
+          - Story point accuracy assessment
+          - Complexity validation (was estimate correct?)
+          - Lessons learned for future estimation
+          - What factors affected delivery speed?
         owner: qa-agent
         editors: [qa-agent]
