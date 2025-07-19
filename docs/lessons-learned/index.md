@@ -24,7 +24,9 @@ Insights from individual story implementations, organized by story number:
 
 ### [Technology Lessons](technology/)
 
-Learnings specific to technologies used in the project (Next.js, Convex, etc.).
+Learnings specific to technologies used in the project:
+
+- **[Testing Infrastructure KDD](./technology/testing-infrastructure-kdd.md)** - Comprehensive lessons from implementing Jest + Next.js + React Testing Library testing infrastructure
 
 ### [Process Lessons](process/)
 
