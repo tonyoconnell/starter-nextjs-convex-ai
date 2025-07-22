@@ -19,6 +19,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:install": "playwright install",
+    "storybook": "cd packages/storybook && bun run storybook",
+    "build-storybook": "cd packages/storybook && bun run build-storybook",
     "typecheck": "turbo typecheck",
     "clean": "turbo clean",
     "convex:dev": "cd apps/convex && npx convex dev",
