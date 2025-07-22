@@ -2,7 +2,17 @@
 
 ## Executive Summary
 
-This KDD documents the extensive challenges and solutions encountered while implementing comprehensive testing infrastructure for Story 1.9. What should have been a straightforward Jest setup became a complex integration challenge involving Next.js compatibility, ESLint configuration, CI/CD environment issues, git workflow problems, and Convex conflicts. This document captures critical knowledge to prevent future development pain.
+This document captures extensive challenges and solutions encountered while implementing comprehensive testing infrastructure for Story 1.9. What should have been a straightforward Jest setup became a complex integration challenge involving Next.js compatibility, ESLint configuration, CI/CD environment issues, git workflow problems, and Convex conflicts. This document captures critical knowledge to prevent future development pain.
+
+## ⚠️ CRITICAL WARNING: CI Verification Workflow
+
+**NEVER declare "CI is working" without:**
+
+1. **Pushing changes to remote repository**
+2. **Monitoring actual CI pipeline completion** (`bun run ci:watch`)
+3. **Verifying ALL CI steps pass** (not just local tests)
+
+**Local tests passing ≠ CI working**. This mistake was made repeatedly, causing user frustration and wasted time. See Section 7 for detailed analysis.
 
 ## Background Context
 
@@ -312,14 +322,17 @@ await waitFor(() => {
 - [ ] Add `--passWithNoTests` for optional test suites
 - [ ] Update git workflow to operate from repository root
 - [ ] Configure Convex `ignoredPaths` before testing setup
+- [ ] **Add Convex build script for client code generation**
 - [ ] Test complete pipeline early with dummy tests
+- [ ] **CRITICAL: Establish CI verification workflow (push + monitor real CI)**
 
 ### 2. Early Detection Strategies
 
 - **Local validation**: Run `bun run lint && bun run test && bun run build` before committing
-- **CI validation**: Test CI pipeline with minimal test suite first
+- **CI validation**: **MANDATORY - Push changes and monitor real CI with `bun run ci:watch`**
 - **Integration testing**: Verify all tools work together before writing complex tests
 - **Environment parity**: Ensure local and CI environments match
+- **Never trust local success**: Local tests passing ≠ CI working
 
 ### 3. Configuration Management
 
@@ -412,7 +425,71 @@ beforeEach(() => {
 - Write error path tests systematically
 - Use coverage reports to identify gaps strategically
 
-### 7. Test Environment and Tooling Challenges
+### 7. Critical CI Verification Workflow Failures
+
+#### The Problem
+
+A fundamental workflow error where local test success was incorrectly equated with CI success, leading to repeated false "CI is fixed" declarations without actual verification.
+
+#### Key Issues Encountered
+
+- **False CI success claims**: Declaring "CI is working" after local fixes without pushing changes
+- **No actual verification**: Never checking real CI pipeline status after making fixes
+- **Multiple failure cascades**: Each fix revealed new issues that weren't caught locally
+- **User frustration**: Pattern repeated multiple times causing loss of trust
+
+#### Critical Workflow Error Pattern
+
+```bash
+# ❌ WRONG - What was happening:
+1. User: "CI is failing"
+2. Make local changes
+3. Run `bun run test:ci` locally ✅
+4. Declare "CI is now working!" ❌ (NEVER VERIFIED)
+
+# ✅ CORRECT - Required workflow:
+1. User: "CI is failing"
+2. Make local changes
+3. Run tests locally to validate
+4. **Commit and push changes**
+5. **Monitor actual CI pipeline** (`bun run ci:watch`)
+6. **Only then** declare CI is working
+```
+
+#### Root Cause Analysis
+
+The three separate CI failures revealed:
+
+1. **Test execution issues** - HTML5 validation preventing test scenarios
+2. **Configuration conflicts** - Duplicate test runs (limited vs full suite)
+3. **Missing build dependencies** - Convex client code generation not configured
+
+#### Solution Pattern
+
+**Mandatory CI Verification Protocol:**
+
+```bash
+# After making any CI-related changes:
+git add . && git commit -m "fix: description"
+git push
+bun run ci:watch  # Monitor real pipeline
+# Wait for actual CI completion before declaring success
+```
+
+**Never declare CI success without:**
+
+- ✅ Pushing changes to remote
+- ✅ Monitoring actual CI pipeline completion
+- ✅ Verifying all CI steps pass (not just tests)
+
+#### Future Avoidance Strategy
+
+- **Always push first**: No CI declarations without pushing changes
+- **Use monitoring tools**: `bun run ci:watch` for real-time verification
+- **Document all failures**: Each CI failure type should be captured for pattern recognition
+- **Test the full pipeline**: Local tests ≠ CI environment
+
+### 8. Test Environment and Tooling Challenges
 
 #### The Problem
 
