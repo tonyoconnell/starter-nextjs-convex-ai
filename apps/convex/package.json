@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "build": "npx convex codegen",
     "dev": "npx convex dev",
     "deploy": "npx convex deploy",
     "test": "jest",
