@@ -12,7 +12,9 @@ describe('ChangePasswordForm', () => {
         },
       });
 
-      expect(screen.getByText('Change Password')).toBeInTheDocument();
+      expect(
+        screen.getByRole('heading', { name: /change password/i })
+      ).toBeInTheDocument();
       expect(screen.getByLabelText('Current Password')).toBeInTheDocument();
       expect(screen.getByLabelText('New Password')).toBeInTheDocument();
       expect(screen.getByLabelText('Confirm New Password')).toBeInTheDocument();
@@ -54,12 +56,13 @@ describe('ChangePasswordForm', () => {
         },
       });
 
-      const submitButton = screen.getByRole('button', {
-        name: /change password/i,
-      });
+      // Get the form element and trigger submit directly to bypass HTML5 validation
+      const form = screen
+        .getByRole('button', { name: /change password/i })
+        .closest('form')!;
 
       await act(async () => {
-        fireEvent.click(submitButton);
+        fireEvent.submit(form);
       });
 
       expect(screen.getByText('Please fill in all fields')).toBeInTheDocument();
@@ -332,7 +335,9 @@ describe('ChangePasswordForm', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Change Password')).toBeInTheDocument();
+        expect(
+          screen.getByRole('button', { name: /change password/i })
+        ).toBeInTheDocument();
       });
     });
   });
