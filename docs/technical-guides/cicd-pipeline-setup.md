@@ -507,7 +507,9 @@ For comprehensive testing of your CI/CD pipeline, see:
 
 - **[Cloudflare Pages Setup](./cloudflare-pages-setup.md)** - Manual deployment setup
 - **[Deployment Troubleshooting](./cloudflare-pages-deployment-troubleshooting.md)** - Common deployment issues
-- **[Story 1.6](../stories/1.6.story.md)** - Original implementation story
+- **[Testing Infrastructure Lessons Learned](../lessons-learned/technology/testing-infrastructure-lessons-learned.md)** - Critical CI verification workflow and lessons
+- **[Test Strategy and Standards](../architecture/test-strategy-and-standards.md)** - Testing standards in CI/CD context
+- **[Cloudflare Pages GitHub Actions Example](../examples/cicd-deployment/cloudflare-pages-github-actions.md)** - Complete working example
 - **[Development Workflow Patterns](../patterns/development-workflow-patterns.md)** - CI/CD patterns and best practices
 
 ---

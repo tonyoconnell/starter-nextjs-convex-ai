@@ -586,6 +586,9 @@ describe('AuthService Singleton', () => {
 
 ## Related Documentation
 
-- [Frontend Patterns](frontend-patterns.md) - For component testing integration
+- [Test Strategy and Standards](../architecture/test-strategy-and-standards.md) - Testing strategy and coverage standards
+- [Testing Infrastructure Lessons Learned](../lessons-learned/technology/testing-infrastructure-lessons-learned.md) - Implementation challenges and solutions
+- [CI/CD Pipeline Setup](../technical-guides/cicd-pipeline-setup.md) - Pipeline testing configuration
+- [Frontend Patterns](frontend-patterns.md) - Component testing integration
 - [Backend Patterns](backend-patterns.md) - For API testing patterns
 - [Development Workflow Patterns](development-workflow-patterns.md) - For test automation

@@ -343,6 +343,9 @@ Turborepo provides:
 
 ## Related Documentation
 
-- [Development Workflow Patterns](../../patterns/development-workflow-patterns.md)
-- [Cloudflare Pages Setup Guide](../../technical-guides/cloudflare-pages-setup.md)
+- [CI/CD Pipeline Setup Guide](../../technical-guides/cicd-pipeline-setup.md) - Complete setup instructions
+- [Testing Infrastructure Lessons Learned](../../lessons-learned/technology/testing-infrastructure-lessons-learned.md) - CI troubleshooting and workflow lessons
+- [Test Strategy and Standards](../../architecture/test-strategy-and-standards.md) - Testing in CI/CD context
+- [Development Workflow Patterns](../../patterns/development-workflow-patterns.md) - CI/CD patterns
+- [Cloudflare Pages Setup Guide](../../technical-guides/cloudflare-pages-setup.md) - Manual deployment setup
 - [Cloudflare Pages Troubleshooting](../../technical-guides/cloudflare-pages-deployment-troubleshooting.md)

@@ -465,6 +465,8 @@ jobs:
 
 ## Related Documentation
 
-- [Testing Infrastructure KDD](../lessons-learned/technology/testing-infrastructure-kdd.md) - Detailed implementation lessons
+- [Testing Infrastructure Lessons Learned](../lessons-learned/technology/testing-infrastructure-lessons-learned.md) - Detailed implementation lessons and CI workflow
 - [Testing Patterns](../patterns/testing-patterns.md) - Specific implementation patterns
+- [CI/CD Pipeline Setup](../technical-guides/cicd-pipeline-setup.md) - Complete pipeline setup guide
+- [Cloudflare Pages GitHub Actions Example](../examples/cicd-deployment/cloudflare-pages-github-actions.md) - Working implementation example
 - [Development Workflow](../patterns/development-workflow-patterns.md) - Integration with development process

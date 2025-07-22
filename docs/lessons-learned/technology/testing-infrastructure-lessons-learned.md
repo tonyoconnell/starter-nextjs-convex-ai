@@ -618,9 +618,29 @@ export const createMockAuthResult = (overrides = {}) => ({
 4. **Incremental improvement**: Aim for 10-15% coverage increase per iteration
 5. **Maintenance**: Regular coverage reviews and gap filling
 
+## Related Testing Documentation
+
+This document is part of a comprehensive testing knowledge system:
+
+### **Core Testing Knowledge**
+
+- **[Test Strategy and Standards](../../architecture/test-strategy-and-standards.md)** - Overall testing strategy and coverage standards
+- **[Testing Patterns](../../patterns/testing-patterns.md)** - Reusable testing patterns and implementation examples
+
+### **Implementation Guides**
+
+- **[CI/CD Pipeline Setup](../../technical-guides/cicd-pipeline-setup.md)** - Complete CI/CD setup with testing
+- **[Cloudflare Pages GitHub Actions Example](../../examples/cicd-deployment/cloudflare-pages-github-actions.md)** - Working CI/CD implementation
+
+### **Cross-References**
+
+- **Section 7**: Critical CI verification workflow (referenced by all CI/CD guides)
+- **Process Improvements**: Testing infrastructure checklist (used in setup guides)
+- **Technical Patterns**: Mocking and configuration patterns (referenced in testing patterns)
+
 ## Conclusion
 
-The testing infrastructure implementation revealed the hidden complexity of modern JavaScript toolchain integration. While the final result is robust and comprehensive, the path required deep technical knowledge across multiple systems. This KDD serves as a critical reference to prevent future teams from experiencing the same challenges and to accelerate similar implementations.
+The testing infrastructure implementation revealed the hidden complexity of modern JavaScript toolchain integration. While the final result is robust and comprehensive, the path required deep technical knowledge across multiple systems. This document serves as a critical reference to prevent future teams from experiencing the same challenges and to accelerate similar implementations.
 
 The key insight is that testing infrastructure is not just about writing tests—it's about orchestrating a complex ecosystem of tools that must work harmoniously across development, CI/CD, and deployment environments.
 
