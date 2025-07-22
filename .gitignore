@@ -26,6 +26,7 @@ apps/workers/.wrangler/
 # Convex
 .convex/
 apps/convex/.convex/
+apps/convex/_generated/
 
 # Production builds
 build/
