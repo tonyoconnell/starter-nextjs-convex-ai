@@ -23,11 +23,14 @@
   },
   "dependencies": {
     "@cloudflare/next-on-pages": "^1.13.12",
+    "@starter/ui": "workspace:*",
     "better-auth": "^1.2.12",
+    "clsx": "^2.1.1",
     "convex": "^1.25.4",
     "next": "14.2.15",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
@@ -51,6 +54,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.4.5"
   }
 }
