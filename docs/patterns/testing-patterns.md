@@ -16,7 +16,44 @@ This document outlines established patterns for testing across all layers of the
 - Use proper queries (getByRole, getByLabelText)
 - Mock external dependencies
 
-**Example**: _(Will be populated from actual implementations)_
+**Example**:
+
+```typescript
+// Custom render function with providers
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { ConvexProvider } from 'convex/react';
+import { AuthProvider } from '../auth-provider';
+
+function renderWithProviders(ui: React.ReactElement, options = {}) {
+  const AllProviders = ({ children }: { children: React.ReactNode }) => (
+    <ConvexProvider client={mockConvexClient}>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ConvexProvider>
+  );
+
+  return render(ui, { wrapper: AllProviders, ...options });
+}
+
+// Component test with user interactions
+describe('LoginForm', () => {
+  it('should submit form when valid credentials provided', async () => {
+    const mockLogin = jest.fn().mockResolvedValue({ success: true });
+    jest.mocked(useAuth).mockReturnValue({ login: mockLogin });
+
+    renderWithProviders(<LoginForm />);
+
+    await user.type(screen.getByLabelText(/email/i), 'test@example.com');
+    await user.type(screen.getByLabelText(/password/i), 'password123');
+    await user.click(screen.getByRole('button', { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
+    });
+  });
+});
+```
 
 **Rationale**: Ensures components work correctly from user perspective
 
@@ -134,7 +171,53 @@ This document outlines established patterns for testing across all layers of the
 - Clean up test data after tests
 - Use realistic but not real data
 
-**Example**: _(Will be populated from actual implementations)_
+**Example**:
+
+```typescript
+// Centralized test fixtures
+export const mockUser = {
+  _id: 'test-user-id',
+  name: 'Test User',
+  email: 'test@example.com',
+  profile_image_url: 'https://example.com/avatar.jpg',
+  role: 'user',
+  _creationTime: Date.now(),
+};
+
+export const createMockAuthResult = (overrides = {}) => ({
+  success: true,
+  user: mockUser,
+  sessionToken: 'mock-session-token',
+  ...overrides,
+});
+
+// Usage in tests
+describe('Authentication', () => {
+  it('should handle successful login', async () => {
+    const expectedResult = createMockAuthResult();
+    mockConvex.mutation.mockResolvedValue(expectedResult);
+
+    const result = await authService.login('test@example.com', 'password');
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle login failure', async () => {
+    const failureResult = createMockAuthResult({
+      success: false,
+      user: null,
+      error: 'Invalid credentials',
+    });
+
+    mockConvex.mutation.mockResolvedValue(failureResult);
+
+    const result = await authService.login('wrong@example.com', 'wrong');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Invalid credentials');
+  });
+});
+```
 
 **Rationale**: Provides reliable, predictable test environments
 
@@ -164,7 +247,60 @@ This document outlines established patterns for testing across all layers of the
 - Test both success and failure scenarios
 - Mock network delays when relevant
 
-**Example**: _(Will be populated from actual implementations)_
+**Example**:
+
+```typescript
+// Comprehensive service mocking pattern
+jest.mock('../convex', () => ({
+  convex: {
+    mutation: jest.fn(),
+    query: jest.fn(),
+    action: jest.fn(),
+  },
+}));
+
+jest.mock('../../convex/api', () => ({
+  api: {
+    auth: {
+      registerUser: 'auth/registerUser',
+      loginUser: 'auth/loginUser',
+      // Map all API endpoints as strings
+    },
+  },
+}));
+
+// Service testing with comprehensive error scenarios
+describe('AuthService', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Reset singleton for proper test isolation
+    (AuthService as any).instance = undefined;
+  });
+
+  it('should handle service errors gracefully', async () => {
+    mockConvex.mutation.mockRejectedValue(new Error('Network error'));
+
+    const result = await authService.register('test', 'email', 'pass');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Network error');
+  });
+
+  it('should handle uncaught error format', async () => {
+    const error = new Error('Uncaught Error: Database connection failed');
+    mockConvex.mutation.mockRejectedValue(error);
+
+    const result = await authService.register(
+      'Test',
+      'test@example.com',
+      'pass'
+    );
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Database connection failed');
+  });
+});
+```
 
 **Rationale**: Provides reliable tests independent of external services
 
@@ -302,6 +438,119 @@ This document outlines established patterns for testing across all layers of the
 
 **Rationale**: Ensures adequate testing without over-testing
 
+## Coverage-Driven Development Patterns
+
+### Strategic Coverage Improvement
+
+**Context**: Systematically improving test coverage for maximum impact
+**Implementation**:
+
+1. **Baseline Measurement**: Establish current coverage baseline
+2. **Gap Analysis**: Identify high-impact, low-coverage files
+3. **Strategic Testing**: Target files with biggest coverage ROI
+4. **Incremental Improvement**: Aim for 10-15% coverage increase per iteration
+5. **Maintenance**: Regular coverage reviews and gap filling
+
+**Example**:
+
+```bash
+# Measure current coverage
+npx jest --coverage
+
+# Identify high-impact files (services, utilities)
+# Target files like lib/auth.ts, lib/email.ts first
+
+# Systematic test implementation
+# - Write comprehensive service tests (57 test cases for auth)
+# - Focus on error paths and edge cases
+# - Use coverage reports to identify remaining gaps
+
+# Results achieved:
+# lib/auth.ts: 99.31% statements, 87.09% branches (from ~25%)
+# Overall: 86.7% statements, 79.49% branches (from ~60%)
+```
+
+**Rationale**: Maximizes coverage improvement impact with focused effort
+
+### Error Path Testing Patterns
+
+**Context**: Systematically testing error scenarios and edge cases
+**Implementation**:
+
+- Test all error branches systematically
+- Cover different error message formats
+- Test error recovery scenarios
+- Validate error handling UI states
+
+**Example**:
+
+```typescript
+// Comprehensive error testing pattern
+describe('Error Handling', () => {
+  it('should handle different error message formats', async () => {
+    const testCases = [
+      { error: new Error('Simple error'), expected: 'Simple error' },
+      {
+        error: new Error('Uncaught Error: Nested error'),
+        expected: 'Nested error',
+      },
+      { error: { message: 'Object error' }, expected: 'Object error' },
+      { error: 'String error', expected: 'String error' },
+      { error: null, expected: 'An unexpected error occurred' },
+    ];
+
+    for (const { error, expected } of testCases) {
+      mockConvex.mutation.mockRejectedValue(error);
+      const result = await authService.register('test', 'email', 'pass');
+      expect(result.error).toBe(expected);
+    }
+  });
+});
+```
+
+**Rationale**: Ensures robust error handling across all scenarios
+
+### Singleton and State Management Testing
+
+**Context**: Testing singleton services and global state
+**Implementation**:
+
+- Reset singleton instances between tests
+- Mock global dependencies properly
+- Test state isolation between tests
+- Handle async state updates correctly
+
+**Example**:
+
+```typescript
+// Singleton testing pattern
+describe('AuthService Singleton', () => {
+  beforeEach(() => {
+    // Critical: Reset singleton for test isolation
+    (AuthService as any).instance = undefined;
+    jest.clearAllMocks();
+
+    // Mock global dependencies
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn(),
+        setItem: jest.fn(),
+        removeItem: jest.fn(),
+      },
+      writable: true,
+    });
+  });
+
+  it('should maintain singleton pattern', () => {
+    const instance1 = AuthService.getInstance();
+    const instance2 = AuthService.getInstance();
+    expect(instance1).toBe(instance2);
+  });
+});
+```
+
+**Rationale**: Ensures proper test isolation and predictable state
+
 ## Anti-Patterns to Avoid
 
 ### Testing Implementation Details
@@ -327,6 +576,13 @@ This document outlines established patterns for testing across all layers of the
 - Test error conditions and edge cases
 - Validate error messages and handling
 - Test recovery from failures
+
+### Test Environment Issues
+
+- **Wrong test runner**: Always use `npx jest --coverage`, not `bun test`
+- **Mock hoisting problems**: Define mocks inline, not as variables
+- **Global state leakage**: Reset singletons and global state between tests
+- **Incomplete mocking**: Mock all external dependencies comprehensively
 
 ## Related Documentation
 

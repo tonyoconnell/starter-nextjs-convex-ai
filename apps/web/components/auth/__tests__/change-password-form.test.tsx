@@ -1,66 +1,388 @@
-// Simple test for password change form structure
-test('Password change form has correct structure', () => {
-  // Mock DOM elements
-  const mockForm = {
-    currentPassword: 'input[type="password"]',
-    newPassword: 'input[type="password"]',
-    confirmPassword: 'input[type="password"]',
-    submitButton: 'button[type="submit"]',
-  };
+import React from 'react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { render } from '@/lib/test-utils';
+import { ChangePasswordForm } from '../change-password-form';
 
-  // Test that all required elements exist
-  expect(mockForm.currentPassword).toBeDefined();
-  expect(mockForm.newPassword).toBeDefined();
-  expect(mockForm.confirmPassword).toBeDefined();
-  expect(mockForm.submitButton).toBeDefined();
-});
+describe('ChangePasswordForm', () => {
+  describe('Component Rendering', () => {
+    it('should render the form with all required fields', () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
 
-// Test password validation logic
-test('Password validation logic works', () => {
-  const validatePassword = (password: string): string | null => {
-    if (password.length < 8) {
-      return 'Password must be at least 8 characters long';
-    }
-    if (!/(?=.*[a-z])/.test(password)) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!/(?=.*[A-Z])/.test(password)) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!/(?=.*\d)/.test(password)) {
-      return 'Password must contain at least one number';
-    }
-    if (!/(?=.*[!@#$%^&*])/.test(password)) {
-      return 'Password must contain at least one special character (!@#$%^&*)';
-    }
-    return null;
-  };
+      expect(screen.getByText('Change Password')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current Password')).toBeInTheDocument();
+      expect(screen.getByLabelText('New Password')).toBeInTheDocument();
+      expect(screen.getByLabelText('Confirm New Password')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /change password/i })
+      ).toBeInTheDocument();
+    });
 
-  // Test weak password
-  expect(validatePassword('weak')).toBe(
-    'Password must be at least 8 characters long'
-  );
+    it('should show password requirements text', () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
 
-  // Test missing uppercase
-  expect(validatePassword('password123!')).toBe(
-    'Password must contain at least one uppercase letter'
-  );
+      expect(
+        screen.getByText(
+          /must be at least 8 characters with uppercase, lowercase, number, and special character/i
+        )
+      ).toBeInTheDocument();
+    });
 
-  // Test missing lowercase
-  expect(validatePassword('PASSWORD123!')).toBe(
-    'Password must contain at least one lowercase letter'
-  );
+    it('should show back to dashboard link', () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
 
-  // Test missing number
-  expect(validatePassword('Password!')).toBe(
-    'Password must contain at least one number'
-  );
+      expect(screen.getByText('Back to Dashboard')).toBeInTheDocument();
+    });
+  });
 
-  // Test missing special character
-  expect(validatePassword('Password123')).toBe(
-    'Password must contain at least one special character (!@#$%^&*)'
-  );
+  describe('Form Validation', () => {
+    it('should show error when fields are empty', async () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
 
-  // Test valid password
-  expect(validatePassword('Password123!')).toBe(null);
+      const submitButton = screen.getByRole('button', {
+        name: /change password/i,
+      });
+
+      await act(async () => {
+        fireEvent.click(submitButton);
+      });
+
+      expect(screen.getByText('Please fill in all fields')).toBeInTheDocument();
+    });
+
+    it('should show error when passwords do not match', async () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'current123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'DifferentPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      expect(
+        screen.getByText('New passwords do not match')
+      ).toBeInTheDocument();
+    });
+
+    it('should show error when new password is same as current', async () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'Password123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'Password123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'Password123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      expect(
+        screen.getByText('New password must be different from current password')
+      ).toBeInTheDocument();
+    });
+
+    it('should validate password strength', async () => {
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: jest.fn(),
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'weak' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'weak' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      expect(
+        screen.getByText('Password must be at least 8 characters long')
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('Password Change Submission', () => {
+    it('should call changePassword with correct arguments on valid submission', async () => {
+      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      expect(mockChangePassword).toHaveBeenCalledWith(
+        'OldPassword123!',
+        'NewPassword123!'
+      );
+    });
+
+    it('should show success message after successful password change', async () => {
+      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Password changed successfully!')
+        ).toBeInTheDocument();
+      });
+
+      // Check success message links
+      expect(screen.getByText('Return to Dashboard')).toBeInTheDocument();
+      expect(screen.getByText('Go to Login')).toBeInTheDocument();
+    });
+
+    it('should show error message when password change fails', async () => {
+      const mockChangePassword = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Current password is incorrect',
+      });
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'WrongPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Current password is incorrect')
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('should handle unexpected errors gracefully', async () => {
+      const mockChangePassword = jest
+        .fn()
+        .mockRejectedValue(new Error('Network error'));
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('An unexpected error occurred')
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Loading States', () => {
+    it('should show loading state during submission', async () => {
+      let resolveChangePassword: (value: any) => void;
+      const changePasswordPromise = new Promise(resolve => {
+        resolveChangePassword = resolve;
+      });
+      const mockChangePassword = jest
+        .fn()
+        .mockReturnValue(changePasswordPromise);
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      fireEvent.change(screen.getByLabelText('Current Password'), {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(screen.getByLabelText('Confirm New Password'), {
+        target: { value: 'NewPassword123!' },
+      });
+
+      act(() => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      // Should show loading state
+      expect(screen.getByText('Changing Password...')).toBeInTheDocument();
+      expect(
+        screen.getByRole('button', { name: /changing password/i })
+      ).toBeDisabled();
+
+      // Resolve the promise
+      act(() => {
+        resolveChangePassword!({ success: true });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('Change Password')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Form Reset After Success', () => {
+    it('should clear form fields after successful password change', async () => {
+      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
+
+      render(<ChangePasswordForm />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      const currentPasswordField = screen.getByLabelText(
+        'Current Password'
+      ) as HTMLInputElement;
+      const newPasswordField = screen.getByLabelText(
+        'New Password'
+      ) as HTMLInputElement;
+      const confirmPasswordField = screen.getByLabelText(
+        'Confirm New Password'
+      ) as HTMLInputElement;
+
+      fireEvent.change(currentPasswordField, {
+        target: { value: 'OldPassword123!' },
+      });
+      fireEvent.change(newPasswordField, {
+        target: { value: 'NewPassword123!' },
+      });
+      fireEvent.change(confirmPasswordField, {
+        target: { value: 'NewPassword123!' },
+      });
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: /change password/i })
+        );
+      });
+
+      await waitFor(() => {
+        expect(
+          screen.getByText('Password changed successfully!')
+        ).toBeInTheDocument();
+      });
+
+      // Form fields should be cleared
+      expect(currentPasswordField.value).toBe('');
+      expect(newPasswordField.value).toBe('');
+      expect(confirmPasswordField.value).toBe('');
+    });
+  });
 });
