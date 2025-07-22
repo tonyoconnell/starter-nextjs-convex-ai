@@ -359,8 +359,192 @@ await waitFor(() => {
 3. **Onboarding checklist**: Use this document for new team member onboarding
 4. **Best practices sharing**: Regular team sessions on testing infrastructure
 
+### 6. Test Coverage Implementation Lessons
+
+#### The Problem
+
+Achieving high test coverage requires systematic approaches to complex mocking scenarios, especially for singleton services and external dependencies.
+
+#### Key Issues Encountered
+
+- **Singleton pattern testing**: AuthService singleton required special handling for test isolation
+- **Complex mocking**: Convex client + API mocking required understanding import/export patterns
+- **Coverage optimization**: Strategic test writing to maximize coverage impact
+- **Branch coverage**: Error handling paths often missed without systematic approach
+
+#### Solution Pattern
+
+```typescript
+// Comprehensive mocking strategy
+jest.mock('../convex', () => ({
+  convex: {
+    mutation: jest.fn(),
+    query: jest.fn(),
+    action: jest.fn(),
+  },
+}));
+
+jest.mock('../../convex/api', () => ({
+  api: {
+    auth: {
+      registerUser: 'auth/registerUser',
+      // ... map all API endpoints
+    },
+  },
+}));
+
+// Singleton testing pattern
+beforeEach(() => {
+  (AuthService as any).instance = undefined; // Reset singleton
+});
+```
+
+#### Coverage Achievement Results
+
+- **lib/auth.ts**: 99.31% statements, 87.09% branches (from ~25%)
+- **Overall coverage**: 86.7% statements, 79.49% branches (from ~60%)
+- **57 comprehensive test cases** covering all auth methods and error scenarios
+
+#### Future Avoidance Strategy
+
+- Plan mocking strategy before writing tests
+- Focus on high-impact files first (services, utilities)
+- Write error path tests systematically
+- Use coverage reports to identify gaps strategically
+
+### 7. Test Environment and Tooling Challenges
+
+#### The Problem
+
+Test runner selection and environment configuration significantly impact development velocity and coverage accuracy.
+
+#### Key Issues Encountered
+
+- **Bun vs Jest**: `bun test` didn't properly support Jest mocking patterns
+- **Coverage accuracy**: Only `npx jest --coverage` gave accurate coverage reports
+- **Mock hoisting**: Variable hoisting issues with `jest.mock()` required specific patterns
+- **Test isolation**: Global state leakage between tests
+
+#### Solution Pattern
+
+```bash
+# Always use Jest directly for accurate coverage
+npx jest --coverage
+
+# Not: bun test (mocking issues)
+# Not: bun run test (environment issues)
+```
+
+```typescript
+// Proper mock hoisting pattern
+jest.mock('../module', () => ({
+  export: mockValue, // Define inline, not as variable
+}));
+
+// Not: const mockValue = ...; jest.mock(() => ({ export: mockValue }))
+```
+
+#### Future Avoidance Strategy
+
+- Use Jest directly for all test execution
+- Understand test runner limitations early
+- Test mocking patterns with simple cases first
+- Establish test isolation patterns upfront
+
+## Advanced Testing Patterns Learned
+
+### 1. Component Testing with Context Providers
+
+```typescript
+// Custom render with providers pattern
+function renderWithProviders(ui: React.ReactElement, options = {}) {
+  const AllProviders = ({ children }: { children: React.ReactNode }) => (
+    <ConvexProvider client={mockConvexClient}>
+      <AuthProvider>
+        {children}
+      </AuthProvider>
+    </ConvexProvider>
+  );
+
+  return render(ui, { wrapper: AllProviders, ...options });
+}
+```
+
+### 2. Async State Testing Patterns
+
+```typescript
+// Proper async testing with React Testing Library
+it('handles async state updates', async () => {
+  const mockFn = jest.fn().mockResolvedValue(mockData);
+  render(<Component />);
+
+  fireEvent.click(screen.getByText('Load Data'));
+
+  await waitFor(() => {
+    expect(screen.getByText('Loaded Data')).toBeInTheDocument();
+  });
+
+  expect(mockFn).toHaveBeenCalledTimes(1);
+});
+```
+
+### 3. Error Boundary Testing
+
+```typescript
+// Test error scenarios systematically
+it('handles service errors gracefully', async () => {
+  mockConvex.mutation.mockRejectedValue(new Error('Service error'));
+
+  const result = await authService.register('test', 'email', 'pass');
+
+  expect(result.success).toBe(false);
+  expect(result.error).toBe('Service error');
+});
+```
+
+## Test Organization and Maintenance
+
+### 1. File Organization Patterns
+
+```
+__tests__/
+├── components/          # Component tests
+├── services/           # Service layer tests
+├── utils/              # Utility function tests
+├── integration/        # Integration tests
+└── fixtures/           # Test data and mocks
+```
+
+### 2. Test Data Management
+
+```typescript
+// Centralized test fixtures
+export const mockUser = {
+  _id: 'test-id',
+  name: 'Test User',
+  email: 'test@example.com',
+  // ... complete mock object
+};
+
+export const createMockAuthResult = (overrides = {}) => ({
+  success: true,
+  user: mockUser,
+  ...overrides,
+});
+```
+
+### 3. Coverage-Driven Development Process
+
+1. **Baseline measurement**: Establish current coverage
+2. **Gap analysis**: Identify high-impact, low-coverage files
+3. **Strategic testing**: Target files with biggest coverage impact
+4. **Incremental improvement**: Aim for 10-15% coverage increase per iteration
+5. **Maintenance**: Regular coverage reviews and gap filling
+
 ## Conclusion
 
 The testing infrastructure implementation revealed the hidden complexity of modern JavaScript toolchain integration. While the final result is robust and comprehensive, the path required deep technical knowledge across multiple systems. This KDD serves as a critical reference to prevent future teams from experiencing the same challenges and to accelerate similar implementations.
 
 The key insight is that testing infrastructure is not just about writing tests—it's about orchestrating a complex ecosystem of tools that must work harmoniously across development, CI/CD, and deployment environments.
+
+**Additional Insight**: Achieving high test coverage (86.7% statements, 79.49% branches) requires systematic approaches to mocking, strategic test planning, and understanding of coverage optimization patterns. The investment in comprehensive testing infrastructure pays dividends in code quality and developer confidence.

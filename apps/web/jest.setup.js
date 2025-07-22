@@ -1,9 +1,23 @@
 // Learn more: https://github.com/testing-library/jest-dom
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 // Mock problematic modules that cause filename issues
-jest.mock('@pkgr/core', () => ({}), { virtual: true })
-jest.mock('synckit', () => ({}), { virtual: true })
+jest.mock('@pkgr/core', () => ({}), { virtual: true });
+jest.mock('synckit', () => ({}), { virtual: true });
+
+// Mock the convex module early to prevent initialization issues
+jest.mock(
+  '@/lib/convex',
+  () => ({
+    convex: {
+      query: jest.fn(),
+      mutation: jest.fn(),
+      action: jest.fn(),
+      subscribe: jest.fn(),
+    },
+  }),
+  { virtual: true }
+);
 
 // Mock Next.js router
 jest.mock('next/navigation', () => ({
@@ -15,15 +29,15 @@ jest.mock('next/navigation', () => ({
       back: jest.fn(),
       forward: jest.fn(),
       refresh: jest.fn(),
-    }
+    };
   },
   useSearchParams() {
-    return new URLSearchParams()
+    return new URLSearchParams();
   },
   usePathname() {
-    return ''
+    return '';
   },
-}))
+}));
 
 // Mock Convex provider and hooks
 jest.mock('convex/react', () => ({
@@ -39,14 +53,14 @@ jest.mock('convex/react', () => ({
     mutation: jest.fn(),
     subscribe: jest.fn(),
   })),
-}))
+}));
 
 // Setup global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
   unobserve: jest.fn(),
   disconnect: jest.fn(),
-}))
+}));
 
 // Mock clipboard API - ensure navigator exists first
 if (typeof navigator !== 'undefined') {
@@ -55,22 +69,22 @@ if (typeof navigator !== 'undefined') {
       writeText: jest.fn().mockResolvedValue(undefined),
       readText: jest.fn().mockResolvedValue(''),
     },
-  })
+  });
 } else {
   global.navigator = {
     clipboard: {
       writeText: jest.fn().mockResolvedValue(undefined),
       readText: jest.fn().mockResolvedValue(''),
     },
-    userAgent: 'jest'
-  }
+    userAgent: 'jest',
+  };
 }
 
 // Mock window.alert
-global.alert = jest.fn()
+global.alert = jest.fn();
 
 // Mock window.confirm
-global.confirm = jest.fn().mockReturnValue(true)
+global.confirm = jest.fn().mockReturnValue(true);
 
 // Mock window.location
 Object.defineProperty(window, 'location', {
@@ -90,7 +104,7 @@ Object.defineProperty(window, 'location', {
   },
   writable: true,
   configurable: true,
-})
+});
 
 // Mock sessionStorage
 Object.defineProperty(window, 'sessionStorage', {
@@ -102,43 +116,43 @@ Object.defineProperty(window, 'sessionStorage', {
   },
   writable: true,
   configurable: true,
-})
+});
 
 // Mock crypto.randomUUID for Node.js environment
 Object.defineProperty(global, 'crypto', {
   value: {
     randomUUID: jest.fn(() => `mock-uuid-${Date.now()}-${Math.random()}`),
   },
-})
+});
 
 // Suppress console errors during tests unless explicitly needed
-const originalError = console.error
+const originalError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: ReactDOM.render')
     ) {
-      return
+      return;
     }
-    originalError.call(console, ...args)
-  }
-})
+    originalError.call(console, ...args);
+  };
+});
 
 afterAll(() => {
-  console.error = originalError
-})
+  console.error = originalError;
+});
 
 // Mock the auth provider to use our test context
 jest.mock('@/components/auth/auth-provider', () => ({
   useAuth: () => {
-    const { useContext } = require('react')
-    const { TestAuthContext } = require('@/lib/test-utils')
-    const context = useContext(TestAuthContext)
+    const { useContext } = require('react');
+    const { TestAuthContext } = require('@/lib/test-utils');
+    const context = useContext(TestAuthContext);
     if (context === undefined) {
-      throw new Error('useAuth must be used within an AuthProvider')
+      throw new Error('useAuth must be used within an AuthProvider');
     }
-    return context
+    return context;
   },
   AuthProvider: ({ children }) => children,
-}))
+}));

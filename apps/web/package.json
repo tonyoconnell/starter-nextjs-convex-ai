@@ -14,6 +14,7 @@
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "test:coverage:watch": "jest --coverage --watch",
+    "test:coverage:watch:all": "jest --coverage --watch --all",
     "test:ci": "jest --ci --coverage --maxWorkers=2",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "wrangler pages deploy .vercel/output/static --project-name=starter-nextjs-convex-ai",

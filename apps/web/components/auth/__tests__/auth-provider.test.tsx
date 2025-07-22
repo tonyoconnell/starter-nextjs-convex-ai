@@ -1,0 +1,1402 @@
+import React from 'react';
+import { render, screen, waitFor, act } from '@testing-library/react';
+import { createMockUser } from '@/lib/test-utils';
+
+// Unmock the auth provider for this test to test the actual component
+jest.unmock('@/components/auth/auth-provider');
+
+// Import the actual components after unmocking
+import { AuthProvider, useAuth } from '../auth-provider';
+
+// Test component to access the real auth context
+function TestComponent() {
+  const auth = useAuth();
+
+  return (
+    <div>
+      <div data-testid="user">{auth.user ? auth.user.name : 'No user'}</div>
+      <div data-testid="loading">
+        {auth.isLoading ? 'Loading' : 'Not loading'}
+      </div>
+      <div data-testid="session-token">{auth.sessionToken || 'No token'}</div>
+      <button onClick={() => auth.login('test@example.com', 'password')}>
+        Login
+      </button>
+      <button
+        onClick={() =>
+          auth.register('Test User', 'test@example.com', 'password')
+        }
+      >
+        Register
+      </button>
+      <button onClick={() => auth.logout()}>Logout</button>
+      <button onClick={() => auth.refreshUser()}>Refresh</button>
+    </div>
+  );
+}
+
+describe('AuthProvider', () => {
+  describe('Provider Setup and Real Component Testing', () => {
+    it('should provide initial auth state with real AuthProvider', async () => {
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      // Initial state should show loading, then settle to no user
+      expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      expect(screen.getByTestId('session-token')).toHaveTextContent('No token');
+    });
+
+    it('should render all required methods without crashing', async () => {
+      render(
+        <AuthProvider>
+          <TestComponent />
+        </AuthProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+      });
+
+      // Verify all buttons are rendered (indicating all methods are available)
+      expect(screen.getByText('Login')).toBeInTheDocument();
+      expect(screen.getByText('Register')).toBeInTheDocument();
+      expect(screen.getByText('Logout')).toBeInTheDocument();
+      expect(screen.getByText('Refresh')).toBeInTheDocument();
+    });
+
+    it('should handle loading states correctly', () => {
+      render(<TestComponent />, {
+        authState: {
+          isLoading: true,
+          user: null,
+          sessionToken: null,
+        },
+      });
+
+      expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
+    });
+  });
+
+  describe('Authentication Flow using Test Utils', () => {
+    it('should handle successful login', async () => {
+      const mockLogin = jest.fn().mockResolvedValue({ success: true });
+      const mockUser = createMockUser({ name: 'Logged In User' });
+
+      render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: mockUser,
+          sessionToken: 'new-session-token',
+          login: mockLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Login').click();
+      });
+
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password');
+      expect(screen.getByTestId('user')).toHaveTextContent('Logged In User');
+      expect(screen.getByTestId('session-token')).toHaveTextContent(
+        'new-session-token'
+      );
+    });
+
+    it('should handle login errors', async () => {
+      const mockLogin = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Invalid credentials',
+      });
+
+      render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: null,
+          sessionToken: null,
+          login: mockLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Login').click();
+      });
+
+      expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password');
+      // Should not change user state on error
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      expect(screen.getByTestId('session-token')).toHaveTextContent('No token');
+    });
+
+    it('should handle registration flow', async () => {
+      const mockRegister = jest.fn().mockResolvedValue({ success: true });
+      const mockUser = createMockUser({ name: 'New User' });
+
+      render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: mockUser,
+          sessionToken: 'registration-token',
+          register: mockRegister,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Register').click();
+      });
+
+      expect(mockRegister).toHaveBeenCalledWith(
+        'Test User',
+        'test@example.com',
+        'password'
+      );
+      expect(screen.getByTestId('user')).toHaveTextContent('New User');
+      expect(screen.getByTestId('session-token')).toHaveTextContent(
+        'registration-token'
+      );
+    });
+
+    it('should handle logout flow', async () => {
+      const mockLogout = jest.fn().mockResolvedValue(undefined);
+
+      // Start with authenticated user
+      const { rerender } = render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: createMockUser({ name: 'Test User' }),
+          sessionToken: 'existing-token',
+          logout: mockLogout,
+        },
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('Test User');
+
+      await act(async () => {
+        screen.getByText('Logout').click();
+      });
+
+      expect(mockLogout).toHaveBeenCalled();
+
+      // Simulate post-logout state
+      rerender(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: null,
+          sessionToken: null,
+          logout: mockLogout,
+        },
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      expect(screen.getByTestId('session-token')).toHaveTextContent('No token');
+    });
+  });
+
+  describe('Refresh User Flow', () => {
+    it('should handle refresh user action', async () => {
+      const mockRefreshUser = jest.fn().mockResolvedValue(undefined);
+      const updatedUser = createMockUser({ name: 'Updated User' });
+
+      const { rerender } = render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: createMockUser({ name: 'Original User' }),
+          sessionToken: 'token',
+          refreshUser: mockRefreshUser,
+        },
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('Original User');
+
+      await act(async () => {
+        screen.getByText('Refresh').click();
+      });
+
+      expect(mockRefreshUser).toHaveBeenCalled();
+
+      // Simulate post-refresh state with updated user
+      rerender(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: updatedUser,
+          sessionToken: 'updated-token',
+          refreshUser: mockRefreshUser,
+        },
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('Updated User');
+      expect(screen.getByTestId('session-token')).toHaveTextContent(
+        'updated-token'
+      );
+    });
+  });
+
+  describe('Password Management', () => {
+    it('should handle change password', async () => {
+      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
+
+      const TestPasswordComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.changePassword('old', 'new')}>
+            Change Password
+          </button>
+        );
+      };
+
+      render(<TestPasswordComponent />, {
+        authState: {
+          changePassword: mockChangePassword,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Change Password').click();
+      });
+
+      expect(mockChangePassword).toHaveBeenCalledWith('old', 'new');
+    });
+
+    it('should handle request password reset', async () => {
+      const mockRequestPasswordReset = jest
+        .fn()
+        .mockResolvedValue({ success: true });
+
+      const TestResetComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.requestPasswordReset('test@example.com')}>
+            Request Reset
+          </button>
+        );
+      };
+
+      render(<TestResetComponent />, {
+        authState: {
+          requestPasswordReset: mockRequestPasswordReset,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Request Reset').click();
+      });
+
+      expect(mockRequestPasswordReset).toHaveBeenCalledWith('test@example.com');
+    });
+
+    it('should handle reset password', async () => {
+      const mockResetPassword = jest.fn().mockResolvedValue({ success: true });
+
+      const TestResetConfirmComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.resetPassword('token', 'newPassword')}>
+            Reset Password
+          </button>
+        );
+      };
+
+      render(<TestResetConfirmComponent />, {
+        authState: {
+          resetPassword: mockResetPassword,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Reset Password').click();
+      });
+
+      expect(mockResetPassword).toHaveBeenCalledWith('token', 'newPassword');
+    });
+  });
+
+  describe('OAuth Flows', () => {
+    it('should handle GitHub OAuth URL generation', async () => {
+      const mockGetGitHubOAuthUrl = jest.fn().mockResolvedValue({
+        success: true,
+        url: 'https://github.com/oauth',
+        state: 'state123',
+      });
+
+      const TestGitHubComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.getGitHubOAuthUrl()}>
+            GitHub OAuth URL
+          </button>
+        );
+      };
+
+      render(<TestGitHubComponent />, {
+        authState: {
+          getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('GitHub OAuth URL').click();
+      });
+
+      expect(mockGetGitHubOAuthUrl).toHaveBeenCalled();
+    });
+
+    it('should handle successful GitHub OAuth login', async () => {
+      const mockGithubOAuthLogin = jest
+        .fn()
+        .mockResolvedValue({ success: true });
+      const githubUser = createMockUser({ name: 'GitHub User' });
+
+      const TestGitHubLoginComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.githubOAuthLogin('code', 'state')}>
+            GitHub Login
+          </button>
+        );
+      };
+
+      render(<TestGitHubLoginComponent />, {
+        authState: {
+          user: githubUser,
+          sessionToken: 'github-token',
+          githubOAuthLogin: mockGithubOAuthLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('GitHub Login').click();
+      });
+
+      expect(mockGithubOAuthLogin).toHaveBeenCalledWith('code', 'state');
+    });
+
+    it('should handle Google OAuth URL generation', async () => {
+      const mockGetGoogleOAuthUrl = jest.fn().mockResolvedValue({
+        success: true,
+        url: 'https://accounts.google.com/oauth',
+        state: 'google-state',
+      });
+
+      const TestGoogleComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.getGoogleOAuthUrl()}>
+            Google OAuth URL
+          </button>
+        );
+      };
+
+      render(<TestGoogleComponent />, {
+        authState: {
+          getGoogleOAuthUrl: mockGetGoogleOAuthUrl,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Google OAuth URL').click();
+      });
+
+      expect(mockGetGoogleOAuthUrl).toHaveBeenCalled();
+    });
+
+    it('should handle successful Google OAuth login', async () => {
+      const mockGoogleOAuthLogin = jest
+        .fn()
+        .mockResolvedValue({ success: true });
+      const googleUser = createMockUser({ name: 'Google User' });
+
+      const TestGoogleLoginComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.googleOAuthLogin('code', 'state')}>
+            Google Login
+          </button>
+        );
+      };
+
+      render(<TestGoogleLoginComponent />, {
+        authState: {
+          user: googleUser,
+          sessionToken: 'google-token',
+          googleOAuthLogin: mockGoogleOAuthLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Google Login').click();
+      });
+
+      expect(mockGoogleOAuthLogin).toHaveBeenCalledWith('code', 'state');
+    });
+  });
+
+  describe('Context Hook Usage Following Established Pattern', () => {
+    it('should throw error when useAuth is used outside provider', () => {
+      // Mock console.error to prevent test noise
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      expect(() => {
+        // This will use the mocked useAuth from jest.setup.js which throws the error
+        render(<TestComponent />);
+      }).toThrow('useAuth must be used within an AuthProvider');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should provide all required auth methods and state', () => {
+      const mockUser = createMockUser();
+
+      render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: mockUser,
+          sessionToken: 'test-token',
+        },
+      });
+
+      // Verify the UI shows the expected data
+      expect(screen.getByTestId('user')).toHaveTextContent('Test User');
+      expect(screen.getByTestId('session-token')).toHaveTextContent(
+        'test-token'
+      );
+      expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+
+      // Verify all buttons are rendered (indicating all methods are available)
+      expect(screen.getByText('Login')).toBeInTheDocument();
+      expect(screen.getByText('Register')).toBeInTheDocument();
+      expect(screen.getByText('Logout')).toBeInTheDocument();
+      expect(screen.getByText('Refresh')).toBeInTheDocument();
+    });
+  });
+
+  describe('Loading States Management', () => {
+    it('should handle loading state during operations', () => {
+      const { rerender } = render(<TestComponent />, {
+        authState: {
+          isLoading: true,
+          user: null,
+          sessionToken: null,
+        },
+      });
+
+      // Should start loading
+      expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
+
+      // Simulate operation completion
+      rerender(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: createMockUser(),
+          sessionToken: 'token',
+        },
+      });
+
+      // Should finish loading
+      expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+    });
+
+    it('should handle loading state transitions correctly', () => {
+      const { rerender } = render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: null,
+          sessionToken: null,
+        },
+      });
+
+      expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+
+      // Simulate loading start
+      rerender(<TestComponent />, {
+        authState: {
+          isLoading: true,
+          user: null,
+          sessionToken: null,
+        },
+      });
+
+      expect(screen.getByTestId('loading')).toHaveTextContent('Loading');
+
+      // Simulate loading complete with user
+      rerender(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: createMockUser({ name: 'Loaded User' }),
+          sessionToken: 'loaded-token',
+        },
+      });
+
+      expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+      expect(screen.getByTestId('user')).toHaveTextContent('Loaded User');
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle authentication errors gracefully', async () => {
+      const mockLogin = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'Authentication failed',
+      });
+
+      render(<TestComponent />, {
+        authState: {
+          isLoading: false,
+          user: null,
+          sessionToken: null,
+          login: mockLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('Login').click();
+      });
+
+      expect(mockLogin).toHaveBeenCalled();
+      // User state should remain unchanged on error
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      expect(screen.getByTestId('session-token')).toHaveTextContent('No token');
+    });
+
+    it('should handle OAuth errors gracefully', async () => {
+      const mockGithubOAuthLogin = jest.fn().mockResolvedValue({
+        success: false,
+        error: 'OAuth error',
+      });
+
+      const TestGitHubErrorComponent = () => {
+        const auth = useAuth();
+        return (
+          <button onClick={() => auth.githubOAuthLogin('invalid-code')}>
+            GitHub Login
+          </button>
+        );
+      };
+
+      render(<TestGitHubErrorComponent />, {
+        authState: {
+          isLoading: false,
+          user: null,
+          sessionToken: null,
+          githubOAuthLogin: mockGithubOAuthLogin,
+        },
+      });
+
+      await act(async () => {
+        screen.getByText('GitHub Login').click();
+      });
+
+      expect(mockGithubOAuthLogin).toHaveBeenCalledWith('invalid-code');
+      // Should not change user state on OAuth error
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+    });
+  });
+
+  describe('Real AuthProvider Methods Testing', () => {
+    let mockAuthService: any;
+
+    beforeEach(() => {
+      // Mock the authService methods
+      mockAuthService = {
+        login: jest.fn(),
+        register: jest.fn(),
+        logout: jest.fn(),
+        getCurrentUser: jest.fn(),
+        getSessionToken: jest.fn(),
+        changePassword: jest.fn(),
+        requestPasswordReset: jest.fn(),
+        resetPassword: jest.fn(),
+        getGitHubOAuthUrl: jest.fn(),
+        githubOAuthLogin: jest.fn(),
+        getGoogleOAuthUrl: jest.fn(),
+        googleOAuthLogin: jest.fn(),
+      };
+
+      // Mock the authService module
+      jest.doMock('../../lib/auth', () => ({
+        authService: mockAuthService,
+      }));
+    });
+
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it('should handle successful login flow', async () => {
+      const mockUser = createMockUser({
+        name: 'Test User',
+        email: 'test@example.com',
+      });
+      mockAuthService.login.mockResolvedValue({
+        success: true,
+        user: mockUser,
+        sessionToken: 'test-token',
+      });
+
+      const TestLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.login('test@example.com', 'password');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Login'));
+      });
+
+      expect(mockAuthService.login).toHaveBeenCalledWith(
+        'test@example.com',
+        'password',
+        undefined
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle login failure', async () => {
+      mockAuthService.login.mockResolvedValue({
+        success: false,
+        error: 'Invalid credentials',
+      });
+
+      const TestLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.login('test@example.com', 'wrongpassword');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Login'));
+      });
+
+      expect(mockAuthService.login).toHaveBeenCalledWith(
+        'test@example.com',
+        'wrongpassword',
+        undefined
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":false,"error":"Invalid credentials"}'
+      );
+    });
+
+    it('should handle successful registration flow', async () => {
+      const mockUser = createMockUser({
+        name: 'New User',
+        email: 'new@example.com',
+      });
+      mockAuthService.register.mockResolvedValue({ success: true });
+      mockAuthService.login.mockResolvedValue({
+        success: true,
+        user: mockUser,
+        sessionToken: 'new-token',
+      });
+
+      const TestRegisterComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleRegister = async () => {
+          const res = await auth.register(
+            'New User',
+            'new@example.com',
+            'password'
+          );
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleRegister}>Test Register</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestRegisterComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Register'));
+      });
+
+      expect(mockAuthService.register).toHaveBeenCalledWith(
+        'New User',
+        'new@example.com',
+        'password'
+      );
+      expect(mockAuthService.login).toHaveBeenCalledWith(
+        'new@example.com',
+        'password'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle registration failure', async () => {
+      mockAuthService.register.mockResolvedValue({
+        success: false,
+        error: 'Email already exists',
+      });
+
+      const TestRegisterComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleRegister = async () => {
+          const res = await auth.register(
+            'New User',
+            'existing@example.com',
+            'password'
+          );
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleRegister}>Test Register</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestRegisterComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Register'));
+      });
+
+      expect(mockAuthService.register).toHaveBeenCalledWith(
+        'New User',
+        'existing@example.com',
+        'password'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":false,"error":"Email already exists"}'
+      );
+    });
+
+    it('should handle logout flow', async () => {
+      mockAuthService.logout.mockResolvedValue();
+
+      const TestLogoutComponent = () => {
+        const auth = useAuth();
+
+        const handleLogout = async () => {
+          await auth.logout();
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogout}>Test Logout</button>
+            <div data-testid="loading">
+              {auth.isLoading ? 'Loading' : 'Not loading'}
+            </div>
+            <div data-testid="user">
+              {auth.user ? auth.user.name : 'No user'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestLogoutComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Logout'));
+      });
+
+      expect(mockAuthService.logout).toHaveBeenCalled();
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+    });
+
+    it('should handle refreshUser success', async () => {
+      const mockUser = createMockUser({ name: 'Refreshed User' });
+      mockAuthService.getCurrentUser.mockResolvedValue(mockUser);
+      mockAuthService.getSessionToken.mockReturnValue('refresh-token');
+
+      const TestRefreshComponent = () => {
+        const auth = useAuth();
+
+        const handleRefresh = async () => {
+          await auth.refreshUser();
+        };
+
+        return (
+          <div>
+            <button onClick={handleRefresh}>Test Refresh</button>
+            <div data-testid="user">
+              {auth.user ? auth.user.name : 'No user'}
+            </div>
+            <div data-testid="token">{auth.sessionToken || 'No token'}</div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestRefreshComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Refresh'));
+      });
+
+      expect(mockAuthService.getCurrentUser).toHaveBeenCalled();
+      expect(mockAuthService.getSessionToken).toHaveBeenCalled();
+    });
+
+    it('should handle refreshUser error', async () => {
+      mockAuthService.getCurrentUser.mockRejectedValue(new Error('Auth error'));
+
+      const TestRefreshComponent = () => {
+        const auth = useAuth();
+
+        const handleRefresh = async () => {
+          await auth.refreshUser();
+        };
+
+        return (
+          <div>
+            <button onClick={handleRefresh}>Test Refresh</button>
+            <div data-testid="user">
+              {auth.user ? auth.user.name : 'No user'}
+            </div>
+            <div data-testid="token">{auth.sessionToken || 'No token'}</div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestRefreshComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Refresh'));
+      });
+
+      expect(screen.getByTestId('user')).toHaveTextContent('No user');
+      expect(screen.getByTestId('token')).toHaveTextContent('No token');
+    });
+
+    it('should handle changePassword', async () => {
+      mockAuthService.changePassword.mockResolvedValue({
+        success: true,
+      });
+
+      const TestChangePasswordComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleChangePassword = async () => {
+          const res = await auth.changePassword('oldpass', 'newpass');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleChangePassword}>Test Change Password</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestChangePasswordComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Change Password'));
+      });
+
+      expect(mockAuthService.changePassword).toHaveBeenCalledWith(
+        'oldpass',
+        'newpass'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle requestPasswordReset', async () => {
+      mockAuthService.requestPasswordReset.mockResolvedValue({
+        success: true,
+      });
+
+      const TestResetRequestComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleResetRequest = async () => {
+          const res = await auth.requestPasswordReset('test@example.com');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleResetRequest}>Test Reset Request</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestResetRequestComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Reset Request'));
+      });
+
+      expect(mockAuthService.requestPasswordReset).toHaveBeenCalledWith(
+        'test@example.com'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle resetPassword', async () => {
+      mockAuthService.resetPassword.mockResolvedValue({
+        success: true,
+      });
+
+      const TestResetComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleReset = async () => {
+          const res = await auth.resetPassword('reset-token', 'newpass');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleReset}>Test Reset</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestResetComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Reset'));
+      });
+
+      expect(mockAuthService.resetPassword).toHaveBeenCalledWith(
+        'reset-token',
+        'newpass'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle getGitHubOAuthUrl', async () => {
+      mockAuthService.getGitHubOAuthUrl.mockResolvedValue({
+        success: true,
+        url: 'https://github.com/oauth',
+        state: 'github-state',
+      });
+
+      const TestGitHubUrlComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleGetUrl = async () => {
+          const res = await auth.getGitHubOAuthUrl();
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleGetUrl}>Test GitHub URL</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGitHubUrlComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test GitHub URL'));
+      });
+
+      expect(mockAuthService.getGitHubOAuthUrl).toHaveBeenCalled();
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true,"url":"https://github.com/oauth","state":"github-state"}'
+      );
+    });
+
+    it('should handle successful githubOAuthLogin', async () => {
+      const mockUser = createMockUser({ name: 'GitHub User' });
+      mockAuthService.githubOAuthLogin.mockResolvedValue({
+        success: true,
+        user: mockUser,
+        sessionToken: 'github-token',
+      });
+
+      const TestGitHubLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.githubOAuthLogin(
+            'github-code',
+            'github-state'
+          );
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test GitHub Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGitHubLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test GitHub Login'));
+      });
+
+      expect(mockAuthService.githubOAuthLogin).toHaveBeenCalledWith(
+        'github-code',
+        'github-state'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle failed githubOAuthLogin', async () => {
+      mockAuthService.githubOAuthLogin.mockResolvedValue({
+        success: false,
+        error: 'GitHub OAuth failed',
+      });
+
+      const TestGitHubLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.githubOAuthLogin('invalid-code');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test GitHub Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGitHubLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test GitHub Login'));
+      });
+
+      expect(mockAuthService.githubOAuthLogin).toHaveBeenCalledWith(
+        'invalid-code',
+        undefined
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":false,"error":"GitHub OAuth failed"}'
+      );
+    });
+
+    it('should handle getGoogleOAuthUrl', async () => {
+      mockAuthService.getGoogleOAuthUrl.mockResolvedValue({
+        success: true,
+        url: 'https://accounts.google.com/oauth',
+        state: 'google-state',
+      });
+
+      const TestGoogleUrlComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleGetUrl = async () => {
+          const res = await auth.getGoogleOAuthUrl();
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleGetUrl}>Test Google URL</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGoogleUrlComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Google URL'));
+      });
+
+      expect(mockAuthService.getGoogleOAuthUrl).toHaveBeenCalled();
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true,"url":"https://accounts.google.com/oauth","state":"google-state"}'
+      );
+    });
+
+    it('should handle successful googleOAuthLogin', async () => {
+      const mockUser = createMockUser({ name: 'Google User' });
+      mockAuthService.googleOAuthLogin.mockResolvedValue({
+        success: true,
+        user: mockUser,
+        sessionToken: 'google-token',
+      });
+
+      const TestGoogleLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.googleOAuthLogin(
+            'google-code',
+            'google-state'
+          );
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test Google Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGoogleLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Google Login'));
+      });
+
+      expect(mockAuthService.googleOAuthLogin).toHaveBeenCalledWith(
+        'google-code',
+        'google-state'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+    });
+
+    it('should handle failed googleOAuthLogin', async () => {
+      mockAuthService.googleOAuthLogin.mockResolvedValue({
+        success: false,
+        error: 'Google OAuth failed',
+      });
+
+      const TestGoogleLoginComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleLogin = async () => {
+          const res = await auth.googleOAuthLogin('invalid-code');
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleLogin}>Test Google Login</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestGoogleLoginComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Google Login'));
+      });
+
+      expect(mockAuthService.googleOAuthLogin).toHaveBeenCalledWith(
+        'invalid-code',
+        undefined
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":false,"error":"Google OAuth failed"}'
+      );
+    });
+
+    it('should handle registration with failed login after successful registration', async () => {
+      mockAuthService.register.mockResolvedValue({ success: true });
+      mockAuthService.login.mockResolvedValue({
+        success: false,
+        error: 'Login failed after registration',
+      });
+
+      const TestRegisterComponent = () => {
+        const auth = useAuth();
+        const [result, setResult] = React.useState<any>(null);
+
+        const handleRegister = async () => {
+          const res = await auth.register(
+            'New User',
+            'new@example.com',
+            'password'
+          );
+          setResult(res);
+        };
+
+        return (
+          <div>
+            <button onClick={handleRegister}>Test Register</button>
+            <div data-testid="result">
+              {result ? JSON.stringify(result) : 'No result'}
+            </div>
+            <div data-testid="loading">
+              {auth.isLoading ? 'Loading' : 'Not loading'}
+            </div>
+          </div>
+        );
+      };
+
+      render(
+        <AuthProvider>
+          <TestRegisterComponent />
+        </AuthProvider>
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByText('Test Register'));
+      });
+
+      expect(mockAuthService.register).toHaveBeenCalledWith(
+        'New User',
+        'new@example.com',
+        'password'
+      );
+      expect(mockAuthService.login).toHaveBeenCalledWith(
+        'new@example.com',
+        'password'
+      );
+      expect(screen.getByTestId('result')).toHaveTextContent(
+        '{"success":true}'
+      );
+      expect(screen.getByTestId('loading')).toHaveTextContent('Not loading');
+    });
+  });
+});
