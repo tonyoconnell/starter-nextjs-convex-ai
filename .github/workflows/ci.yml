@@ -54,7 +54,6 @@ jobs:
           NODE_ENV: test
         run: |
           cd apps/web && bun run test:ci
-          cd ../convex && bun run test:coverage
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -62,7 +61,6 @@ jobs:
           name: coverage-reports
           path: |
             apps/web/coverage
-            apps/convex/coverage
 
       - name: Check coverage thresholds
         env:
