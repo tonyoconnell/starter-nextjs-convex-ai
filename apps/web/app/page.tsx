@@ -5,7 +5,13 @@ import { api } from '../convex/api';
 import { useAuth } from '../components/auth/auth-provider';
 import { LogoutButton } from '../components/auth/logout-button';
 import { Button } from '@starter/ui';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@starter/ui';
 import { Input } from '@starter/ui';
 import Link from 'next/link';
 import { useState } from 'react';
@@ -113,32 +119,46 @@ export default function HomePage() {
 
               {/* ShadCN Components Showcase */}
               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-2xl mx-auto">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
-                  🎨 ShadCN Components Showcase
-                </h3>
-                
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    🎨 ShadCN Components Showcase
+                  </h3>
+                  <Link
+                    href="/showcase"
+                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    View All Components →
+                  </Link>
+                </div>
+
                 <div className="space-y-6">
                   {/* Button variants */}
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Button Components:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Button Components:
+                    </h4>
                     <div className="flex flex-wrap gap-2">
                       <Button variant="default">Default</Button>
                       <Button variant="secondary">Secondary</Button>
                       <Button variant="outline">Outline</Button>
                       <Button variant="ghost">Ghost</Button>
-                      <Button variant="destructive" size="sm">Destructive</Button>
+                      <Button variant="destructive" size="sm">
+                        Destructive
+                      </Button>
                     </div>
                   </div>
 
                   {/* Input component */}
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Input Component:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Input Component:
+                    </h4>
                     <div className="space-y-2">
                       <Input
                         type="text"
                         placeholder="Type something..."
                         value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
+                        onChange={e => setInputValue(e.target.value)}
                       />
                       {inputValue && (
                         <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -150,7 +170,9 @@ export default function HomePage() {
 
                   {/* Card component */}
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">Card Component:</h4>
+                    <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                      Card Component:
+                    </h4>
                     <Card className="w-full max-w-sm mx-auto">
                       <CardHeader>
                         <CardTitle>Example Card</CardTitle>
@@ -160,7 +182,8 @@ export default function HomePage() {
                       </CardHeader>
                       <CardContent>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
-                          All components are properly integrated and styled with Tailwind CSS.
+                          All components are properly integrated and styled with
+                          Tailwind CSS.
                         </p>
                         <div className="mt-4">
                           <Button variant="outline" size="sm">
