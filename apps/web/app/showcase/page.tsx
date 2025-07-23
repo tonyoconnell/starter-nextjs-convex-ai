@@ -440,18 +440,24 @@ export default function ShowcasePage() {
                   <div className="text-gray-800">
                     <span className="text-blue-600">import</span> {`{ Button }`}{' '}
                     <span className="text-blue-600">from</span>{' '}
-                    <span className="text-green-600">"@starter/ui"</span>
+                    <span className="text-green-600">
+                      &quot;@starter/ui&quot;
+                    </span>
                   </div>
                   <div className="text-gray-800">
                     <span className="text-blue-600">import</span>{' '}
                     {`{ Card, CardContent, CardHeader, CardTitle }`}{' '}
                     <span className="text-blue-600">from</span>{' '}
-                    <span className="text-green-600">"@starter/ui"</span>
+                    <span className="text-green-600">
+                      &quot;@starter/ui&quot;
+                    </span>
                   </div>
                   <div className="text-gray-800">
                     <span className="text-blue-600">import</span> {`{ Input }`}{' '}
                     <span className="text-blue-600">from</span>{' '}
-                    <span className="text-green-600">"@starter/ui"</span>
+                    <span className="text-green-600">
+                      &quot;@starter/ui&quot;
+                    </span>
                   </div>
                 </div>
               </div>
