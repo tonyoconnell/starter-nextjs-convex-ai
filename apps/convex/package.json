@@ -5,10 +5,7 @@
   "scripts": {
     "build": "npx convex codegen",
     "dev": "npx convex dev",
-    "deploy": "npx convex deploy",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage --passWithNoTests"
+    "deploy": "npx convex deploy"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -16,9 +13,6 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
-    "@types/jest": "^30.0.0",
-    "jest": "^30.0.4",
-    "ts-jest": "^29.4.0",
     "typescript": "^5.8.3"
   }
 }
