@@ -15,6 +15,7 @@ import {
 import { Input } from '@starter/ui';
 import Link from 'next/link';
 import { useState } from 'react';
+import { ThemeToggle } from '../components/theme/theme-toggle';
 
 export default function HomePage() {
   const testMessage = useQuery(api.queries.getTestMessage);
@@ -24,7 +25,11 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-16">
+      {/* Header with theme toggle */}
+      <div className="flex justify-end p-4">
+        <ThemeToggle />
+      </div>
+      <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <div className="space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white">
