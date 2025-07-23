@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from '@starter/ui';
 import { Input } from '@starter/ui';
+import { ThemeToggle } from '../../components/theme/theme-toggle';
 
 export const metadata: Metadata = {
   title: 'Component Showcase | Starter Template',
@@ -18,24 +19,25 @@ export const metadata: Metadata = {
 
 export default function ShowcasePage() {
   return (
-    <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8 bg-background text-foreground">
       <div className="max-w-6xl mx-auto">
         {/* Navigation */}
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
           <Link
             href="/"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
             ← Back to Home
           </Link>
+          <ThemeToggle />
         </div>
 
         {/* Page Header */}
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Component Showcase
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Explore all available UI components from our design system. Each
             component is built with accessibility and theming in mind.
           </p>
@@ -44,10 +46,10 @@ export default function ShowcasePage() {
         {/* Button Components Section */}
         <section className="mb-16">
           <div className="mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Button Components
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Interactive button components with multiple variants and sizes.
             </p>
           </div>
@@ -62,7 +64,7 @@ export default function ShowcasePage() {
             <CardContent className="space-y-6">
               {/* Default Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Default Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -74,7 +76,7 @@ export default function ShowcasePage() {
 
               {/* Secondary Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Secondary Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -90,7 +92,7 @@ export default function ShowcasePage() {
 
               {/* Destructive Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Destructive Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -106,7 +108,7 @@ export default function ShowcasePage() {
 
               {/* Outline Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Outline Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -122,7 +124,7 @@ export default function ShowcasePage() {
 
               {/* Ghost Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Ghost Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -138,7 +140,7 @@ export default function ShowcasePage() {
 
               {/* Link Buttons */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Link Variant
                 </h4>
                 <div className="flex flex-wrap gap-3">
@@ -158,10 +160,10 @@ export default function ShowcasePage() {
         {/* Input Components Section */}
         <section className="mb-16">
           <div className="mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Input Components
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Form input components for user data collection.
             </p>
           </div>
@@ -176,7 +178,7 @@ export default function ShowcasePage() {
             <CardContent className="space-y-6">
               {/* Text Inputs */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Text Inputs
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -209,7 +211,7 @@ export default function ShowcasePage() {
 
               {/* Email and Password */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Specialized Inputs
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -244,7 +246,7 @@ export default function ShowcasePage() {
 
               {/* Disabled State */}
               <div>
-                <h4 className="text-sm font-medium text-gray-900 mb-3">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-3">
                   Disabled State
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -283,10 +285,10 @@ export default function ShowcasePage() {
         {/* Card Components Section */}
         <section className="mb-16">
           <div className="mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Card Components
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Flexible card containers for organizing content.
             </p>
           </div>
@@ -369,10 +371,10 @@ export default function ShowcasePage() {
         {/* Usage Guidelines */}
         <section className="mb-16">
           <div className="mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Usage Guidelines
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               Best practices for using these components in your application.
             </p>
           </div>
@@ -417,10 +419,10 @@ export default function ShowcasePage() {
         {/* Component Import Guide */}
         <section>
           <div className="mb-8">
-            <h2 className="text-3xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Import Guide
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-300">
               How to import and use these components in your code.
             </p>
           </div>
