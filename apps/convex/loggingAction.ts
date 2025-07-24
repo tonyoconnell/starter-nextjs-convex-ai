@@ -15,7 +15,7 @@ const createLogEntry = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const expiresAt = now + (60 * 60 * 1000); // 1 hour from now
+    const expiresAt = now + 60 * 60 * 1000; // 1 hour from now
 
     // Store in log queue
     const logQueueId = await ctx.db.insert('log_queue', {
@@ -47,6 +47,9 @@ const createLogEntry = mutation({
   },
 });
 
+// Rate limiting removed from backend - handled at frontend level only
+// This maximizes Convex function call efficiency
+
 // Public action to process browser logs
 export const processLogs = action({
   args: {
@@ -58,22 +61,38 @@ export const processLogs = action({
     timestamp: v.number(),
     stack_trace: v.optional(v.string()),
   },
-  handler: async (ctx, args): Promise<any> => {
+  handler: async (
+    ctx,
+    args
+  ): Promise<{
+    success: boolean;
+    result?: { logQueueId: string; recentLogId: string };
+    error?: string;
+  }> => {
+    // Rate limiting is handled at frontend level to avoid wasting function calls
+    // Frontend limits: 50 logs/minute + duplicate detection
     // Prepare log entry data
     const logEntry = {
       level: args.level,
-      message: Array.isArray(args.args) ? args.args.join(' ') : String(args.args),
+      message: Array.isArray(args.args)
+        ? args.args.join(' ')
+        : String(args.args),
       trace_id: args.trace_id || 'unknown',
       user_id: args.user_id || 'anonymous',
       system_area: args.system_area || 'browser',
       timestamp: args.timestamp,
-      raw_args: Array.isArray(args.args) ? args.args.map((arg: any) => String(arg)) : [String(args.args)],
+      raw_args: Array.isArray(args.args)
+        ? args.args.map((arg: unknown) => String(arg))
+        : [String(args.args)],
       stack_trace: args.stack_trace,
     };
 
     // Store the log entry
-    const result = await ctx.runMutation("loggingAction:createLogEntry", logEntry);
-    
+    const result = await ctx.runMutation(
+      'loggingAction:createLogEntry',
+      logEntry
+    );
+
     return { success: true, result };
   },
 });
