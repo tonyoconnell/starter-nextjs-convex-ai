@@ -1,8 +1,9 @@
 import { action, mutation } from './_generated/server';
 import { v } from 'convex/values';
+import { api } from './_generated/api';
 
 // Internal mutation to store log entry
-const createLogEntry = mutation({
+export const createLogEntry = mutation({
   args: {
     level: v.string(),
     message: v.string(),
@@ -89,13 +90,10 @@ export const processLogs = action({
 
     // Store the log entry
     const result = await ctx.runMutation(
-      'loggingAction:createLogEntry',
+      api.loggingAction.createLogEntry,
       logEntry
     );
 
     return { success: true, result };
   },
 });
-
-// Export the internal mutation for other files to use
-export { createLogEntry };

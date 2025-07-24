@@ -78,8 +78,8 @@ export const traces = query({
 
     // Sort by count and return top offenders
     const sortedTraces = Object.entries(traceCounts)
-      .map(([trace_id, count]) => ({ trace_id, count }))
-      .sort((a, b) => b.count - a.count)
+      .map(([trace_id, count]) => ({ trace_id, count: count as number }))
+      .sort((a, b) => (b.count as number) - (a.count as number))
       .slice(0, 10);
 
     return {
