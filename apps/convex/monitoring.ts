@@ -1,9 +1,15 @@
-import { query } from './_generated/server';
+import { query, QueryCtx } from './_generated/server';
+
+type LogEntry = {
+  trace_id: string;
+  level: string;
+  message: string;
+};
 
 // Monitor database size and log volume (simplified to avoid pagination limits)
 export const usage = query({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: QueryCtx) => {
     // Get sample counts from most recent entries
     const recentLogQueue = await ctx.db
       .query('log_queue')
@@ -60,7 +66,7 @@ export const usage = query({
 // Get recent high-volume traces for investigation (simplified to avoid memory limits)
 export const traces = query({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: QueryCtx) => {
     // Sample recent logs instead of loading all
     const recentLogs = await ctx.db
       .query('recent_log_entries')
@@ -69,7 +75,7 @@ export const traces = query({
 
     // Group by trace_id and count
     const traceCounts = recentLogs.reduce(
-      (acc, log) => {
+      (acc: Record<string, number>, log: LogEntry) => {
         acc[log.trace_id] = (acc[log.trace_id] || 0) + 1;
         return acc;
       },

@@ -1,4 +1,4 @@
-import { action, mutation } from './_generated/server';
+import { action, mutation, MutationCtx, ActionCtx } from './_generated/server';
 import { v } from 'convex/values';
 import { api } from './_generated/api';
 
@@ -14,7 +14,19 @@ export const createLogEntry = mutation({
     raw_args: v.array(v.string()),
     stack_trace: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: {
+      level: string;
+      message: string;
+      trace_id: string;
+      user_id: string;
+      system_area: string;
+      timestamp: number;
+      raw_args: string[];
+      stack_trace?: string;
+    }
+  ) => {
     const now = Date.now();
     const expiresAt = now + 60 * 60 * 1000; // 1 hour from now
 
@@ -63,8 +75,16 @@ export const processLogs = action({
     stack_trace: v.optional(v.string()),
   },
   handler: async (
-    ctx,
-    args
+    ctx: ActionCtx,
+    args: {
+      level: string;
+      args: unknown[];
+      trace_id?: string;
+      user_id?: string;
+      system_area?: string;
+      timestamp: number;
+      stack_trace?: string;
+    }
   ): Promise<{
     success: boolean;
     result?: { logQueueId: string; recentLogId: string };

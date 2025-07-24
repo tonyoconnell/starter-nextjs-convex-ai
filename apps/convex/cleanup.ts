@@ -1,9 +1,18 @@
-import { mutation } from './_generated/server';
+import { mutation, MutationCtx } from './_generated/server';
+
+type LogEntry = {
+  _id: string;
+  trace_id: string;
+  level: string;
+  message: string;
+  expires_at?: number;
+  timestamp?: number;
+};
 
 // Check cleanup status - what needs cleaning and patterns
 export const status = mutation({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: MutationCtx) => {
     // Sample approach to estimate counts (avoid memory limits)
     const logQueueSample = await ctx.db.query('log_queue').take(1000);
     const recentLogsSample = await ctx.db
@@ -23,7 +32,7 @@ export const status = mutation({
     const levelCounts: Record<string, number> = {};
     const messageCounts: Record<string, number> = {};
 
-    recentSample.forEach(log => {
+    recentSample.forEach((log: LogEntry) => {
       traceCounts[log.trace_id] = (traceCounts[log.trace_id] || 0) + 1;
       levelCounts[log.level] = (levelCounts[log.level] || 0) + 1;
 
@@ -72,7 +81,7 @@ export const status = mutation({
 // Safe cleanup - normal maintenance (expired logs and older entries)
 export const safe = mutation({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: MutationCtx) => {
     const now = Date.now();
     const oneHourAgo = now - 60 * 60 * 1000;
 
@@ -115,7 +124,7 @@ export const safe = mutation({
 // Force cleanup - delete ALL logs regardless of age (testing/emergency only)
 export const force = mutation({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: MutationCtx) => {
     // Delete ALL recent_log_entries regardless of expiry
     const allRecent = await ctx.db.query('recent_log_entries').take(100);
     let deletedRecent = 0;
