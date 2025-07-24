@@ -143,16 +143,5 @@ afterAll(() => {
   console.error = originalError;
 });
 
-// Mock the auth provider to use our test context
-jest.mock('@/components/auth/auth-provider', () => ({
-  useAuth: () => {
-    const { useContext } = require('react');
-    const { TestAuthContext } = require('@/lib/test-utils');
-    const context = useContext(TestAuthContext);
-    if (context === undefined) {
-      throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
-  },
-  AuthProvider: ({ children }) => children,
-}));
+// Remove this mock to let auth tests use their real AuthProvider
+// The custom render in test-utils.tsx provides the proper test context when needed

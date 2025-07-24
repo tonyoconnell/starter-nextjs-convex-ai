@@ -1,30 +1,31 @@
 import React from 'react';
 import { render, screen, act, fireEvent } from '@testing-library/react';
 
-// Mock the auth service before importing
-const mockAuthService = {
-  login: jest.fn(),
-  register: jest.fn(),
-  logout: jest.fn(),
-  getCurrentUser: jest.fn(),
-  getSessionToken: jest.fn(),
-  changePassword: jest.fn(),
-  requestPasswordReset: jest.fn(),
-  resetPassword: jest.fn(),
-  getGitHubOAuthUrl: jest.fn(),
-  githubOAuthLogin: jest.fn(),
-  getGoogleOAuthUrl: jest.fn(),
-  googleOAuthLogin: jest.fn(),
-};
-
-// Mock the auth module
+// Mock the auth module with factory function to avoid hoisting issues
 jest.mock('../../../lib/auth', () => ({
-  authService: mockAuthService,
+  authService: {
+    login: jest.fn(),
+    register: jest.fn(),
+    logout: jest.fn(),
+    getCurrentUser: jest.fn(),
+    getSessionToken: jest.fn(),
+    changePassword: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    resetPassword: jest.fn(),
+    getGitHubOAuthUrl: jest.fn(),
+    githubOAuthLogin: jest.fn(),
+    getGoogleOAuthUrl: jest.fn(),
+    googleOAuthLogin: jest.fn(),
+  },
 }));
 
 // Import after mocking
 import { AuthProvider, useAuth } from '../auth-provider';
 import { createMockUser } from '../../../lib/test-utils';
+import { authService } from '../../../lib/auth';
+
+// Get access to the mocked auth service
+const mockAuthService = authService as jest.Mocked<typeof authService>;
 
 // Test component that uses all auth methods
 function TestAuthComponent() {

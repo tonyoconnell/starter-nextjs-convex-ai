@@ -1,18 +1,35 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@/lib/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginForm } from '../login-form';
+import { AuthProvider } from '../auth-provider';
 import userEvent from '@testing-library/user-event';
 
-describe('LoginForm', () => {
-  const mockLogin = jest.fn();
+// Mock the auth service
+jest.mock('../../../lib/auth', () => ({
+  authService: {
+    getCurrentUser: jest.fn(),
+    getSessionToken: jest.fn(),
+    login: jest.fn(),
+  },
+}));
 
+import { authService } from '../../../lib/auth';
+const mockAuthService = authService as jest.Mocked<typeof authService>;
+
+describe('LoginForm', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockLogin.mockResolvedValue({ success: true });
+    mockAuthService.getCurrentUser.mockResolvedValue(null);
+    mockAuthService.getSessionToken.mockReturnValue(null);
+    mockAuthService.login.mockResolvedValue({ success: true });
   });
 
   it('renders login form with all fields', () => {
-    render(<LoginForm />);
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument();
@@ -24,7 +41,11 @@ describe('LoginForm', () => {
 
   it('validates required fields', async () => {
     const user = userEvent.setup();
-    render(<LoginForm />);
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const submitButton = screen.getByRole('button', { name: /log in/i });
 
@@ -62,14 +83,12 @@ describe('LoginForm', () => {
 
   it('submits form with valid credentials', async () => {
     const user = userEvent.setup();
-    const { render: customRender } = await import('@/lib/test-utils');
 
-    customRender(<LoginForm />, {
-      authState: {
-        isAuthenticated: false,
-        login: mockLogin,
-      },
-    });
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -82,7 +101,7 @@ describe('LoginForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockLogin).toHaveBeenCalledWith(
+      expect(mockAuthService.login).toHaveBeenCalledWith(
         'test@example.com',
         'password123',
         true
@@ -92,18 +111,16 @@ describe('LoginForm', () => {
 
   it('displays error message on login failure', async () => {
     const user = userEvent.setup();
-    mockLogin.mockResolvedValueOnce({
+    mockAuthService.login.mockResolvedValueOnce({
       success: false,
       error: 'Invalid credentials',
     });
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<LoginForm />, {
-      authState: {
-        isAuthenticated: false,
-        login: mockLogin,
-      },
-    });
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -120,17 +137,18 @@ describe('LoginForm', () => {
 
   it('disables form during submission', async () => {
     const user = userEvent.setup();
-    mockLogin.mockImplementation(
-      () => new Promise(resolve => setTimeout(resolve, 100))
+    mockAuthService.login.mockImplementation(
+      () =>
+        new Promise(resolve =>
+          setTimeout(() => resolve({ success: true }), 100)
+        )
     );
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<LoginForm />, {
-      authState: {
-        isAuthenticated: false,
-        login: mockLogin,
-      },
-    });
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -152,15 +170,13 @@ describe('LoginForm', () => {
 
   it('handles unexpected errors gracefully', async () => {
     const user = userEvent.setup();
-    mockLogin.mockRejectedValueOnce(new Error('Network error'));
+    mockAuthService.login.mockRejectedValueOnce(new Error('Network error'));
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<LoginForm />, {
-      authState: {
-        isAuthenticated: false,
-        login: mockLogin,
-      },
-    });
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const emailInput = screen.getByLabelText(/email/i);
     const passwordInput = screen.getByLabelText(/^password$/i);
@@ -179,7 +195,11 @@ describe('LoginForm', () => {
 
   it('maintains remember me state', async () => {
     const user = userEvent.setup();
-    render(<LoginForm />);
+    render(
+      <AuthProvider>
+        <LoginForm />
+      </AuthProvider>
+    );
 
     const rememberMeCheckbox = screen.getByLabelText(
       /remember me/i
