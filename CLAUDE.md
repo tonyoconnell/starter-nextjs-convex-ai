@@ -53,6 +53,16 @@ bun run pages:dev    # Local development with Cloudflare Pages emulation
 # Claude Integration
 bun chrome:debug     # Start Chrome with debugging port
 bun claude:bridge    # Start Claude Dev Bridge for log capture
+
+# Monitoring & Cleanup
+bunx convex run cleanup:status                    # Check what needs cleaning with message patterns
+bunx convex run monitoring:usage                  # Database usage stats and warnings
+bunx convex run monitoring:traces                 # Find traces generating lots of logs
+
+# Cleanup Commands (run multiple times until totalDeleted returns 0)
+bunx convex run cleanup:safe                      # Normal maintenance - expired/old logs only
+bunx convex run cleanup:force                     # Testing/emergency - delete ALL logs
+./scripts/cleanup-logs.sh                         # Automated cleanup script
 ```
 
 ## Architecture & Key Patterns
@@ -255,7 +265,7 @@ This protocol prevents incorrect file placement and maintains project consistenc
    # Good - paths from project root
    docs/testing/index.md
    apps/web/components/ui/button.tsx
-   
+
    # Avoid relative paths that lose context
    ../../../.bmad-core/
    ../../docs/testing/index.md
