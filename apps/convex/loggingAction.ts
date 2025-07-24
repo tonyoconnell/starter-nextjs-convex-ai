@@ -1,0 +1,82 @@
+import { action, mutation } from './_generated/server';
+import { v } from 'convex/values';
+
+// Internal mutation to store log entry
+const createLogEntry = mutation({
+  args: {
+    level: v.string(),
+    message: v.string(),
+    trace_id: v.string(),
+    user_id: v.string(),
+    system_area: v.string(),
+    timestamp: v.number(),
+    raw_args: v.array(v.string()),
+    stack_trace: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const expiresAt = now + (60 * 60 * 1000); // 1 hour from now
+
+    // Store in log queue
+    const logQueueId = await ctx.db.insert('log_queue', {
+      level: args.level,
+      message: args.message,
+      trace_id: args.trace_id,
+      user_id: args.user_id,
+      system_area: args.system_area,
+      timestamp: args.timestamp,
+      raw_args: args.raw_args,
+      stack_trace: args.stack_trace,
+      processed: false,
+    });
+
+    // Also store in recent entries for real-time UI
+    const recentLogId = await ctx.db.insert('recent_log_entries', {
+      level: args.level,
+      message: args.message,
+      trace_id: args.trace_id,
+      user_id: args.user_id,
+      system_area: args.system_area,
+      timestamp: args.timestamp,
+      raw_args: args.raw_args,
+      stack_trace: args.stack_trace,
+      expires_at: expiresAt,
+    });
+
+    return { logQueueId, recentLogId };
+  },
+});
+
+// Public action to process browser logs
+export const processLogs = action({
+  args: {
+    level: v.string(),
+    args: v.array(v.any()),
+    trace_id: v.optional(v.string()),
+    user_id: v.optional(v.string()),
+    system_area: v.optional(v.string()),
+    timestamp: v.number(),
+    stack_trace: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<any> => {
+    // Prepare log entry data
+    const logEntry = {
+      level: args.level,
+      message: Array.isArray(args.args) ? args.args.join(' ') : String(args.args),
+      trace_id: args.trace_id || 'unknown',
+      user_id: args.user_id || 'anonymous',
+      system_area: args.system_area || 'browser',
+      timestamp: args.timestamp,
+      raw_args: Array.isArray(args.args) ? args.args.map((arg: any) => String(arg)) : [String(args.args)],
+      stack_trace: args.stack_trace,
+    };
+
+    // Store the log entry
+    const result = await ctx.runMutation("loggingAction:createLogEntry", logEntry);
+    
+    return { success: true, result };
+  },
+});
+
+// Export the internal mutation for other files to use
+export { createLogEntry };
