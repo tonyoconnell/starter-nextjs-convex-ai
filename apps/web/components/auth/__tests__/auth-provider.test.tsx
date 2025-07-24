@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  waitFor,
+  act,
+  fireEvent,
+} from '@testing-library/react';
 import { createMockUser } from '@/lib/test-utils';
 
 // Unmock the auth provider for this test to test the actual component
@@ -622,7 +628,7 @@ describe('AuthProvider', () => {
       };
 
       // Mock the authService module
-      jest.doMock('../../lib/auth', () => ({
+      jest.doMock('@/lib/auth', () => ({
         authService: mockAuthService,
       }));
     });

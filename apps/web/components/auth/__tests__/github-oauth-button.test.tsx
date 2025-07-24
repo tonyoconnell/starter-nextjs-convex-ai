@@ -1,38 +1,50 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@/lib/test-utils';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { GitHubOAuthButton } from '../github-oauth-button';
+import { AuthProvider } from '../auth-provider';
 
-// Mock the auth context
-const mockGetGitHubOAuthUrl = jest.fn();
+// Mock the auth service
+jest.mock('../../../lib/auth', () => ({
+  authService: {
+    getCurrentUser: jest.fn(),
+    getSessionToken: jest.fn(),
+    getGitHubOAuthUrl: jest.fn(),
+  },
+}));
+
+import { authService } from '../../../lib/auth';
+const mockAuthService = authService as jest.Mocked<typeof authService>;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockAuthService.getCurrentUser.mockResolvedValue(null);
+  mockAuthService.getSessionToken.mockReturnValue(null);
 });
 
 test('GitHubOAuthButton renders with correct text', () => {
-  render(<GitHubOAuthButton />, {
-    authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
-  });
+  render(
+    <AuthProvider>
+      <GitHubOAuthButton />
+    </AuthProvider>
+  );
 
   expect(screen.getByText('Continue with GitHub')).toBeInTheDocument();
   expect(screen.getByRole('button')).toBeInTheDocument();
 });
 
 test('GitHubOAuthButton shows loading state when clicked', async () => {
-  mockGetGitHubOAuthUrl.mockResolvedValue({
+  mockAuthService.getGitHubOAuthUrl.mockResolvedValue({
     success: true,
     url: 'https://github.com/login/oauth/authorize?test=1',
     state: 'test-state',
   });
 
-  render(<GitHubOAuthButton />, {
-    authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
-  });
+  render(
+    <AuthProvider>
+      <GitHubOAuthButton />
+    </AuthProvider>
+  );
 
   const button = screen.getByRole('button');
   fireEvent.click(button);
@@ -44,7 +56,7 @@ test('GitHubOAuthButton shows loading state when clicked', async () => {
 test('GitHubOAuthButton handles successful OAuth URL generation', async () => {
   const mockUrl = 'https://github.com/login/oauth/authorize?client_id=test';
   const mockState = 'test-state';
-  
+
   // Reset window state
   window.location.href = '';
   window.sessionStorage.setItem.mockClear();
@@ -57,8 +69,8 @@ test('GitHubOAuthButton handles successful OAuth URL generation', async () => {
 
   render(<GitHubOAuthButton />, {
     authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
+      getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+    },
   });
 
   const button = screen.getByRole('button');
@@ -82,8 +94,8 @@ test('GitHubOAuthButton handles OAuth URL generation error', async () => {
 
   render(<GitHubOAuthButton />, {
     authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
+      getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+    },
   });
 
   const button = screen.getByRole('button');
@@ -98,8 +110,8 @@ test('GitHubOAuthButton handles OAuth URL generation error', async () => {
 test('GitHubOAuthButton applies custom className', () => {
   render(<GitHubOAuthButton className="custom-class" />, {
     authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
+      getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+    },
   });
 
   const button = screen.getByRole('button');
@@ -109,8 +121,8 @@ test('GitHubOAuthButton applies custom className', () => {
 test('GitHubOAuthButton renders with primary variant', () => {
   render(<GitHubOAuthButton variant="primary" />, {
     authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
+      getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+    },
   });
 
   const button = screen.getByRole('button');
@@ -120,8 +132,8 @@ test('GitHubOAuthButton renders with primary variant', () => {
 test('GitHubOAuthButton renders with secondary variant (default)', () => {
   render(<GitHubOAuthButton variant="secondary" />, {
     authState: {
-      getGitHubOAuthUrl: mockGetGitHubOAuthUrl
-    }
+      getGitHubOAuthUrl: mockGetGitHubOAuthUrl,
+    },
   });
 
   const button = screen.getByRole('button');

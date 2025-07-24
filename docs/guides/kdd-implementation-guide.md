@@ -165,6 +165,15 @@ Add KDD guidance to AI instructions:
 - Document new patterns as they emerge
 - Create examples from working implementations
 - Record lessons learned for future reference
+
+## Discovery Mode KDD
+
+When debugging sessions >1 hour:
+- Activate Discovery Mode KDD protocol
+- Track assumption corrections in real-time
+- Document architecture revelations as they emerge
+- Capture breakthrough moments and their causes
+- Create knowledge assets from unplanned discoveries
 ````
 
 ### Pattern-Aware Implementation
