@@ -98,14 +98,12 @@ describe('RegisterForm', () => {
 
   it('submits form with valid data', async () => {
     const user = userEvent.setup();
-    const { render: customRender } = await import('@/lib/test-utils');
 
-    customRender(<RegisterForm />, {
-      authState: {
-        isAuthenticated: false,
-        register: mockRegister,
-      },
-    });
+    render(
+      <AuthProvider>
+        <RegisterForm />
+      </AuthProvider>
+    );
 
     const nameInput = screen.getByLabelText(/full name/i);
     const emailInput = screen.getByLabelText(/^email$/i);
@@ -120,7 +118,7 @@ describe('RegisterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith(
+      expect(mockAuthService.register).toHaveBeenCalledWith(
         'John Doe',
         'john@example.com',
         'password123'
@@ -130,14 +128,12 @@ describe('RegisterForm', () => {
 
   it('trims whitespace from name', async () => {
     const user = userEvent.setup();
-    const { render: customRender } = await import('@/lib/test-utils');
 
-    customRender(<RegisterForm />, {
-      authState: {
-        isAuthenticated: false,
-        register: mockRegister,
-      },
-    });
+    render(
+      <AuthProvider>
+        <RegisterForm />
+      </AuthProvider>
+    );
 
     const nameInput = screen.getByLabelText(/full name/i);
     const emailInput = screen.getByLabelText(/^email$/i);
@@ -152,7 +148,7 @@ describe('RegisterForm', () => {
     await user.click(submitButton);
 
     await waitFor(() => {
-      expect(mockRegister).toHaveBeenCalledWith(
+      expect(mockAuthService.register).toHaveBeenCalledWith(
         'John Doe',
         'john@example.com',
         'password123'
@@ -162,18 +158,16 @@ describe('RegisterForm', () => {
 
   it('displays error message on registration failure', async () => {
     const user = userEvent.setup();
-    mockRegister.mockResolvedValueOnce({
+    mockAuthService.register.mockResolvedValueOnce({
       success: false,
       error: 'Email already exists',
     });
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<RegisterForm />, {
-      authState: {
-        isAuthenticated: false,
-        register: mockRegister,
-      },
-    });
+    render(
+      <AuthProvider>
+        <RegisterForm />
+      </AuthProvider>
+    );
 
     const nameInput = screen.getByLabelText(/full name/i);
     const emailInput = screen.getByLabelText(/^email$/i);
@@ -194,17 +188,18 @@ describe('RegisterForm', () => {
 
   it('disables form during submission', async () => {
     const user = userEvent.setup();
-    mockRegister.mockImplementation(
-      () => new Promise(resolve => setTimeout(resolve, 100))
+    mockAuthService.register.mockImplementation(
+      () =>
+        new Promise(resolve =>
+          setTimeout(() => resolve({ success: true }), 100)
+        )
     );
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<RegisterForm />, {
-      authState: {
-        isAuthenticated: false,
-        register: mockRegister,
-      },
-    });
+    render(
+      <AuthProvider>
+        <RegisterForm />
+      </AuthProvider>
+    );
 
     const nameInput = screen.getByLabelText(/full name/i);
     const emailInput = screen.getByLabelText(/^email$/i);
@@ -232,15 +227,13 @@ describe('RegisterForm', () => {
 
   it('handles unexpected errors gracefully', async () => {
     const user = userEvent.setup();
-    mockRegister.mockRejectedValueOnce(new Error('Network error'));
+    mockAuthService.register.mockRejectedValueOnce(new Error('Network error'));
 
-    const { render: customRender } = await import('@/lib/test-utils');
-    customRender(<RegisterForm />, {
-      authState: {
-        isAuthenticated: false,
-        register: mockRegister,
-      },
-    });
+    render(
+      <AuthProvider>
+        <RegisterForm />
+      </AuthProvider>
+    );
 
     const nameInput = screen.getByLabelText(/full name/i);
     const emailInput = screen.getByLabelText(/^email$/i);
