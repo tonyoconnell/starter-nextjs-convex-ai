@@ -1,9 +1,34 @@
 import React from 'react';
-import { screen, fireEvent, waitFor, act } from '@testing-library/react';
-import { render } from '@/lib/test-utils';
+import {
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+  render,
+} from '@testing-library/react';
 import { ChangePasswordForm } from '../change-password-form';
+import { AuthProvider } from '../auth-provider';
+
+// Mock the auth service
+jest.mock('../../../lib/auth', () => ({
+  authService: {
+    getCurrentUser: jest.fn(),
+    getSessionToken: jest.fn(),
+    changePassword: jest.fn(),
+  },
+}));
+
+import { authService } from '../../../lib/auth';
+const mockAuthService = authService as jest.Mocked<typeof authService>;
 
 describe('ChangePasswordForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockAuthService.getCurrentUser.mockResolvedValue(null);
+    mockAuthService.getSessionToken.mockReturnValue(null);
+    mockAuthService.changePassword.mockResolvedValue({ success: true });
+  });
+
   describe('Component Rendering', () => {
     it('should render the form with all required fields', () => {
       render(<ChangePasswordForm />, {
