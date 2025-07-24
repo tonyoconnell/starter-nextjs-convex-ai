@@ -1,14 +1,16 @@
-import { mutation } from './_generated/server';
+import { mutation, MutationCtx } from './_generated/server';
 import { v } from 'convex/values';
 import bcrypt from 'bcryptjs';
 
 // Migration to set default password for existing users
 export const migrateUsersWithDefaultPassword = mutation({
   args: {},
-  handler: async ctx => {
+  handler: async (ctx: MutationCtx) => {
     // Get all users without passwords
     const users = await ctx.db.query('users').collect();
-    const usersWithoutPasswords = users.filter(user => !user.password);
+    const usersWithoutPasswords = users.filter(
+      (user: { password?: string }) => !user.password
+    );
 
     if (usersWithoutPasswords.length === 0) {
       return { message: 'No users need password migration', updated: 0 };
@@ -40,7 +42,10 @@ export const resetUserPassword = mutation({
     email: v.string(),
     newPassword: v.string(),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: { email: string; newPassword: string }
+  ) => {
     const user = await ctx.db
       .query('users')
       .withIndex('by_email', q => q.eq('email', args.email))
