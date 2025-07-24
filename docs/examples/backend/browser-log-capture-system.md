@@ -80,7 +80,7 @@ const createLogEntry = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const expiresAt = now + (60 * 60 * 1000); // 1 hour from now
+    const expiresAt = now + 60 * 60 * 1000; // 1 hour from now
 
     // Store in log queue
     const logQueueId = await ctx.db.insert('log_queue', {
@@ -127,18 +127,25 @@ export const processLogs = action({
     // Prepare log entry data
     const logEntry = {
       level: args.level,
-      message: Array.isArray(args.args) ? args.args.join(' ') : String(args.args),
+      message: Array.isArray(args.args)
+        ? args.args.join(' ')
+        : String(args.args),
       trace_id: args.trace_id || 'unknown',
       user_id: args.user_id || 'anonymous',
       system_area: args.system_area || 'browser',
       timestamp: args.timestamp,
-      raw_args: Array.isArray(args.args) ? args.args.map((arg: any) => String(arg)) : [String(args.args)],
+      raw_args: Array.isArray(args.args)
+        ? args.args.map((arg: any) => String(arg))
+        : [String(args.args)],
       stack_trace: args.stack_trace,
     };
 
     // Store the log entry
-    const result = await ctx.runMutation("loggingAction:createLogEntry", logEntry);
-    
+    const result = await ctx.runMutation(
+      'loggingAction:createLogEntry',
+      logEntry
+    );
+
     return { success: true, result };
   },
 });
@@ -163,7 +170,7 @@ const originalConsole = {
 };
 
 // Generate unique trace ID for session
-const generateTraceId = () => 
+const generateTraceId = () =>
   `trace_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
 // Current trace context
@@ -181,22 +188,22 @@ declare global {
 export function initializeConsoleOverride() {
   // Prevent double initialization
   if (isInitialized) return;
-  
+
   // Check if we're in browser environment
   if (typeof window === 'undefined') return;
-  
+
   // Check if logging is enabled
   if (window.CLAUDE_LOGGING_ENABLED !== 'true') return;
-  
+
   // Make ConsoleLogger globally available for UAT testing
   (window as any).ConsoleLogger = ConsoleLogger;
-  
+
   // Override each console method
   ['log', 'error', 'warn', 'info'].forEach(level => {
     (console as any)[level] = (...args: any[]) => {
       // Call original console method first
       (originalConsole as any)[level](...args);
-      
+
       // Send to Convex (async, non-blocking)
       sendToConvex(level, args).catch(err => {
         // Fail silently to avoid console loops
@@ -204,15 +211,18 @@ export function initializeConsoleOverride() {
       });
     };
   });
-  
+
   isInitialized = true;
-  originalConsole.log('Claude logging initialized with trace ID:', currentTraceId);
+  originalConsole.log(
+    'Claude logging initialized with trace ID:',
+    currentTraceId
+  );
 }
 
 async function sendToConvex(level: string, args: any[]) {
   const payload = {
     level,
-    args: args.map(arg => 
+    args: args.map(arg =>
       typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
     ),
     trace_id: currentTraceId,
@@ -221,12 +231,12 @@ async function sendToConvex(level: string, args: any[]) {
     timestamp: Date.now(),
     stack_trace: new Error().stack,
   };
-  
+
   try {
     // Import Convex client and API dynamically to avoid issues during server-side rendering
     const { ConvexHttpClient } = await import('convex/browser');
     const { api } = await import('../../convex/_generated/api');
-    
+
     // Get Convex URL from environment
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
     if (!convexUrl) {
@@ -235,10 +245,9 @@ async function sendToConvex(level: string, args: any[]) {
     }
 
     const client = new ConvexHttpClient(convexUrl);
-    
+
     // Call the processLogs action
     await client.action(api.loggingAction.processLogs, payload);
-    
   } catch (error) {
     // Log to original console only
     originalConsole.error('Failed to send log to Convex:', error);
@@ -247,44 +256,48 @@ async function sendToConvex(level: string, args: any[]) {
 
 // Public API for trace management
 export const ConsoleLogger = {
-  setTraceId: (traceId: string) => { 
-    currentTraceId = traceId; 
+  setTraceId: (traceId: string) => {
+    currentTraceId = traceId;
     originalConsole.log('Trace ID updated to:', traceId);
   },
-  
-  setUserId: (userId: string) => { 
-    currentUserId = userId; 
+
+  setUserId: (userId: string) => {
+    currentUserId = userId;
     originalConsole.log('User ID updated to:', userId);
   },
-  
-  newTrace: () => { 
-    currentTraceId = generateTraceId(); 
+
+  newTrace: () => {
+    currentTraceId = generateTraceId();
     originalConsole.log('New trace created:', currentTraceId);
-    return currentTraceId; 
+    return currentTraceId;
   },
-  
+
   getTraceId: () => currentTraceId,
-  
+
   getUserId: () => currentUserId,
-  
-  isEnabled: () => typeof window !== 'undefined' && window.CLAUDE_LOGGING_ENABLED === 'true',
-  
+
+  isEnabled: () =>
+    typeof window !== 'undefined' && window.CLAUDE_LOGGING_ENABLED === 'true',
+
   getStatus: () => ({
     initialized: isInitialized,
-    enabled: typeof window !== 'undefined' ? window.CLAUDE_LOGGING_ENABLED === 'true' : false,
+    enabled:
+      typeof window !== 'undefined'
+        ? window.CLAUDE_LOGGING_ENABLED === 'true'
+        : false,
     traceId: currentTraceId,
     userId: currentUserId,
   }),
-  
+
   // Reset console to original methods
   reset: () => {
     if (!isInitialized) return;
-    
+
     console.log = originalConsole.log;
     console.error = originalConsole.error;
     console.warn = originalConsole.warn;
     console.info = originalConsole.info;
-    
+
     isInitialized = false;
     originalConsole.log('Console override reset');
   },
@@ -298,7 +311,7 @@ export const ConsoleLogger = {
 ```javascript
 env: {
   CLAUDE_LOGGING_ENABLED: String(
-    process.env.NODE_ENV === 'development' && 
+    process.env.NODE_ENV === 'development' &&
     process.env.CLAUDE_LOGGING !== 'false'
   ),
 }
@@ -338,7 +351,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 ```typescript
 // These will be captured and sent to Convex in development mode
 console.log('User clicked submit button');
-console.error('Validation failed:', { field: 'email', message: 'Invalid format' });
+console.error('Validation failed:', {
+  field: 'email',
+  message: 'Invalid format',
+});
 console.warn('API response took longer than expected');
 ```
 
@@ -378,15 +394,15 @@ function processOrder(orderId: string) {
 
 ```typescript
 // Test trace management
-ConsoleLogger.getTraceId()            // Returns current trace ID
-ConsoleLogger.newTrace()              // Generates new trace ID  
-ConsoleLogger.getTraceId()            // Returns new trace ID
-ConsoleLogger.setTraceId('custom_123') // Sets custom trace ID
-ConsoleLogger.getUserId()             // Returns current user ID
+ConsoleLogger.getTraceId(); // Returns current trace ID
+ConsoleLogger.newTrace(); // Generates new trace ID
+ConsoleLogger.getTraceId(); // Returns new trace ID
+ConsoleLogger.setTraceId('custom_123'); // Sets custom trace ID
+ConsoleLogger.getUserId(); // Returns current user ID
 
 // Test log capture
-console.log('Test message')           // Captured and sent to Convex
-console.error('Test error')           // Captured with stack trace
+console.log('Test message'); // Captured and sent to Convex
+console.error('Test error'); // Captured with stack trace
 ```
 
 ### Backend Action Testing
@@ -427,7 +443,7 @@ npx convex run loggingAction:processLogs '{"level":"log","args":["test"],"timest
 ## Performance Considerations
 
 - **Non-blocking**: Log capture happens asynchronously, no impact on console performance
-- **Development only**: Controlled by environment variables, zero production overhead  
+- **Development only**: Controlled by environment variables, zero production overhead
 - **Error isolation**: Capture failures don't affect normal console operation
 - **Memory efficient**: TTL on recent_log_entries prevents unbounded growth
 
@@ -437,6 +453,66 @@ npx convex run loggingAction:processLogs '{"level":"log","args":["test"],"timest
 - **No sensitive data**: Logs are development debugging output, not production data
 - **User consent**: Developers are aware logging is active via console output
 - **Automatic cleanup**: Recent logs expire after 1 hour
+
+## Quota Management & Emergency Cleanup
+
+### Emergency Cleanup Functions
+
+When database gets too large (16K+ entries), use these emergency functions:
+
+```bash
+# Check if cleanup is needed
+bunx convex run cleanup:status
+
+# Run safe cleanup (deletes expired/old entries)
+bunx convex run cleanup:safe
+
+# Repeat until deletedCount returns 0
+bunx convex run cleanup:safe
+```
+
+### Monitoring Commands
+
+```bash
+# Check database usage stats
+bunx convex run monitoring:usage
+
+# Find traces generating lots of logs
+bunx convex run monitoring:traces
+
+# Regular cleanup
+bunx convex run cleanup:safe
+```
+
+### Rate Limiting Protection
+
+The system includes built-in protection:
+
+- **Frontend**: 50 logs/minute + duplicate detection
+- **Backend**: 100 logs/minute per trace_id
+- **Auto-cleanup**: TTL expiration for recent_log_entries
+
+### Convex Quota Monitoring
+
+Monitor usage at: https://dashboard.convex.dev
+
+- **Function bandwidth**: Requests per month
+- **Database operations**: Read/write counts
+- **Storage usage**: Total database size
+- **Action runtime**: Execution time
+
+**Warning Signs**:
+
+- "Too many bytes read" errors
+- Function timeouts
+- Dashboard showing >80% of any limit
+
+**Emergency Response**:
+
+1. Run `cleanup:status` to assess situation
+2. Execute `cleanup:safe` repeatedly for maintenance or `cleanup:force` for testing
+3. Monitor dashboard until usage returns to normal
+4. Investigate high-volume traces with `getHighVolumeTraces`
 
 ## Future Enhancements
 
