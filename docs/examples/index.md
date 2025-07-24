@@ -14,7 +14,9 @@ React, Next.js, and UI component examples demonstrating established frontend pat
 
 ### [Backend Examples](backend/)
 
-Convex function examples showing data operations, authentication, and API patterns.
+Convex function examples showing data operations, authentication, and API patterns:
+
+- **[Browser Log Capture System](./backend/browser-log-capture-system.md)** - Complete browser console log capture system with Convex Actions, dual table storage, and correlation tracking
 
 ### [Testing Examples](testing/)
 

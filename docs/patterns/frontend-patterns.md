@@ -216,6 +216,64 @@ This document outlines established patterns for React, Next.js, and UI developme
 
 **Rationale**: Required for accessibility compliance and better UX
 
+## Development & Debugging Patterns
+
+### Console Override for Development Logging
+
+**Context**: Capturing browser console output for development debugging
+**Implementation**:
+
+- Override console methods while preserving original functionality
+- Toggle capture based on environment (development only)
+- Provide global API for trace management
+- Send logs to backend via ConvexHttpClient
+- Include correlation context (trace_id, user_id)
+
+**Example**: 
+```typescript
+// Console override initialization
+export function initializeConsoleOverride() {
+  if (typeof window === 'undefined') return;
+  if (window.CLAUDE_LOGGING_ENABLED !== 'true') return;
+  
+  // Make ConsoleLogger globally available for UAT testing
+  (window as any).ConsoleLogger = ConsoleLogger;
+  
+  // Override each console method
+  ['log', 'error', 'warn', 'info'].forEach(level => {
+    (console as any)[level] = (...args: any[]) => {
+      // Call original console method first
+      (originalConsole as any)[level](...args);
+      
+      // Send to Convex (async, non-blocking)
+      sendToConvex(level, args).catch(err => {
+        originalConsole.error('Console override error:', err);
+      });
+    };
+  });
+}
+
+// Global API for trace management
+export const ConsoleLogger = {
+  setTraceId: (traceId: string) => { currentTraceId = traceId; },
+  setUserId: (userId: string) => { currentUserId = userId; },
+  newTrace: () => { currentTraceId = generateTraceId(); return currentTraceId; },
+  getTraceId: () => currentTraceId,
+  getUserId: () => currentUserId,
+  isEnabled: () => typeof window !== 'undefined' && window.CLAUDE_LOGGING_ENABLED === 'true',
+  getStatus: () => ({ initialized: isInitialized, enabled: isEnabled(), traceId: currentTraceId, userId: currentUserId }),
+};
+```
+
+**Rationale**: 
+- Preserves normal console behavior while adding capture capability
+- Environment-based toggling prevents production overhead
+- Trace correlation enables debugging across distributed systems
+- Global API enables manual testing and trace management
+- Non-blocking async sending prevents performance impact
+
+**Related Patterns**: Browser Log Capture with Convex Actions (backend-patterns.md)
+
 ## Anti-Patterns to Avoid
 
 ### Overuse of Client Components

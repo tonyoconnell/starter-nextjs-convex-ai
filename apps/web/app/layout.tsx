@@ -4,6 +4,7 @@ import React from 'react';
 import { ConvexClientProvider } from './providers';
 import { AuthProvider } from '../components/auth/auth-provider';
 import { ThemeProvider } from '../components/theme/theme-provider';
+import { LoggingProvider } from '../components/logging/logging-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,9 +27,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConvexClientProvider>
-            <AuthProvider>{children}</AuthProvider>
-          </ConvexClientProvider>
+          <LoggingProvider>
+            <ConvexClientProvider>
+              <AuthProvider>{children}</AuthProvider>
+            </ConvexClientProvider>
+          </LoggingProvider>
         </ThemeProvider>
       </body>
     </html>

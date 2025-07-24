@@ -203,6 +203,19 @@ NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
 
+## Testing Documentation Priority
+
+When asked about testing or testing-related documentation:
+
+1. **Technical/Developer Testing**: Focus on `docs/testing/technical/` first
+   - **Debugging issues**: Start with `testing-infrastructure-lessons-learned.md`
+   - **Writing tests**: Use `testing-patterns.md`
+   - **Setup/standards**: Reference `test-strategy-and-standards.md`
+
+2. **Functional/UAT Testing**: Only include UAT files from `docs/testing/uat/` when specifically requested for functional testing
+
+3. **Key principle**: Technical testing docs are for developers writing/debugging tests. UAT docs are for product validation. Don't mix contexts unless explicitly asked.
+
 ## File Creation Discovery Protocol
 
 Before creating ANY new files, Claude MUST follow this discovery protocol:
@@ -239,12 +252,16 @@ This protocol prevents incorrect file placement and maintains project consistenc
 2. **Use absolute paths when referencing project files:**
 
    ```bash
-   # Good
-   /Users/.../starter-nextjs-convex-ai/.bmad-core/
-
+   # Good - paths from project root
+   docs/testing/index.md
+   apps/web/components/ui/button.tsx
+   
    # Avoid relative paths that lose context
    ../../../.bmad-core/
+   ../../docs/testing/index.md
    ```
+
+   **NEVER use `../..` patterns - always reference files from project root.**
 
 3. **Explicitly navigate when changing directories:**
 

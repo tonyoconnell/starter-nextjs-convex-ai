@@ -228,6 +228,64 @@ This document outlines established patterns for Convex backend development, API 
 
 **Rationale**: Provides scalable asynchronous processing
 
+## Logging & Observability Patterns
+
+### Browser Log Capture with Convex Actions
+
+**Context**: Capturing browser console logs for development debugging
+**Implementation**:
+
+- Use Convex Actions (not HTTP Actions) for reliable browser-to-server communication
+- Store logs in dual tables: `log_queue` for processing, `recent_log_entries` for real-time UI
+- Include correlation fields: `trace_id`, `user_id`, `system_area`, `timestamp`
+- Capture stack traces for error context
+- Use ConvexHttpClient from browser for type-safe action calls
+
+**Example**: 
+```typescript
+// Convex Action
+export const processLogs = action({
+  args: {
+    level: v.string(),
+    args: v.array(v.any()),
+    trace_id: v.optional(v.string()),
+    user_id: v.optional(v.string()),
+    system_area: v.optional(v.string()),
+    timestamp: v.number(),
+    stack_trace: v.optional(v.string()),
+  },
+  handler: async (ctx, args): Promise<any> => {
+    const logEntry = {
+      level: args.level,
+      message: Array.isArray(args.args) ? args.args.join(' ') : String(args.args),
+      trace_id: args.trace_id || 'unknown',
+      user_id: args.user_id || 'anonymous',
+      system_area: args.system_area || 'browser',
+      timestamp: args.timestamp,
+      raw_args: Array.isArray(args.args) ? args.args.map((arg: any) => String(arg)) : [String(args.args)],
+      stack_trace: args.stack_trace,
+    };
+
+    const result = await ctx.runMutation("loggingAction:createLogEntry", logEntry);
+    return { success: true, result };
+  },
+});
+
+// Browser Integration
+const { ConvexHttpClient } = await import('convex/browser');
+const { api } = await import('../../convex/_generated/api');
+const client = new ConvexHttpClient(convexUrl);
+await client.action(api.loggingAction.processLogs, payload);
+```
+
+**Rationale**: 
+- Convex Actions provide more reliable deployment than HTTP Actions
+- Dual table storage enables both batch processing and real-time monitoring
+- ConvexHttpClient ensures type safety and proper error handling
+- Correlation fields enable trace debugging across distributed systems
+
+**Related Patterns**: Console Override Pattern (frontend-patterns.md)
+
 ## File Handling Patterns
 
 ### File Upload
