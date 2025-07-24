@@ -1,4 +1,4 @@
-import { query, mutation } from './_generated/server';
+import { query, mutation, QueryCtx, MutationCtx } from './_generated/server';
 import { v } from 'convex/values';
 
 // Get current user profile
@@ -6,7 +6,7 @@ export const getCurrentUser = query({
   args: {
     sessionToken: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: QueryCtx, args: { sessionToken?: string }) => {
     if (!args.sessionToken) {
       return null;
     }
@@ -47,7 +47,10 @@ export const updateUserProfile = mutation({
     name: v.optional(v.string()),
     profile_image_url: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: { sessionToken: string; name?: string; profile_image_url?: string }
+  ) => {
     // Find session and verify user
     const session = await ctx.db
       .query('sessions')
@@ -83,7 +86,10 @@ export const updateUserTheme = mutation({
     sessionToken: v.string(),
     settings: v.any(), // Theme settings object
   },
-  handler: async (ctx, args) => {
+  handler: async (
+    ctx: MutationCtx,
+    args: { sessionToken: string; settings: unknown }
+  ) => {
     // Find session and verify user
     const session = await ctx.db
       .query('sessions')
