@@ -31,11 +31,11 @@ describe('ChangePasswordForm', () => {
 
   describe('Component Rendering', () => {
     it('should render the form with all required fields', () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       expect(
         screen.getByRole('heading', { name: /change password/i })
@@ -49,11 +49,11 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should show password requirements text', () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       expect(
         screen.getByText(
@@ -63,11 +63,11 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should show back to dashboard link', () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       expect(screen.getByText('Back to Dashboard')).toBeInTheDocument();
     });
@@ -75,11 +75,11 @@ describe('ChangePasswordForm', () => {
 
   describe('Form Validation', () => {
     it('should show error when fields are empty', async () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       // Get the form element and trigger submit directly to bypass HTML5 validation
       const form = screen
@@ -94,11 +94,11 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should show error when passwords do not match', async () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'current123!' },
@@ -122,11 +122,11 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should show error when new password is same as current', async () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'Password123!' },
@@ -150,11 +150,11 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should validate password strength', async () => {
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: jest.fn(),
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'OldPassword123!' },
@@ -180,13 +180,11 @@ describe('ChangePasswordForm', () => {
 
   describe('Password Change Submission', () => {
     it('should call changePassword with correct arguments on valid submission', async () => {
-      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
-
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'OldPassword123!' },
@@ -204,20 +202,18 @@ describe('ChangePasswordForm', () => {
         );
       });
 
-      expect(mockChangePassword).toHaveBeenCalledWith(
+      expect(mockAuthService.changePassword).toHaveBeenCalledWith(
         'OldPassword123!',
         'NewPassword123!'
       );
     });
 
     it('should show success message after successful password change', async () => {
-      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
-
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'OldPassword123!' },
@@ -247,16 +243,16 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should show error message when password change fails', async () => {
-      const mockChangePassword = jest.fn().mockResolvedValue({
+      mockAuthService.changePassword.mockResolvedValueOnce({
         success: false,
         error: 'Current password is incorrect',
       });
 
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'WrongPassword123!' },
@@ -282,15 +278,15 @@ describe('ChangePasswordForm', () => {
     });
 
     it('should handle unexpected errors gracefully', async () => {
-      const mockChangePassword = jest
-        .fn()
-        .mockRejectedValue(new Error('Network error'));
+      mockAuthService.changePassword.mockRejectedValueOnce(
+        new Error('Network error')
+      );
 
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'OldPassword123!' },
@@ -322,15 +318,13 @@ describe('ChangePasswordForm', () => {
       const changePasswordPromise = new Promise(resolve => {
         resolveChangePassword = resolve;
       });
-      const mockChangePassword = jest
-        .fn()
-        .mockReturnValue(changePasswordPromise);
+      mockAuthService.changePassword.mockReturnValueOnce(changePasswordPromise);
 
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       fireEvent.change(screen.getByLabelText('Current Password'), {
         target: { value: 'OldPassword123!' },
@@ -369,13 +363,11 @@ describe('ChangePasswordForm', () => {
 
   describe('Form Reset After Success', () => {
     it('should clear form fields after successful password change', async () => {
-      const mockChangePassword = jest.fn().mockResolvedValue({ success: true });
-
-      render(<ChangePasswordForm />, {
-        authState: {
-          changePassword: mockChangePassword,
-        },
-      });
+      render(
+        <AuthProvider>
+          <ChangePasswordForm />
+        </AuthProvider>
+      );
 
       const currentPasswordField = screen.getByLabelText(
         'Current Password'
