@@ -5,7 +5,8 @@
   "scripts": {
     "build": "npx convex codegen",
     "dev": "npx convex dev",
-    "deploy": "npx convex deploy"
+    "deploy": "npx convex deploy",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

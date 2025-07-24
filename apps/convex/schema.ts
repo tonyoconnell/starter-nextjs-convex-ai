@@ -51,4 +51,36 @@ export default defineSchema({
   })
     .index('by_token', ['token'])
     .index('by_user_id', ['userId']),
+
+  // Log queue for raw log ingestion
+  log_queue: defineTable({
+    level: v.string(),
+    message: v.string(),
+    trace_id: v.string(),
+    user_id: v.string(),
+    system_area: v.string(),
+    timestamp: v.number(),
+    raw_args: v.array(v.string()),
+    stack_trace: v.optional(v.string()),
+    processed: v.optional(v.boolean()),
+  })
+    .index('by_timestamp', ['timestamp'])
+    .index('by_trace_id', ['trace_id'])
+    .index('by_processed', ['processed']),
+
+  // Recent log entries for real-time UI (with TTL)
+  recent_log_entries: defineTable({
+    level: v.string(),
+    message: v.string(),
+    trace_id: v.string(),
+    user_id: v.string(),
+    system_area: v.string(),
+    timestamp: v.number(),
+    raw_args: v.array(v.string()),
+    stack_trace: v.optional(v.string()),
+    expires_at: v.number(), // TTL field - entries expire after 1 hour
+  })
+    .index('by_timestamp', ['timestamp'])
+    .index('by_trace_id', ['trace_id'])
+    .index('by_expires_at', ['expires_at']),
 });

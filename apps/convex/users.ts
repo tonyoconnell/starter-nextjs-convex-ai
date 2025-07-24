@@ -15,7 +15,7 @@ export const getCurrentUser = query({
     const session = await ctx.db
       .query('sessions')
       .withIndex('by_session_token', q =>
-        q.eq('sessionToken', args.sessionToken)
+        q.eq('sessionToken', args.sessionToken!)
       )
       .first();
 

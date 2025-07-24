@@ -6,6 +6,76 @@ This document captures anti-patterns identified during Cloudflare Pages deployme
 
 ## Critical Anti-Patterns
 
+### Assuming HTTP Actions Deploy Successfully Without Verification
+
+**Anti-Pattern**: Deploying Convex HTTP Actions and assuming they're accessible without testing
+
+**Example of What NOT to Do**:
+
+```typescript
+// ❌ DON'T: Deploy HTTP Action and assume it works
+export const ingestLogs = httpAction(async (ctx, request) => {
+  // Implementation here
+});
+
+// Deploy with: npx convex dev --once
+// ❌ Then immediately try to use: curl https://deployment.convex.cloud/ingestLogs
+```
+
+**Why This is Wrong**:
+
+- HTTP Actions can silently fail to deploy while other functions work correctly
+- TypeScript compilation errors can prevent HTTP Action registration
+- Function appears in codebase but doesn't exist in runtime environment
+- Leads to 404 errors and wasted debugging time
+
+**Correct Approach**:
+
+```bash
+# ✅ DO: Always verify HTTP Action deployment
+npx convex dev --once
+curl -X POST https://deployment.convex.cloud/module/function \
+  -H "Content-Type: application/json" \
+  -d '{"test":"data"}'
+
+# Or check Convex dashboard function list
+# Or use regular Actions with ConvexHttpClient for more reliability
+```
+
+**Detection Signs**:
+- Function shows in code but not in Convex dashboard
+- HTTP endpoints return 404 despite successful deployment
+- TypeScript compilation warnings or errors
+- Other functions deploy but HTTP Actions don't appear
+
+### Using String-Based Function References with ConvexHttpClient
+
+**Anti-Pattern**: Using string identifiers instead of generated API references
+
+**Example of What NOT to Do**:
+
+```typescript
+// ❌ DON'T: Use string-based function references
+const client = new ConvexHttpClient(url);
+await client.action('loggingAction:processLogs', payload);
+```
+
+**Why This is Wrong**:
+
+- Causes TypeScript compilation errors
+- Loses type safety and autocomplete
+- Runtime errors if function names change
+- No validation of argument types
+
+**Correct Approach**:
+
+```typescript
+// ✅ DO: Use generated API references
+import { api } from '../../convex/_generated/api';
+const client = new ConvexHttpClient(url);
+await client.action(api.loggingAction.processLogs, payload);
+```
+
 ### Using wrangler.toml for Cloudflare Pages Projects
 
 **Anti-Pattern**: Creating and using `wrangler.toml` configuration for Cloudflare Pages deployments

@@ -77,7 +77,13 @@ Following BMAD methodology, these documents form the foundation:
 
 **[testing/](./testing/)**
 
-- **[UAT Plan 1.5](./testing/uat-plan-1.5.md)** - User Acceptance Tests for Story 1.5: Foundational Authentication
+#### Technical Testing (For Developers)
+- **[Testing Infrastructure Lessons Learned](./testing/technical/testing-infrastructure-lessons-learned.md)** - **START HERE for debugging** - Real problems and solutions from testing implementation
+- **[Testing Patterns](./testing/technical/testing-patterns.md)** - **For implementation** - Concrete patterns for React components, hooks, Convex functions
+- **[Test Strategy & Standards](./testing/technical/test-strategy-and-standards.md)** - **For context** - Testing framework, coverage targets, CI/CD integration
+
+#### Functional Testing (For QA/Product)
+- **[Functional Test Plans](./testing/uat/)** - User acceptance testing for individual stories
 
 ### 📚 Knowledge-Driven Development (KDD)
 
@@ -107,7 +113,7 @@ Established architectural patterns and best practices:
 
 - **[Frontend Patterns](./patterns/frontend-patterns.md)** - React, Next.js, and UI patterns
 - **[Backend Patterns](./patterns/backend-patterns.md)** - Convex, API, and server-side patterns
-- **[Testing Patterns](./patterns/testing-patterns.md)** - Testing strategies across all layers
+- **[Testing Patterns](./testing/technical/testing-patterns.md)** - Testing strategies across all layers
 - **[Architecture Patterns](./patterns/architecture-patterns.md)** - System design patterns
 - **[Development Workflow Patterns](./patterns/development-workflow-patterns.md)** - Process and collaboration patterns
 
