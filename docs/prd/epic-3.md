@@ -32,7 +32,22 @@ _As a developer, I want logs from browser, Cloudflare Workers, and Convex backen
 
 ---
 
-## Story 3.3: Development-Optimized Log Processing & AI Integration
+## Story 3.3: System Admin Monitoring & Controls
+
+_As a developer, I need administrative controls and monitoring tools to manage the logging system's health, performance, and costs, so that I can maintain optimal system operation and troubleshoot issues effectively._
+
+**Acceptance Criteria:**
+
+1.  Rate limiting status dashboard shows current usage across all systems (browser, worker, backend) with real-time quota management.
+2.  Cost and budget monitoring displays monthly write usage, estimated costs, and budget remaining with configurable alerts.
+3.  Database health monitoring shows storage usage, record counts, and cleanup recommendations.
+4.  Administrative cleanup controls provide both safe maintenance cleanup and emergency full cleanup options.
+5.  Log correlation search enables querying logs by trace ID, message content, system, or time range for troubleshooting.
+6.  **Developer Experience**: System health overview provides at-a-glance status of all logging components and potential issues.
+
+---
+
+## Story 3.4: Development-Optimized Log Processing & AI Integration
 
 _As a developer, I want logs to be processed in real-time during development with trace correlation and context enrichment, so that AI agents can provide intelligent debugging assistance._
 
@@ -47,7 +62,7 @@ _As a developer, I want logs to be processed in real-time during development wit
 
 ---
 
-## Story 3.4: Developer Dashboard & Claude Code Integration
+## Story 3.5: Developer Dashboard & Claude Code Integration
 
 _As a developer, I want a real-time dashboard that shows correlated logs across all systems with AI-powered insights, so that I can quickly identify and resolve issues during development._
 

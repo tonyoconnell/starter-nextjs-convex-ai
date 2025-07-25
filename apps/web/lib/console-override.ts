@@ -18,11 +18,9 @@ let currentTraceId = generateTraceId();
 let currentUserId = 'anonymous';
 let isInitialized = false;
 
-// Adaptive rate limiting - gets stricter over time
-let logCount = 0;
-let rateLimitResetTime = Date.now() + 60000; // 1 minute from now
-let consecutiveHighVolumeMinutes = 0; // Track sustained high volume
+// Rate limiting window management (now mostly for client-side cleanup)
 const BASE_LIMIT = 50; // Starting limit
+let rateLimitResetTime = Date.now() + 60000; // 1 minute from now
 
 // Loop detection - track recent identical messages
 const recentMessages = new Map<string, { count: number; lastSeen: number }>();
@@ -178,86 +176,40 @@ export function initializeConsoleOverride() {
   );
 }
 
-// Calculate adaptive rate limit based on sustained volume
+// Legacy function kept for backward compatibility in status reporting
 function getAdaptiveLimit(): number {
-  if (consecutiveHighVolumeMinutes === 0) return BASE_LIMIT; // First minute: full limit
-
-  // Logarithmic decay: each consecutive minute reduces limit
-  const reduction = Math.floor(
-    BASE_LIMIT * 0.7 ** consecutiveHighVolumeMinutes
-  );
-  const adaptiveLimit = Math.max(5, reduction); // Never go below 5 logs/minute
-
-  return adaptiveLimit;
+  return BASE_LIMIT; // Now uses centralized rate limiting
 }
 
 async function sendToConvex(level: string, args: unknown[]) {
-  // Adaptive frontend rate limiting
+  // Client-side pre-filtering for obvious issues, but rely on centralized rate limiting for protection
   const now = Date.now();
-  const currentLimit = getAdaptiveLimit();
 
-  if (now > rateLimitResetTime) {
-    // Check if previous minute was high volume
-    const wasHighVolume = logCount >= BASE_LIMIT * 0.8; // 80% of base limit
-
-    if (wasHighVolume) {
-      consecutiveHighVolumeMinutes++;
-      originalConsole.warn(
-        `High volume logging detected (minute ${consecutiveHighVolumeMinutes}). Reducing limit to ${getAdaptiveLimit()}/min`
-      );
-    } else {
-      // Reset if we had a low-volume minute
-      if (consecutiveHighVolumeMinutes > 0) {
-        consecutiveHighVolumeMinutes = Math.max(
-          0,
-          consecutiveHighVolumeMinutes - 1
-        );
-        originalConsole.log(
-          `Volume decreased. Rate limit recovering: ${getAdaptiveLimit()}/min`
-        );
-      }
-    }
-
-    // Reset rate limit window
-    logCount = 0;
-    rateLimitResetTime = now + 60000;
-    recentMessages.clear(); // Clear duplicate tracking on reset
-  }
-
-  if (logCount >= currentLimit) {
-    originalConsole.warn(
-      `Adaptive rate limit exceeded (${currentLimit}/min), dropping log`
-    );
-    return;
-  }
-
-  // Loop detection - prevent duplicate messages
+  // Basic client-side duplicate prevention (lightweight check)
   const messageKey = `${level}:${args
     .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
     .join(' ')}`;
 
   const existing = recentMessages.get(messageKey);
-  if (existing) {
-    if (now - existing.lastSeen < DUPLICATE_WINDOW) {
-      existing.count++;
-      existing.lastSeen = now;
+  if (existing && now - existing.lastSeen < DUPLICATE_WINDOW) {
+    existing.count++;
+    existing.lastSeen = now;
 
-      if (existing.count > MAX_DUPLICATES) {
-        originalConsole.warn(
-          `Dropping duplicate log message (${existing.count} times):`,
-          messageKey
-        );
-        return;
-      }
-    } else {
-      // Outside window, reset count
-      recentMessages.set(messageKey, { count: 1, lastSeen: now });
+    if (existing.count > MAX_DUPLICATES) {
+      originalConsole.warn(
+        `Client-side duplicate detection: dropping message (${existing.count} times)`
+      );
+      return;
     }
   } else {
     recentMessages.set(messageKey, { count: 1, lastSeen: now });
   }
 
-  logCount++;
+  // Clean up old message tracking
+  if (now > rateLimitResetTime) {
+    recentMessages.clear();
+    rateLimitResetTime = now + 60000;
+  }
 
   const payload = {
     level,
@@ -285,8 +237,19 @@ async function sendToConvex(level: string, args: unknown[]) {
 
     const client = new ConvexHttpClient(convexUrl);
 
-    // Call the processLogs action
-    await client.action(api.loggingAction.processLogs, payload);
+    // Call the processLogs action (now with centralized rate limiting)
+    const result = await client.action(api.loggingAction.processLogs, payload);
+    
+    // Handle rate limiting responses
+    if (!result.success && result.error?.includes('Rate limited')) {
+      originalConsole.warn('Centralized rate limit exceeded:', result.error);
+      
+      // Update local tracking to reflect server-side limits
+      if (result.rateLimitInfo) {
+        originalConsole.log('Rate limit info:', result.rateLimitInfo);
+      }
+      return; // Don't retry rate-limited requests
+    }
   } catch (error) {
     // Log to original console only
     originalConsole.error('Failed to send log to Convex:', error);
@@ -327,10 +290,9 @@ export const ConsoleLogger = {
     traceId: currentTraceId,
     userId: currentUserId,
     rateLimiting: {
+      note: 'Now using centralized rate limiting in Convex',
       currentLimit: getAdaptiveLimit(),
       baseLimit: BASE_LIMIT,
-      logsThisMinute: logCount,
-      consecutiveHighVolumeMinutes,
       timeUntilReset: Math.max(0, rateLimitResetTime - Date.now()),
     },
   }),

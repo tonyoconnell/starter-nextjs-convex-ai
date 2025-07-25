@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, no-console, no-restricted-syntax, no-undef */
-import { mutation, query, action } from './_generated/server';
+import { mutation, query, action, MutationCtx, QueryCtx, ActionCtx } from './_generated/server';
 import { v } from 'convex/values';
 import bcrypt from 'bcryptjs';
 import { api } from './_generated/api';
@@ -11,11 +10,11 @@ export const registerUser = mutation({
     email: v.string(),
     password: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { name: string; email: string; password: string }) => {
     // Check if user already exists
     const existingUser = await ctx.db
       .query('users')
-      .withIndex('by_email', q => q.eq('email', args.email))
+      .withIndex('by_email', (q) => q.eq('email', args.email))
       .first();
 
     if (existingUser) {
@@ -44,10 +43,10 @@ export const loginUser = mutation({
     password: v.string(),
     rememberMe: v.optional(v.boolean()),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { email: string; password: string; rememberMe?: boolean }) => {
     const user = await ctx.db
       .query('users')
-      .withIndex('by_email', q => q.eq('email', args.email))
+      .withIndex('by_email', (q) => q.eq('email', args.email))
       .first();
 
     if (!user) {
@@ -98,10 +97,10 @@ export const verifySession = query({
   args: {
     sessionToken: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: QueryCtx, args: { sessionToken: string }) => {
     const session = await ctx.db
       .query('sessions')
-      .withIndex('by_session_token', q =>
+      .withIndex('by_session_token', (q) =>
         q.eq('sessionToken', args.sessionToken)
       )
       .first();
@@ -129,10 +128,10 @@ export const logoutUser = mutation({
   args: {
     sessionToken: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { sessionToken: string }) => {
     const session = await ctx.db
       .query('sessions')
-      .withIndex('by_session_token', q =>
+      .withIndex('by_session_token', (q) =>
         q.eq('sessionToken', args.sessionToken)
       )
       .first();
@@ -150,7 +149,7 @@ export const getCurrentUser = query({
   args: {
     sessionToken: v.optional(v.string()),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: QueryCtx, args: { sessionToken?: string }) => {
     if (!args.sessionToken) {
       return null;
     }
@@ -158,7 +157,7 @@ export const getCurrentUser = query({
     // Verify session directly
     const session = await ctx.db
       .query('sessions')
-      .withIndex('by_session_token', q =>
+      .withIndex('by_session_token', (q) =>
         q.eq('sessionToken', args.sessionToken!)
       )
       .first();
@@ -188,11 +187,11 @@ export const changePassword = mutation({
     currentPassword: v.string(),
     newPassword: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { sessionToken: string; currentPassword: string; newPassword: string }) => {
     // Verify session
     const session = await ctx.db
       .query('sessions')
-      .withIndex('by_session_token', q =>
+      .withIndex('by_session_token', (q) =>
         q.eq('sessionToken', args.sessionToken)
       )
       .first();
@@ -238,11 +237,11 @@ export const requestPasswordReset = mutation({
   args: {
     email: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { email: string }) => {
     // Find user by email
     const user = await ctx.db
       .query('users')
-      .withIndex('by_email', q => q.eq('email', args.email))
+      .withIndex('by_email', (q) => q.eq('email', args.email))
       .first();
 
     if (!user) {
@@ -258,7 +257,7 @@ export const requestPasswordReset = mutation({
     // Clean up any existing tokens for this user
     const existingTokens = await ctx.db
       .query('password_reset_tokens')
-      .withIndex('by_user_id', q => q.eq('userId', user._id))
+      .withIndex('by_user_id', (q) => q.eq('userId', user._id))
       .collect();
 
     for (const existingToken of existingTokens) {
@@ -292,11 +291,11 @@ export const resetPassword = mutation({
     token: v.string(),
     newPassword: v.string(),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { token: string; newPassword: string }) => {
     // Find the reset token
     const resetToken = await ctx.db
       .query('password_reset_tokens')
-      .withIndex('by_token', q => q.eq('token', args.token))
+      .withIndex('by_token', (q) => q.eq('token', args.token))
       .first();
 
     if (!resetToken) {
@@ -331,7 +330,7 @@ export const resetPassword = mutation({
     // Invalidate all existing sessions for this user for security
     const userSessions = await ctx.db
       .query('sessions')
-      .withIndex('by_user_id', q => q.eq('userId', user._id))
+      .withIndex('by_user_id', (q) => q.eq('userId', user._id))
       .collect();
 
     for (const session of userSessions) {
@@ -360,13 +359,16 @@ export const createOrUpdateGitHubUser = mutation({
       scope: v.optional(v.string()),
     }),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { 
+    githubUser: { id: number; login: string; name?: string; email: string; avatar_url?: string };
+    tokenData: { access_token: string; refresh_token?: string; expires_in?: number; token_type?: string; scope?: string };
+  }) => {
     const { githubUser, tokenData } = args;
 
     // Check if account already exists
     const existingAccount = await ctx.db
       .query('accounts')
-      .withIndex('by_provider_account', q => 
+      .withIndex('by_provider_account', (q) => 
         q.eq('provider', 'github').eq('providerAccountId', githubUser.id.toString())
       )
       .first();
@@ -389,7 +391,7 @@ export const createOrUpdateGitHubUser = mutation({
       // Check if user exists by email
       const existingUser = await ctx.db
         .query('users')
-        .withIndex('by_email', q => q.eq('email', githubUser.email))
+        .withIndex('by_email', (q) => q.eq('email', githubUser.email))
         .first();
 
       if (existingUser) {
@@ -469,7 +471,7 @@ export const githubOAuthLogin = action({
     code: v.string(),
     state: v.optional(v.string()),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: ActionCtx, args: { code: string; state?: string }) => {
     try {
       // Exchange code for access token
       const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
@@ -578,13 +580,16 @@ export const createOrUpdateGoogleUser = mutation({
       scope: v.optional(v.string()),
     }),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: MutationCtx, args: { 
+    googleUser: { id: string; email: string; name?: string; picture?: string; given_name?: string; family_name?: string };
+    tokenData: { access_token: string; refresh_token?: string; expires_in?: number; token_type?: string; scope?: string };
+  }) => {
     const { googleUser, tokenData } = args;
 
     // Check if account already exists
     const existingAccount = await ctx.db
       .query('accounts')
-      .withIndex('by_provider_account', q => 
+      .withIndex('by_provider_account', (q) => 
         q.eq('provider', 'google').eq('providerAccountId', googleUser.id)
       )
       .first();
@@ -607,7 +612,7 @@ export const createOrUpdateGoogleUser = mutation({
       // Check if user exists by email
       const existingUser = await ctx.db
         .query('users')
-        .withIndex('by_email', q => q.eq('email', googleUser.email))
+        .withIndex('by_email', (q) => q.eq('email', googleUser.email))
         .first();
 
       if (existingUser) {
@@ -687,7 +692,7 @@ export const googleOAuthLogin = action({
     code: v.string(),
     state: v.optional(v.string()),
   },
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: ActionCtx, args: { code: string; state?: string }) => {
     try {
       // Exchange code for access token
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
@@ -768,7 +773,7 @@ export const googleOAuthLogin = action({
 // Get GitHub OAuth URL query
 export const getGitHubOAuthUrl = query({
   args: {},
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: QueryCtx, args: {}) => {
     const clientId = process.env.GITHUB_CLIENT_ID;
     if (!clientId) {
       throw new Error('GitHub OAuth not configured');
@@ -796,7 +801,7 @@ export const getGitHubOAuthUrl = query({
 // Get Google OAuth URL query
 export const getGoogleOAuthUrl = query({
   args: {},
-  handler: async (ctx: any, args: any): Promise<any> => {
+  handler: async (ctx: QueryCtx, args: {}) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     if (!clientId) {
       throw new Error('Google OAuth not configured');

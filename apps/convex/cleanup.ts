@@ -1,4 +1,4 @@
-import { mutation, MutationCtx } from './_generated/server';
+import { mutation, query, MutationCtx, QueryCtx } from './_generated/server';
 
 type LogEntry = {
   _id: string;
@@ -10,9 +10,9 @@ type LogEntry = {
 };
 
 // Check cleanup status - what needs cleaning and patterns
-export const status = mutation({
+export const status = query({
   args: {},
-  handler: async (ctx: MutationCtx) => {
+  handler: async (ctx: QueryCtx) => {
     // Sample approach to estimate counts (avoid memory limits)
     const logQueueSample = await ctx.db.query('log_queue').take(1000);
     const recentLogsSample = await ctx.db

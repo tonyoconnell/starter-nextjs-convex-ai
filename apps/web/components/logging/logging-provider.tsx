@@ -15,6 +15,8 @@ export function LoggingProvider({ children }: { children: React.ReactNode }) {
     // Set the logging flag on window for the console override to check
     if (typeof window !== 'undefined') {
       window.CLAUDE_LOGGING_ENABLED = isDevelopment ? 'true' : 'false';
+      // Make ConsoleLogger globally available for debugging
+      (window as any).ConsoleLogger = ConsoleLogger;
     }
 
     // Initialize console override for development
