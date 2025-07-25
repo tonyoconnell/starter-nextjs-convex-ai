@@ -5,6 +5,12 @@ export interface ChatMessage {
   timestamp: number;
   status?: 'sending' | 'sent' | 'error';
   sources?: ChatSource[];
+  metadata?: {
+    model?: string;
+    tokensUsed?: number;
+    hasLLMAccess?: boolean;
+    fallbackMessage?: string;
+  };
 }
 
 export interface ChatSource {

@@ -66,3 +66,124 @@ export const resetUserPassword = mutation({
     return { message: `Password reset for ${args.email}` };
   },
 });
+
+// Migration to grant LLM access to david@ideasmen.com.au (Story 4.2)
+export const grantLLMAccessToDavid = mutation({
+  args: {},
+  handler: async (ctx: MutationCtx) => {
+    const targetEmail = 'david@ideasmen.com.au';
+    
+    // Find the user
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_email', q => q.eq('email', targetEmail))
+      .first();
+
+    if (!user) {
+      return { 
+        message: `User ${targetEmail} not found. Please create user account first.`,
+        updated: false 
+      };
+    }
+
+    // Check if already has LLM access
+    if (user.hasLLMAccess === true) {
+      return { 
+        message: `User ${targetEmail} already has LLM access`,
+        updated: false 
+      };
+    }
+
+    // Grant LLM access
+    await ctx.db.patch(user._id, {
+      hasLLMAccess: true,
+    });
+
+    console.log(`✅ Granted LLM access to ${targetEmail}`);
+
+    return {
+      message: `Successfully granted LLM access to ${targetEmail}`,
+      updated: true,
+      userId: user._id,
+    };
+  },
+});
+
+// Generic migration to grant LLM access to any user by email
+export const grantLLMAccessByEmail = mutation({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx: MutationCtx, args) => {
+    const targetEmail = args.email.toLowerCase().trim();
+    
+    // Find the user
+    const user = await ctx.db
+      .query('users')
+      .withIndex('by_email', q => q.eq('email', targetEmail))
+      .first();
+
+    if (!user) {
+      return { 
+        message: `User ${targetEmail} not found. Please create user account first.`,
+        updated: false 
+      };
+    }
+
+    // Check if already has LLM access
+    if (user.hasLLMAccess === true) {
+      return { 
+        message: `User ${targetEmail} already has LLM access`,
+        updated: false 
+      };
+    }
+
+    // Grant LLM access
+    await ctx.db.patch(user._id, {
+      hasLLMAccess: true,
+    });
+
+    console.log(`✅ Granted LLM access to ${targetEmail}`);
+
+    return {
+      message: `✅ Successfully granted LLM access to ${targetEmail}`,
+      updated: true,
+      userId: user._id,
+    };
+  },
+});
+
+// Migration to set default LLM access for all existing users (optional)
+export const setDefaultLLMAccess = mutation({
+  args: {
+    defaultAccess: v.boolean(),
+  },
+  handler: async (ctx: MutationCtx, args: { defaultAccess: boolean }) => {
+    // Get all users without hasLLMAccess set
+    const users = await ctx.db.query('users').collect();
+    const usersToUpdate = users.filter(
+      (user: { hasLLMAccess?: boolean }) => user.hasLLMAccess === undefined
+    );
+
+    if (usersToUpdate.length === 0) {
+      return { 
+        message: 'No users need LLM access migration', 
+        updated: 0 
+      };
+    }
+
+    // Update each user
+    for (const user of usersToUpdate) {
+      await ctx.db.patch(user._id, {
+        hasLLMAccess: args.defaultAccess,
+      });
+    }
+
+    console.log(`✅ Set LLM access to ${args.defaultAccess} for ${usersToUpdate.length} users`);
+
+    return {
+      message: `Migration complete: ${usersToUpdate.length} users updated with hasLLMAccess=${args.defaultAccess}`,
+      updated: usersToUpdate.length,
+    };
+  },
+});

@@ -125,7 +125,7 @@ Real implementation examples from the project:
 
 - **[Monorepo Setup](./examples/monorepo-setup/)** - Complete Bun/Turborepo configuration example
 - **[Frontend Examples](./examples/frontend/)** - React and Next.js implementation examples
-- **[Backend Examples](./examples/backend/)** - Convex function examples
+- **[Backend Examples](./examples/backend/)** - Convex function examples and runtime patterns
 - **[Testing Examples](./examples/testing/)** - Comprehensive testing examples
 - **[CI/CD Deployment Examples](./examples/cicd-deployment/)** - Complete CI/CD pipeline and deployment examples
 - **[Configuration Examples](./examples/configuration/)** - Project configuration examples

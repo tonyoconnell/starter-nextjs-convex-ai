@@ -10,6 +10,7 @@ import {
 import { v } from 'convex/values';
 import bcrypt from 'bcryptjs';
 import { api } from './_generated/api';
+import { ConvexError } from 'convex/values';
 
 // User registration mutation
 export const registerUser = mutation({
@@ -986,5 +987,102 @@ export const getGoogleOAuthUrl = query({
       url: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
       state: state,
     };
+  },
+});
+
+// =======================
+// LLM Access Control Functions (Story 4.2)
+// =======================
+
+/**
+ * Check if user has LLM access based on database flag
+ * Implements AC 8: User-based LLM access control with graceful fallback
+ */
+export const checkUserLLMAccess = query({
+  args: { userId: v.id('users') },
+  handler: async (ctx, args) => {
+    try {
+      const user = await ctx.db.get(args.userId);
+      
+      if (!user) {
+        return {
+          hasLLMAccess: false,
+          fallbackMessage: 'User not found. Please sign in to access chat features.',
+        };
+      }
+
+      const hasAccess = user.hasLLMAccess === true;
+
+      if (!hasAccess) {
+        return {
+          hasLLMAccess: false,
+          fallbackMessage: `Hi ${user.name}! You're using the basic chat experience. To access our AI-powered responses with knowledge base integration, please contact david@ideasmen.com.au to request LLM access.`,
+        };
+      }
+
+      return {
+        hasLLMAccess: true,
+        fallbackMessage: null,
+      };
+    } catch (error) {
+      console.error('Error checking user LLM access:', (error as Error).message);
+      return {
+        hasLLMAccess: false,
+        fallbackMessage: 'Unable to verify access. Please try again later.',
+      };
+    }
+  },
+});
+
+/**
+ * Update user LLM access (admin function)
+ */
+export const updateUserLLMAccess = mutation({
+  args: {
+    userId: v.id('users'),
+    hasLLMAccess: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    try {
+      await ctx.db.patch(args.userId, {
+        hasLLMAccess: args.hasLLMAccess,
+      });
+
+      const user = await ctx.db.get(args.userId);
+      console.log(`Updated LLM access for user ${user?.email}: ${args.hasLLMAccess}`);
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error updating user LLM access:', error);
+      throw new ConvexError(`Failed to update user access: ${error.message}`);
+    }
+  },
+});
+
+/**
+ * Log access control events for security monitoring
+ */
+export const logAccessEvent = mutation({
+  args: {
+    userId: v.id('users'),
+    eventType: v.union(
+      v.literal('access_granted'),
+      v.literal('access_denied'),
+      v.literal('access_requested')
+    ),
+    details: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.userId);
+    
+    console.log(`Access event: ${args.eventType} for user ${user?.email}`, {
+      userId: args.userId,
+      eventType: args.eventType,
+      details: args.details,
+      timestamp: Date.now(),
+    });
+
+    // In a production system, you might want to store these events
+    // in a dedicated access_logs table for security analysis
   },
 });
