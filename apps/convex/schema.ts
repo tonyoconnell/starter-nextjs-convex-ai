@@ -15,6 +15,7 @@ export default defineSchema({
     password: v.string(), // Required password field
     profile_image_url: v.optional(v.string()),
     role: v.string(),
+    hasLLMAccess: v.optional(v.boolean()), // LLM access control flag
   }).index('by_email', ['email']),
 
   // BetterAuth sessions table
@@ -118,4 +119,70 @@ export default defineSchema({
   })
     .index('by_fingerprint', ['fingerprint'])
     .index('by_expires_at', ['expires_at']),
+
+  // Chat sessions for conversation tracking
+  chat_sessions: defineTable({
+    userId: v.id('users'),
+    title: v.optional(v.string()),
+    created_at: v.number(),
+    updated_at: v.number(),
+    correlation_id: v.string(),
+  })
+    .index('by_user_id', ['userId'])
+    .index('by_correlation_id', ['correlation_id']),
+
+  // Chat messages within sessions
+  chat_messages: defineTable({
+    sessionId: v.id('chat_sessions'),
+    userId: v.id('users'),
+    role: v.union(v.literal('user'), v.literal('assistant')),
+    content: v.string(),
+    timestamp: v.number(),
+    correlation_id: v.string(),
+    model_used: v.optional(v.string()),
+    tokens_used: v.optional(v.number()),
+    has_llm_access: v.boolean(), // Track if message used LLM or fallback
+  })
+    .index('by_session_id', ['sessionId'])
+    .index('by_correlation_id', ['correlation_id']),
+
+  // Document chunks metadata (vectors stored in Vectorize)
+  document_chunks: defineTable({
+    source_document: v.string(), // File path or document identifier
+    chunk_index: v.number(),
+    content: v.string(),
+    chunk_hash: v.string(), // For deduplication
+    vectorize_id: v.string(), // ID in Cloudflare Vectorize
+    metadata: v.object({
+      file_path: v.string(),
+      file_type: v.string(),
+      modified_at: v.number(),
+      chunk_size: v.number(),
+    }),
+    created_at: v.number(),
+    correlation_id: v.string(),
+  })
+    .index('by_source_document', ['source_document'])
+    .index('by_chunk_hash', ['chunk_hash'])
+    .index('by_vectorize_id', ['vectorize_id']),
+
+  // Source documents tracking
+  source_documents: defineTable({
+    file_path: v.string(),
+    file_type: v.string(),
+    content_hash: v.string(), // For change detection
+    last_processed: v.number(),
+    chunk_count: v.number(),
+    processing_status: v.union(
+      v.literal('pending'),
+      v.literal('processing'),
+      v.literal('completed'),
+      v.literal('failed')
+    ),
+    error_message: v.optional(v.string()),
+    correlation_id: v.string(),
+  })
+    .index('by_file_path', ['file_path'])
+    .index('by_content_hash', ['content_hash'])
+    .index('by_processing_status', ['processing_status']),
 });

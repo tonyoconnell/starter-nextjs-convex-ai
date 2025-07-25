@@ -17,6 +17,7 @@ React, Next.js, and UI component examples demonstrating established frontend pat
 Convex function examples showing data operations, authentication, and API patterns:
 
 - **[Browser Log Capture System](./backend/browser-log-capture-system.md)** - Complete browser console log capture system with Convex Actions, dual table storage, and correlation tracking
+- **[Convex Runtime Architecture Constraints](./backend/convex-runtime-architecture-constraints.md)** - V8 vs Node.js runtime separation patterns, file organization, and deployment constraint prevention
 
 ### [Testing Examples](testing/)
 
