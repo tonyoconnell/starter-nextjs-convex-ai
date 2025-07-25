@@ -45,6 +45,7 @@
     "node_modules",
     "**/*.test.*",
     "**/__tests__/**/*",
-    "**/*.spec.*"
+    "**/*.spec.*",
+    "lib/test-utils.*"
   ]
 }
