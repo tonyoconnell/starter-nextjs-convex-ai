@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 /**
  * Tests for Convex HTTP Action Enhancements
@@ -8,13 +8,11 @@ import { describe, it, expect } from 'vitest';
 describe('Logging Action Enhancements', () => {
   describe('System detection logic', () => {
     it('should detect browser origin correctly', () => {
-      const origins = [
-        'http://localhost:3000',
-        'https://127.0.0.1:8080',
-      ];
+      const origins = ['http://localhost:3000', 'https://127.0.0.1:8080'];
 
       origins.forEach(origin => {
-        const isBrowser = origin.includes('localhost') || origin.includes('127.0.0.1');
+        const isBrowser =
+          origin.includes('localhost') || origin.includes('127.0.0.1');
         expect(isBrowser).toBe(true);
       });
     });
@@ -27,8 +25,9 @@ describe('Logging Action Enhancements', () => {
       ];
 
       userAgents.forEach(userAgent => {
-        const isWorker = userAgent.toLowerCase().includes('worker') || 
-                        userAgent.toLowerCase().includes('cloudflare');
+        const isWorker =
+          userAgent.toLowerCase().includes('worker') ||
+          userAgent.toLowerCase().includes('cloudflare');
         expect(isWorker).toBe(true);
       });
     });
@@ -54,10 +53,11 @@ describe('Logging Action Enhancements', () => {
       ];
 
       unknownOrigins.forEach(origin => {
-        const isBrowser = origin.includes('localhost') || origin.includes('127.0.0.1');
+        const isBrowser =
+          origin.includes('localhost') || origin.includes('127.0.0.1');
         const isWorker = false; // No worker indicators in these origins
         const isConvex = false; // No convex indicators in these origins
-        
+
         if (!isBrowser && !isWorker && !isConvex) {
           const fallback = 'browser';
           expect(fallback).toBe('browser');
@@ -77,19 +77,27 @@ describe('Logging Action Enhancements', () => {
 
       // Verify each header is present and has expected value
       expect(expectedCorsHeaders['Access-Control-Allow-Origin']).toBe('*');
-      expect(expectedCorsHeaders['Access-Control-Allow-Methods']).toContain('POST');
-      expect(expectedCorsHeaders['Access-Control-Allow-Methods']).toContain('OPTIONS');
-      expect(expectedCorsHeaders['Access-Control-Allow-Headers']).toContain('Content-Type');
+      expect(expectedCorsHeaders['Access-Control-Allow-Methods']).toContain(
+        'POST'
+      );
+      expect(expectedCorsHeaders['Access-Control-Allow-Methods']).toContain(
+        'OPTIONS'
+      );
+      expect(expectedCorsHeaders['Access-Control-Allow-Headers']).toContain(
+        'Content-Type'
+      );
       expect(expectedCorsHeaders['Content-Type']).toBe('application/json');
     });
   });
 
   describe('Request validation', () => {
     it('should validate required fields', () => {
-      const validateLogRequest = (body: any): { valid: boolean; missing?: string[] } => {
+      const validateLogRequest = (
+        body: any
+      ): { valid: boolean; missing?: string[] } => {
         const required = ['level', 'args', 'timestamp'];
         const missing = required.filter(field => !body[field]);
-        
+
         return {
           valid: missing.length === 0,
           missing: missing.length > 0 ? missing : undefined,
@@ -111,7 +119,7 @@ describe('Logging Action Enhancements', () => {
       ];
 
       expect(validateLogRequest(validBody).valid).toBe(true);
-      
+
       invalidBodies.forEach(body => {
         const result = validateLogRequest(body);
         expect(result.valid).toBe(false);
@@ -150,7 +158,7 @@ describe('Logging Action Enhancements', () => {
   describe('Error handling', () => {
     it('should handle method not allowed errors', () => {
       const invalidMethods = ['GET', 'PUT', 'DELETE', 'PATCH'];
-      
+
       invalidMethods.forEach(method => {
         // Simulate the logic that would run in the HTTP action
         if (method !== 'POST' && method !== 'OPTIONS') {
@@ -158,7 +166,7 @@ describe('Logging Action Enhancements', () => {
             error: 'Method not allowed',
             status: 405,
           };
-          
+
           expect(expectedResponse.error).toBe('Method not allowed');
           expect(expectedResponse.status).toBe(405);
         }
@@ -167,7 +175,7 @@ describe('Logging Action Enhancements', () => {
 
     it('should handle missing required fields', () => {
       const incompleteBody = { level: 'info' }; // Missing args and timestamp
-      
+
       const validateAndRespond = (body: any) => {
         if (!body.level || !body.args || !body.timestamp) {
           return {
@@ -216,7 +224,10 @@ describe('Logging Action Enhancements', () => {
         let detectedSystem;
         if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
           detectedSystem = 'browser';
-        } else if (userAgent.toLowerCase().includes('worker') || userAgent.toLowerCase().includes('cloudflare')) {
+        } else if (
+          userAgent.toLowerCase().includes('worker') ||
+          userAgent.toLowerCase().includes('cloudflare')
+        ) {
           detectedSystem = 'worker';
         } else if (userAgent.toLowerCase().includes('convex')) {
           detectedSystem = 'convex';

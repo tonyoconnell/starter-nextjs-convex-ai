@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 /**
  * Tests for Centralized Rate Limiting System
@@ -10,9 +10,9 @@ describe('Centralized Rate Limiting System', () => {
     it('should correctly calculate system quotas', () => {
       const TOTAL_MONTHLY_BUDGET = 125000; // ~$10/month
       const BUDGET_ALLOCATION = {
-        browser: 0.40,  // 40%
-        worker: 0.30,   // 30%
-        backend: 0.30,  // 30%
+        browser: 0.4, // 40%
+        worker: 0.3, // 30%
+        backend: 0.3, // 30%
       };
 
       const expectedQuotas = {
@@ -22,26 +22,35 @@ describe('Centralized Rate Limiting System', () => {
       };
 
       expect(expectedQuotas.browser).toBe(50000); // 40% of 125K
-      expect(expectedQuotas.worker).toBe(37500);  // 30% of 125K
+      expect(expectedQuotas.worker).toBe(37500); // 30% of 125K
       expect(expectedQuotas.backend).toBe(37500); // 30% of 125K
-      
+
       // Verify total doesn't exceed budget
-      const total = expectedQuotas.browser + expectedQuotas.worker + expectedQuotas.backend;
+      const total =
+        expectedQuotas.browser + expectedQuotas.worker + expectedQuotas.backend;
       expect(total).toBeLessThanOrEqual(TOTAL_MONTHLY_BUDGET);
     });
 
     it('should calculate per-minute limits correctly', () => {
       const TOTAL_MONTHLY_BUDGET = 125000;
       const MINUTES_PER_MONTH = 30 * 24 * 60; // 43,200 minutes
-      
-      const globalPerMinute = Math.floor(TOTAL_MONTHLY_BUDGET / MINUTES_PER_MONTH);
-      const browserPerMinute = Math.floor((TOTAL_MONTHLY_BUDGET * 0.40) / MINUTES_PER_MONTH);
-      const workerPerMinute = Math.floor((TOTAL_MONTHLY_BUDGET * 0.30) / MINUTES_PER_MONTH);
-      const backendPerMinute = Math.floor((TOTAL_MONTHLY_BUDGET * 0.30) / MINUTES_PER_MONTH);
+
+      const globalPerMinute = Math.floor(
+        TOTAL_MONTHLY_BUDGET / MINUTES_PER_MONTH
+      );
+      const browserPerMinute = Math.floor(
+        (TOTAL_MONTHLY_BUDGET * 0.4) / MINUTES_PER_MONTH
+      );
+      const workerPerMinute = Math.floor(
+        (TOTAL_MONTHLY_BUDGET * 0.3) / MINUTES_PER_MONTH
+      );
+      const backendPerMinute = Math.floor(
+        (TOTAL_MONTHLY_BUDGET * 0.3) / MINUTES_PER_MONTH
+      );
 
       expect(globalPerMinute).toBe(2); // ~2.89 rounded down
       expect(browserPerMinute).toBe(1); // ~1.16 rounded down
-      expect(workerPerMinute).toBe(0);  // ~0.87 rounded down
+      expect(workerPerMinute).toBe(0); // ~0.87 rounded down
       expect(backendPerMinute).toBe(0); // ~0.87 rounded down
 
       // Note: These low numbers show why quota borrowing is important
@@ -55,8 +64,16 @@ describe('Centralized Rate Limiting System', () => {
       };
 
       const testCases = [
-        { level: 'info', message: 'test message', expected: 'info:test message' },
-        { level: 'error', message: 'error occurred', expected: 'error:error occurred' },
+        {
+          level: 'info',
+          message: 'test message',
+          expected: 'info:test message',
+        },
+        {
+          level: 'error',
+          message: 'error occurred',
+          expected: 'error:error occurred',
+        },
       ];
 
       testCases.forEach(({ level, message, expected }) => {
@@ -67,7 +84,7 @@ describe('Centralized Rate Limiting System', () => {
     it('should handle long messages correctly', () => {
       const longMessage = 'a'.repeat(200);
       const fingerprint = `info:${longMessage}`.substring(0, 100);
-      
+
       expect(fingerprint.length).toBe(100);
       expect(fingerprint.startsWith('info:a')).toBe(true);
     });
@@ -105,9 +122,11 @@ describe('Centralized Rate Limiting System', () => {
 
   describe('System detection and quota borrowing', () => {
     it('should allow quota borrowing when systems are underutilized', () => {
-      const canBorrowQuota = (systems: Record<string, { current: number; limit: number }>): boolean => {
+      const canBorrowQuota = (
+        systems: Record<string, { current: number; limit: number }>
+      ): boolean => {
         const systemEntries = Object.entries(systems);
-        
+
         return systemEntries.some(([, { current, limit }]) => {
           return current < limit * 0.8; // Less than 80% utilization
         });
@@ -118,7 +137,7 @@ describe('Centralized Rate Limiting System', () => {
           name: 'Browser underutilized, can borrow',
           systems: {
             browser: { current: 10, limit: 100 }, // 10% used
-            worker: { current: 90, limit: 100 },  // 90% used
+            worker: { current: 90, limit: 100 }, // 90% used
             backend: { current: 95, limit: 100 }, // 95% used
           },
           canBorrow: true,
@@ -127,7 +146,7 @@ describe('Centralized Rate Limiting System', () => {
           name: 'All systems highly utilized, cannot borrow',
           systems: {
             browser: { current: 85, limit: 100 }, // 85% used
-            worker: { current: 90, limit: 100 },  // 90% used
+            worker: { current: 90, limit: 100 }, // 90% used
             backend: { current: 95, limit: 100 }, // 95% used
           },
           canBorrow: false,
@@ -163,14 +182,14 @@ describe('Centralized Rate Limiting System', () => {
   describe('Cost calculation logic', () => {
     it('should calculate estimated costs correctly', () => {
       const calculateCost = (writes: number): number => {
-        return (writes / 1000000) * 2.00; // $2 per million writes
+        return (writes / 1000000) * 2.0; // $2 per million writes
       };
 
       const testCases = [
         { writes: 0, expectedCost: 0 },
-        { writes: 1000000, expectedCost: 2.00 },
+        { writes: 1000000, expectedCost: 2.0 },
         { writes: 125000, expectedCost: 0.25 }, // Our monthly budget
-        { writes: 500000, expectedCost: 1.00 },
+        { writes: 500000, expectedCost: 1.0 },
       ];
 
       testCases.forEach(({ writes, expectedCost }) => {
@@ -180,7 +199,7 @@ describe('Centralized Rate Limiting System', () => {
 
     it('should calculate budget utilization percentages', () => {
       const TOTAL_BUDGET = 125000;
-      
+
       const calculateBudgetUsage = (writes: number): number => {
         return (writes / TOTAL_BUDGET) * 100;
       };
@@ -216,8 +235,12 @@ describe('Centralized Rate Limiting System', () => {
       expect(mockRateLimitInfo).toHaveProperty('monthlyRemaining');
 
       // Verify values are reasonable
-      expect(mockRateLimitInfo.systemCurrent).toBeLessThanOrEqual(mockRateLimitInfo.systemLimit);
-      expect(mockRateLimitInfo.globalCurrent).toBeLessThanOrEqual(mockRateLimitInfo.globalLimit);
+      expect(mockRateLimitInfo.systemCurrent).toBeLessThanOrEqual(
+        mockRateLimitInfo.systemLimit
+      );
+      expect(mockRateLimitInfo.globalCurrent).toBeLessThanOrEqual(
+        mockRateLimitInfo.globalLimit
+      );
       expect(mockRateLimitInfo.monthlyRemaining).toBeGreaterThanOrEqual(0);
     });
 
@@ -239,22 +262,46 @@ describe('Centralized Rate Limiting System', () => {
       const testScenarios = [
         {
           name: 'All limits OK',
-          info: { systemCurrent: 10, systemLimit: 50, globalCurrent: 20, globalLimit: 100, monthlyRemaining: 1000 },
+          info: {
+            systemCurrent: 10,
+            systemLimit: 50,
+            globalCurrent: 20,
+            globalLimit: 100,
+            monthlyRemaining: 1000,
+          },
           shouldAllow: true,
         },
         {
           name: 'System limit exceeded',
-          info: { systemCurrent: 50, systemLimit: 50, globalCurrent: 20, globalLimit: 100, monthlyRemaining: 1000 },
+          info: {
+            systemCurrent: 50,
+            systemLimit: 50,
+            globalCurrent: 20,
+            globalLimit: 100,
+            monthlyRemaining: 1000,
+          },
           shouldAllow: false,
         },
         {
           name: 'Global limit exceeded',
-          info: { systemCurrent: 10, systemLimit: 50, globalCurrent: 100, globalLimit: 100, monthlyRemaining: 1000 },
+          info: {
+            systemCurrent: 10,
+            systemLimit: 50,
+            globalCurrent: 100,
+            globalLimit: 100,
+            monthlyRemaining: 1000,
+          },
           shouldAllow: false,
         },
         {
           name: 'Monthly budget exhausted',
-          info: { systemCurrent: 10, systemLimit: 50, globalCurrent: 20, globalLimit: 100, monthlyRemaining: 0 },
+          info: {
+            systemCurrent: 10,
+            systemLimit: 50,
+            globalCurrent: 20,
+            globalLimit: 100,
+            monthlyRemaining: 0,
+          },
           shouldAllow: false,
         },
       ];

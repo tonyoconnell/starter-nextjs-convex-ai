@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 /**
  * Tests for Log Streams Webhook Logic
@@ -10,8 +10,10 @@ describe('Log Streams Webhook Logic', () => {
   describe('Trace ID extraction', () => {
     it('should extract trace ID from log message', () => {
       const logMessage = 'Processing request with trace_id: browser_12345';
-      const traceIdMatch = logMessage.match(/trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i);
-      
+      const traceIdMatch = logMessage.match(
+        /trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i
+      );
+
       expect(traceIdMatch).toBeTruthy();
       expect(traceIdMatch?.[1]).toBe('browser_12345');
     });
@@ -34,7 +36,7 @@ describe('Log Streams Webhook Logic', () => {
     it('should generate fallback trace ID from request ID', () => {
       const requestId = 'req-456789';
       const fallbackTraceId = `convex_req_${requestId}`;
-      
+
       expect(fallbackTraceId).toBe('convex_req_req-456789');
     });
   });
@@ -42,7 +44,10 @@ describe('Log Streams Webhook Logic', () => {
   describe('User ID extraction from log messages', () => {
     it('should extract user ID patterns', () => {
       const testCases = [
-        { message: 'User action for user_id: user-12345', expected: 'user-12345' },
+        {
+          message: 'User action for user_id: user-12345',
+          expected: 'user-12345',
+        },
         { message: 'Processing userId: admin-789', expected: 'admin-789' },
         { message: 'user-id: guest-101', expected: 'guest-101' },
         { message: 'No user info', expected: null },
@@ -60,11 +65,16 @@ describe('Log Streams Webhook Logic', () => {
     it('should map Convex levels to standard levels', () => {
       const mapConvexLogLevel = (level: string): string => {
         switch (level) {
-          case 'DEBUG': return 'debug';
-          case 'INFO': return 'info';
-          case 'WARN': return 'warn';
-          case 'ERROR': return 'error';
-          default: return 'info';
+          case 'DEBUG':
+            return 'debug';
+          case 'INFO':
+            return 'info';
+          case 'WARN':
+            return 'warn';
+          case 'ERROR':
+            return 'error';
+          default:
+            return 'info';
         }
       };
 
@@ -88,11 +98,7 @@ describe('Log Streams Webhook Logic', () => {
         'Convex Webhook Sender',
       ];
 
-      const invalidOrigins = [
-        'malicious-bot/1.0',
-        'unknown-client',
-        '',
-      ];
+      const invalidOrigins = ['malicious-bot/1.0', 'unknown-client', ''];
 
       validOrigins.forEach(origin => {
         expect(isConvexOrigin(origin)).toBe(true);
@@ -107,17 +113,20 @@ describe('Log Streams Webhook Logic', () => {
   describe('Payload validation', () => {
     it('should validate log streams payload structure', () => {
       const validatePayload = (payload: any): boolean => {
-        return Boolean(payload && 
-               Array.isArray(payload.logs) && 
-               payload.logs.length > 0 &&
-               payload.logs.every((log: any) => 
-                 log && 
-                 log.id && 
-                 log.timestamp && 
-                 log.level && 
-                 log.message && 
-                 log.context
-               ));
+        return Boolean(
+          payload &&
+            Array.isArray(payload.logs) &&
+            payload.logs.length > 0 &&
+            payload.logs.every(
+              (log: any) =>
+                log &&
+                log.id &&
+                log.timestamp &&
+                log.level &&
+                log.message &&
+                log.context
+            )
+        );
       };
 
       const validPayload = {
@@ -150,7 +159,7 @@ describe('Log Streams Webhook Logic', () => {
       ];
 
       expect(validatePayload(validPayload)).toBe(true);
-      
+
       invalidPayloads.forEach(payload => {
         expect(validatePayload(payload)).toBe(false);
       });
@@ -178,9 +187,13 @@ describe('Log Streams Webhook Logic', () => {
       };
 
       // Simulate processing logic
-      const traceIdMatch = convexLogEntry.message.match(/trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i);
-      const extractedTraceId = traceIdMatch ? traceIdMatch[1] : `convex_req_${convexLogEntry.context.requestId}`;
-      
+      const traceIdMatch = convexLogEntry.message.match(
+        /trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i
+      );
+      const extractedTraceId = traceIdMatch
+        ? traceIdMatch[1]
+        : `convex_req_${convexLogEntry.context.requestId}`;
+
       const processedLog = {
         level: convexLogEntry.level.toLowerCase(),
         message: convexLogEntry.message,
@@ -210,7 +223,7 @@ describe('Log Streams Webhook Logic', () => {
       expect(processedLog.user_id).toBe('system');
       expect(processedLog.raw_args).toHaveLength(2);
       expect(processedLog.raw_args[0]).toBe(convexLogEntry.message);
-      
+
       const parsedMetadata = JSON.parse(processedLog.raw_args[1]);
       expect(parsedMetadata.functionName).toBe('getUserProfile');
       expect(parsedMetadata.duration).toBe(150);

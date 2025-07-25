@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 /**
  * Tests for Multi-System Log Correlation Engine
@@ -25,18 +25,23 @@ describe('Log Correlation Engine', () => {
         { timestamp: 1000, message: 'test message', system_area: 'browser' }, // Duplicate
         { timestamp: 1000, message: 'test message', system_area: 'worker' }, // Different system
         { timestamp: 2000, message: 'test message', system_area: 'browser' }, // Different timestamp
-        { timestamp: 1000, message: 'different message', system_area: 'browser' }, // Different message
+        {
+          timestamp: 1000,
+          message: 'different message',
+          system_area: 'browser',
+        }, // Different message
       ];
 
       const deduplicated = deduplicateLogs(logsWithDuplicates);
-      
+
       expect(deduplicated).toHaveLength(4); // Should remove only the exact duplicate
-      
+
       // Verify the duplicate was removed
-      const browserTestMessages = deduplicated.filter(log => 
-        log.system_area === 'browser' && 
-        log.message === 'test message' && 
-        log.timestamp === 1000
+      const browserTestMessages = deduplicated.filter(
+        log =>
+          log.system_area === 'browser' &&
+          log.message === 'test message' &&
+          log.timestamp === 1000
       );
       expect(browserTestMessages).toHaveLength(1);
     });
@@ -56,7 +61,7 @@ describe('Log Correlation Engine', () => {
       // Extract system flow (order of first appearance)
       const systemFlow = [];
       const seenSystems = new Set<string>();
-      
+
       for (const log of logs) {
         if (!seenSystems.has(log.system_area)) {
           systemFlow.push(log.system_area);
@@ -78,8 +83,11 @@ describe('Log Correlation Engine', () => {
         { system_area: 'convex', timestamp: 3000 },
       ];
 
-      const systemTimings = new Map<string, { first: number; last: number; count: number }>();
-      
+      const systemTimings = new Map<
+        string,
+        { first: number; last: number; count: number }
+      >();
+
       for (const log of logs) {
         const existing = systemTimings.get(log.system_area);
         if (existing) {
@@ -95,16 +103,18 @@ describe('Log Correlation Engine', () => {
         }
       }
 
-      const timingAnalysis = Array.from(systemTimings.entries()).map(([system, timing]) => ({
-        system,
-        first_log: timing.first,
-        last_log: timing.last,
-        duration_ms: timing.last - timing.first,
-        log_count: timing.count,
-      }));
+      const timingAnalysis = Array.from(systemTimings.entries()).map(
+        ([system, timing]) => ({
+          system,
+          first_log: timing.first,
+          last_log: timing.last,
+          duration_ms: timing.last - timing.first,
+          log_count: timing.count,
+        })
+      );
 
       expect(timingAnalysis).toHaveLength(3);
-      
+
       const browserTiming = timingAnalysis.find(t => t.system === 'browser');
       expect(browserTiming).toEqual({
         system: 'browser',
@@ -137,11 +147,36 @@ describe('Log Correlation Engine', () => {
   describe('Error chain analysis', () => {
     it('should extract error and warning sequences', () => {
       const logs = [
-        { level: 'info', timestamp: 1000, system_area: 'browser', message: 'Starting request' },
-        { level: 'warn', timestamp: 1100, system_area: 'worker', message: 'Slow response detected' },
-        { level: 'error', timestamp: 1200, system_area: 'convex', message: 'Database connection failed' },
-        { level: 'info', timestamp: 1300, system_area: 'browser', message: 'Retrying request' },
-        { level: 'error', timestamp: 1400, system_area: 'browser', message: 'Final retry failed' },
+        {
+          level: 'info',
+          timestamp: 1000,
+          system_area: 'browser',
+          message: 'Starting request',
+        },
+        {
+          level: 'warn',
+          timestamp: 1100,
+          system_area: 'worker',
+          message: 'Slow response detected',
+        },
+        {
+          level: 'error',
+          timestamp: 1200,
+          system_area: 'convex',
+          message: 'Database connection failed',
+        },
+        {
+          level: 'info',
+          timestamp: 1300,
+          system_area: 'browser',
+          message: 'Retrying request',
+        },
+        {
+          level: 'error',
+          timestamp: 1400,
+          system_area: 'browser',
+          message: 'Final retry failed',
+        },
       ];
 
       const errorChain = logs
@@ -181,13 +216,16 @@ describe('Log Correlation Engine', () => {
         return durationMs > 30000; // > 30 seconds
       };
 
-      expect(detectSlowTraces(45000)).toBe(true);  // 45 seconds
+      expect(detectSlowTraces(45000)).toBe(true); // 45 seconds
       expect(detectSlowTraces(25000)).toBe(false); // 25 seconds
-      expect(detectSlowTraces(31000)).toBe(true);  // 31 seconds
+      expect(detectSlowTraces(31000)).toBe(true); // 31 seconds
     });
 
     it('should detect high error rates', () => {
-      const calculateErrorRate = (errorCount: number, totalLogs: number): number => {
+      const calculateErrorRate = (
+        errorCount: number,
+        totalLogs: number
+      ): number => {
         return errorCount / totalLogs;
       };
 
@@ -195,21 +233,24 @@ describe('Log Correlation Engine', () => {
         return errorRate > 0.3; // > 30%
       };
 
-      expect(isHighErrorRate(calculateErrorRate(4, 10))).toBe(true);  // 40%
+      expect(isHighErrorRate(calculateErrorRate(4, 10))).toBe(true); // 40%
       expect(isHighErrorRate(calculateErrorRate(2, 10))).toBe(false); // 20%
       expect(isHighErrorRate(calculateErrorRate(3, 10))).toBe(false); // 30% (not > 30%)
-      expect(isHighErrorRate(calculateErrorRate(4, 12))).toBe(true);  // 33.3%
+      expect(isHighErrorRate(calculateErrorRate(4, 12))).toBe(true); // 33.3%
     });
 
     it('should detect system bottlenecks', () => {
-      const detectBottleneck = (durationMs: number, logCount: number): boolean => {
+      const detectBottleneck = (
+        durationMs: number,
+        logCount: number
+      ): boolean => {
         return durationMs > 10000 && logCount > 20;
       };
 
-      expect(detectBottleneck(15000, 25)).toBe(true);  // 15s, 25 logs
+      expect(detectBottleneck(15000, 25)).toBe(true); // 15s, 25 logs
       expect(detectBottleneck(15000, 15)).toBe(false); // 15s, 15 logs (not enough logs)
-      expect(detectBottleneck(5000, 25)).toBe(false);  // 5s, 25 logs (not slow enough)
-      expect(detectBottleneck(12000, 22)).toBe(true);  // 12s, 22 logs
+      expect(detectBottleneck(5000, 25)).toBe(false); // 5s, 25 logs (not slow enough)
+      expect(detectBottleneck(12000, 22)).toBe(true); // 12s, 22 logs
     });
   });
 
@@ -224,20 +265,29 @@ describe('Log Correlation Engine', () => {
       ];
 
       // Group by trace_id to calculate statistics
-      const traceStats = new Map<string, {
-        systems: Set<string>;
-        count: number;
-        first_timestamp: number;
-        last_timestamp: number;
-      }>();
+      const traceStats = new Map<
+        string,
+        {
+          systems: Set<string>;
+          count: number;
+          first_timestamp: number;
+          last_timestamp: number;
+        }
+      >();
 
       for (const log of logs) {
         const existing = traceStats.get(log.trace_id);
         if (existing) {
           existing.systems.add(log.system_area);
           existing.count++;
-          existing.first_timestamp = Math.min(existing.first_timestamp, log.timestamp);
-          existing.last_timestamp = Math.max(existing.last_timestamp, log.timestamp);
+          existing.first_timestamp = Math.min(
+            existing.first_timestamp,
+            log.timestamp
+          );
+          existing.last_timestamp = Math.max(
+            existing.last_timestamp,
+            log.timestamp
+          );
         } else {
           traceStats.set(log.trace_id, {
             systems: new Set([log.system_area]),
@@ -249,7 +299,9 @@ describe('Log Correlation Engine', () => {
       }
 
       const traces = Array.from(traceStats.entries());
-      const multiSystemTraces = traces.filter(([, stats]) => stats.systems.size > 1);
+      const multiSystemTraces = traces.filter(
+        ([, stats]) => stats.systems.size > 1
+      );
 
       expect(traces).toHaveLength(3); // 3 unique traces
       expect(multiSystemTraces).toHaveLength(2); // trace1 and trace2 span multiple systems
@@ -264,7 +316,8 @@ describe('Log Correlation Engine', () => {
       // System breakdown
       const systemBreakdown: Record<string, number> = {};
       for (const log of logs) {
-        systemBreakdown[log.system_area] = (systemBreakdown[log.system_area] || 0) + 1;
+        systemBreakdown[log.system_area] =
+          (systemBreakdown[log.system_area] || 0) + 1;
       }
 
       expect(systemBreakdown).toEqual({
@@ -276,10 +329,12 @@ describe('Log Correlation Engine', () => {
 
     it('should calculate average trace duration', () => {
       const traceDurations = [1000, 2000, 500, 1500, 3000]; // Various durations in ms
-      
-      const averageDuration = traceDurations.length > 0 
-        ? traceDurations.reduce((sum, duration) => sum + duration, 0) / traceDurations.length
-        : 0;
+
+      const averageDuration =
+        traceDurations.length > 0
+          ? traceDurations.reduce((sum, duration) => sum + duration, 0) /
+            traceDurations.length
+          : 0;
 
       expect(averageDuration).toBe(1600); // (1000+2000+500+1500+3000)/5 = 1600
     });
@@ -289,15 +344,21 @@ describe('Log Correlation Engine', () => {
     it('should filter logs by text search', () => {
       const logs = [
         { message: 'User login successful', raw_args: ['user_id: 123'] },
-        { message: 'Database query executed', raw_args: ['SELECT * FROM users'] },
+        {
+          message: 'Database query executed',
+          raw_args: ['SELECT * FROM users'],
+        },
         { message: 'Error occurred', raw_args: ['Stack trace here'] },
         { message: 'User logout', raw_args: ['user_id: 123'] },
       ];
 
       const searchQuery = 'user';
-      const filteredLogs = logs.filter(log =>
-        log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        log.raw_args.some(arg => arg.toLowerCase().includes(searchQuery.toLowerCase()))
+      const filteredLogs = logs.filter(
+        log =>
+          log.message.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          log.raw_args.some(arg =>
+            arg.toLowerCase().includes(searchQuery.toLowerCase())
+          )
       );
 
       expect(filteredLogs).toHaveLength(3); // 'User login', 'Database query' (users), 'User logout'
@@ -320,12 +381,14 @@ describe('Log Correlation Engine', () => {
       const since = 1200;
       const until = 2800;
 
-      const filteredLogs = logs.filter(log => 
-        log.timestamp > since && log.timestamp < until
+      const filteredLogs = logs.filter(
+        log => log.timestamp > since && log.timestamp < until
       );
 
       expect(filteredLogs).toHaveLength(3); // timestamps 1500, 2000, and 2500
-      expect(filteredLogs.map(log => log.timestamp)).toEqual([1500, 2000, 2500]);
+      expect(filteredLogs.map(log => log.timestamp)).toEqual([
+        1500, 2000, 2500,
+      ]);
     });
   });
 
