@@ -34,11 +34,15 @@ Insights about development workflows, KDD implementation, and team collaboration
 
 ### [Architecture Lessons](architecture/)
 
-Learnings about system design decisions, both successful and problematic.
+Learnings about system design decisions, both successful and problematic:
+
+- **[Monorepo Architecture Lessons](./architecture/monorepo-lessons.md)** - Critical insights from CI debugging session about package isolation, environment consistency, and proper dependency management
 
 ### [Anti-Patterns](anti-patterns/)
 
-Documented approaches that should be avoided, with explanations of why and alternatives.
+Documented approaches that should be avoided, with explanations of why and alternatives:
+
+- **[Monorepo Symlink Anti-Patterns](./anti-patterns/monorepo-symlink-anti-patterns.md)** - The dangerous pattern of cross-package symlinks that cause module resolution failures and environment-specific build issues
 
 ## Lesson Documentation Format
 
