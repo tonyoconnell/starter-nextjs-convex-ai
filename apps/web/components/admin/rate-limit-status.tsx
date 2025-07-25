@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@starter/ui';
 import { Button } from '@starter/ui';
 import { Badge } from '@starter/ui';
 import { Progress } from '@starter/ui';
@@ -35,19 +41,26 @@ export function RateLimitStatus() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center p-4">
-            <RefreshCw className="h-6 w-6 animate-spin" />
+            <RefreshCw
+              className="h-6 w-6 animate-spin"
+              aria-label="Loading rate limit data"
+            />
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  const getSystemStatus = (current: number, limit: number): { 
-    status: string; 
-    color: 'default' | 'destructive' | 'outline' | 'secondary'; 
+  const getSystemStatus = (
+    current: number,
+    limit: number
+  ): {
+    status: string;
+    color: 'default' | 'destructive' | 'outline' | 'secondary';
   } => {
     const usage = (current / limit) * 100;
-    if (usage >= 90) return { status: 'critical', color: 'destructive' as const };
+    if (usage >= 90)
+      return { status: 'critical', color: 'destructive' as const };
     if (usage >= 70) return { status: 'warning', color: 'secondary' as const };
     return { status: 'healthy', color: 'default' as const };
   };
@@ -72,7 +85,9 @@ export function RateLimitStatus() {
             onClick={handleRefresh}
             disabled={isRefreshing}
           >
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
           </Button>
         </CardTitle>
         <CardDescription>
@@ -84,12 +99,22 @@ export function RateLimitStatus() {
         <div className="border rounded-lg p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="font-medium">Global Limit</span>
-            <Badge variant={getSystemStatus(rateLimitState.global.current, rateLimitState.global.limit).color}>
+            <Badge
+              variant={
+                getSystemStatus(
+                  rateLimitState.global.current,
+                  rateLimitState.global.limit
+                ).color
+              }
+            >
               {rateLimitState.global.current}/{rateLimitState.global.limit}
             </Badge>
           </div>
-          <Progress 
-            value={(rateLimitState.global.current / rateLimitState.global.limit) * 100} 
+          <Progress
+            value={
+              (rateLimitState.global.current / rateLimitState.global.limit) *
+              100
+            }
             className="h-2"
           />
           <div className="text-xs text-muted-foreground mt-1">
@@ -99,23 +124,30 @@ export function RateLimitStatus() {
 
         {/* System Breakdown */}
         <div className="space-y-3">
-          {systems.map((system) => {
-            const { status, color } = getSystemStatus(system.current, system.limit);
-            const resetTime = system.resetTime ? new Date(system.resetTime) : null;
-            
+          {systems.map(system => {
+            const { status, color } = getSystemStatus(
+              system.current,
+              system.limit
+            );
+            const resetTime = system.resetTime
+              ? new Date(system.resetTime)
+              : null;
+
             return (
               <div key={system.key} className="border rounded-lg p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-medium">{system.name}</span>
                   <div className="flex items-center gap-2">
-                    {status === 'critical' && <AlertTriangle className="h-4 w-4 text-destructive" />}
+                    {status === 'critical' && (
+                      <AlertTriangle className="h-4 w-4 text-destructive" />
+                    )}
                     <Badge variant={color}>
                       {system.current}/{system.limit}
                     </Badge>
                   </div>
                 </div>
-                <Progress 
-                  value={(system.current / system.limit) * 100} 
+                <Progress
+                  value={(system.current / system.limit) * 100}
                   className="h-2"
                 />
                 {resetTime && (
@@ -130,7 +162,8 @@ export function RateLimitStatus() {
 
         {/* Status Summary */}
         <div className="text-xs text-muted-foreground border-t pt-3">
-          Rate limits reset every minute. Quota borrowing enabled between underutilized systems.
+          Rate limits reset every minute. Quota borrowing enabled between
+          underutilized systems.
         </div>
       </CardContent>
     </Card>

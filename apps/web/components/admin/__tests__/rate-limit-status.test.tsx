@@ -17,7 +17,7 @@ const mockRateLimitState = {
   browser: { current: 5, limit: 10, resetTime: Date.now() + 60000 },
   worker: { current: 2, limit: 5, resetTime: Date.now() + 60000 },
   backend: { current: 3, limit: 5, resetTime: Date.now() + 60000 },
-  global: { current: 10, limit: 20, budget: 125000 }
+  global: { current: 10, limit: 20, budget: 125000 },
 };
 
 describe('RateLimitStatus', () => {
@@ -33,7 +33,8 @@ describe('RateLimitStatus', () => {
 
     render(<RateLimitStatus />);
 
-    expect(screen.getByRole('heading', { name: /rate limiting status/i })).toBeInTheDocument();
+    expect(screen.getByText('Rate Limiting Status')).toBeInTheDocument();
+    expect(screen.getByLabelText(/loading/i)).toBeInTheDocument();
   });
 
   it('renders rate limit data correctly', () => {
@@ -51,7 +52,7 @@ describe('RateLimitStatus', () => {
   it('shows correct status badges for different usage levels', () => {
     const highUsageState = {
       ...mockRateLimitState,
-      browser: { current: 9, limit: 10, resetTime: Date.now() + 60000 } // 90% usage
+      browser: { current: 9, limit: 10, resetTime: Date.now() + 60000 }, // 90% usage
     };
     mockUseQuery.mockReturnValue(highUsageState);
 
@@ -81,8 +82,8 @@ describe('RateLimitStatus', () => {
 
     render(<RateLimitStatus />);
 
-    // Should show reset time text
-    expect(screen.getByText(/resets/i)).toBeInTheDocument();
+    // Should show reset time text (there are multiple, so we'll get all)
+    expect(screen.getAllByText(/resets/i)).toHaveLength(3); // One for each system
   });
 
   it('shows budget information', () => {
