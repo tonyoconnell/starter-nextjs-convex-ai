@@ -21,12 +21,17 @@ This directory contains all testing-related documentation organized by purpose a
 **User acceptance testing and functional verification:**
 
 ### Functional Test Plans
+
+**Epic 1 - Platform Foundation:**
 - [Story 1.2 - Basic Next.js App Shell](uat/functional-test-plan-1.2.md)
 - [Story 1.4 - Convex Backend Integration](uat/functional-test-plan-1.4.md) 
 - [Story 1.5 - Authentication System](uat/functional-test-plan-1.5.md)
 - [Story 1.6 - User Dashboard](uat/functional-test-plan-1.6.md)
 - [Story 1.7 - GitHub OAuth](uat/functional-test-plan-1.7.md)
 - [Story 1.8 - Profile Management](uat/functional-test-plan-1.8.md)
+
+**Epic 3 - Resilient Real-time Logging:**
+- [Story 3.2 - Multi-System Log Ingestion & Correlation](uat/functional-test-plan-3.2.md)
 
 ## Testing Commands Reference
 
@@ -63,5 +68,6 @@ docs/testing/
     ├── functional-test-plan-1.5.md
     ├── functional-test-plan-1.6.md
     ├── functional-test-plan-1.7.md
-    └── functional-test-plan-1.8.md
+    ├── functional-test-plan-1.8.md
+    └── functional-test-plan-3.2.md
 ```

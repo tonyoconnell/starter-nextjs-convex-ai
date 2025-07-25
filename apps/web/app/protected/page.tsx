@@ -4,6 +4,7 @@ import { useAuth } from '../../components/auth/auth-provider';
 import { LogoutButton } from '../../components/auth/logout-button';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function ProtectedPage() {
   const { user, isLoading } = useAuth();
@@ -32,6 +33,16 @@ export default function ProtectedPage() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
+        {/* Home Navigation */}
+        <div className="text-left mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          >
+            <span className="mr-1">←</span>
+            Back to Home
+          </Link>
+        </div>
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <div className="flex justify-between items-start mb-6">
             <div>

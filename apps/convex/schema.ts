@@ -83,4 +83,39 @@ export default defineSchema({
     .index('by_timestamp', ['timestamp'])
     .index('by_trace_id', ['trace_id'])
     .index('by_expires_at', ['expires_at']),
+
+  // Multi-system rate limiting state
+  rate_limit_state: defineTable({
+    // Browser system limits
+    browser_current: v.number(),
+    browser_limit: v.number(),
+    browser_reset_time: v.number(),
+    // Worker system limits
+    worker_current: v.number(),
+    worker_limit: v.number(),
+    worker_reset_time: v.number(),
+    // Backend system limits
+    backend_current: v.number(),
+    backend_limit: v.number(),
+    backend_reset_time: v.number(),
+    // Global limits
+    global_current: v.number(),
+    global_limit: v.number(),
+    global_reset_time: v.number(),
+    global_budget: v.number(),
+    // Monthly tracking
+    monthly_writes_browser: v.number(),
+    monthly_writes_worker: v.number(),
+    monthly_writes_backend: v.number(),
+    monthly_reset_time: v.number(),
+  }),
+
+  // Message fingerprints for duplicate detection
+  message_fingerprints: defineTable({
+    fingerprint: v.string(),
+    timestamp: v.number(),
+    expires_at: v.number(),
+  })
+    .index('by_fingerprint', ['fingerprint'])
+    .index('by_expires_at', ['expires_at']),
 });

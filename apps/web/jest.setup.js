@@ -55,6 +55,58 @@ jest.mock('convex/react', () => ({
   })),
 }));
 
+// Mock convex-api module
+jest.mock('@/lib/convex-api', () => ({
+  api: {
+    queries: {
+      getTestMessage: jest.fn(),
+      getTestMessages: jest.fn(),
+    },
+    auth: {
+      registerUser: jest.fn(),
+      loginUser: jest.fn(),
+      logoutUser: jest.fn(),
+      changePassword: jest.fn(),
+      requestPasswordReset: jest.fn(),
+      resetPassword: jest.fn(),
+      getGitHubOAuthUrl: jest.fn(),
+      githubOAuthLogin: jest.fn(),
+      getGoogleOAuthUrl: jest.fn(),
+      googleOAuthLogin: jest.fn(),
+    },
+    users: {
+      getCurrentUser: jest.fn(),
+    },
+    loggingAction: {
+      processLogs: jest.fn(),
+    },
+    rateLimiter: {
+      getRateLimitState: jest.fn(),
+      checkAndUpdateRateLimit: jest.fn(),
+      updateRateLimitState: jest.fn(),
+      initializeRateLimitState: jest.fn(),
+      getCalculatedLimits: jest.fn(),
+      getCostMetrics: jest.fn(),
+    },
+    monitoring: {
+      usage: jest.fn(),
+      traces: jest.fn(),
+    },
+    cleanup: {
+      status: jest.fn(),
+      safe: jest.fn(),
+      force: jest.fn(),
+    },
+    logCorrelation: {
+      getCorrelatedLogs: jest.fn(),
+      getRecentTraces: jest.fn(),
+      searchLogs: jest.fn(),
+      getTraceInsights: jest.fn(),
+      getCorrelationStats: jest.fn(),
+    },
+  },
+}));
+
 // Setup global test utilities
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
