@@ -40,6 +40,14 @@ bun run ci:logs      # View detailed CI logs
 bun run push         # Smart push with pre-validation and CI monitoring
 bun run push:no-ci   # Smart push without CI monitoring
 
+# Systematic CI Verification (MANDATORY)
+# These commands MUST be run after story completion and before marking complete
+bun run typecheck    # TypeScript compilation verification
+bun run lint         # ESLint validation
+bun test             # Unit test execution (use npm test for component tests)
+bun run ci:status    # Verify CI pipeline status
+bun run ci:watch     # Monitor CI completion (when CI is running)
+
 # Convex Backend
 bunx convex dev      # Start Convex development server
 bunx convex deploy   # Deploy Convex functions
@@ -115,12 +123,43 @@ bunx convex run cleanup:force                     # Testing/emergency - delete A
 
 ### AI-Assisted Development
 
-This project follows the BMAD (Before, Model, After, Document) method:
+This project follows the BMAD (Before, Model, After, Document) method with integrated CI verification:
 
-1. Capture context before starting tasks
-2. Use Claude for implementation
-3. Verify and test results
-4. Document changes and learnings
+#### BMAD Phase Integration with CI Verification
+
+1. **Before Phase**:
+   - Capture context before starting tasks
+   - **CI Context Check**: Run `bun run ci:status` to verify starting state
+   - Document current CI status in planning
+
+2. **Model Phase**:
+   - Use Claude for implementation
+   - **Include CI Considerations**: Plan implementation with CI compatibility in mind
+   - Consider test requirements and CI pipeline impact
+
+3. **After Phase**:
+   - **MANDATORY CI Verification Suite**:
+     ```bash
+     pwd                    # Verify project root
+     bun run typecheck     # TypeScript validation
+     bun run lint          # ESLint compliance
+     bun test              # Local test execution
+     bun run build         # Production build test
+     bun run ci:status     # CI pipeline verification
+     ```
+   - **DO NOT PROCEED** to Document phase until CI is green
+
+4. **Document Phase**:
+   - Document changes and learnings
+   - **Include CI Lessons**: Capture any CI-related insights
+   - Update testing documentation if CI patterns change
+
+#### BMAD-CI Integration Rules
+
+- **Never skip CI verification** in After phase - it's non-negotiable
+- **CI failures block story completion** - fix before documenting
+- **Document CI lessons** - maintain institutional CI knowledge
+- **Use tester agent** for complex CI debugging during any phase
 
 ### BMAD Documentation Structure
 
@@ -138,6 +177,61 @@ For systematic development, reference specific epics and architectural component
 - Integration tests for Convex functions
 - E2E tests for critical user flows
 - Claude integration captures test results automatically
+
+### CI Verification Process (MANDATORY)
+
+**Critical Gap Identified**: Local tests passing ≠ CI success. The following systematic verification MUST be performed:
+
+#### Before Story Completion (REQUIRED)
+
+1. **Local Verification Suite**:
+
+   ```bash
+   # Run ALL verification commands in sequence
+   pwd                    # Verify project root directory
+   bun run typecheck     # TypeScript compilation check
+   bun run lint          # ESLint validation
+   bun test              # Unit tests (use npm test for React components)
+   bun run build         # Production build verification
+   ```
+
+2. **CI Pipeline Verification**:
+
+   ```bash
+   # After pushing changes
+   bun run ci:status     # Check current CI status
+   bun run ci:watch      # Monitor CI execution (if running)
+
+   # If CI fails, investigate immediately
+   bun run ci:logs       # View detailed failure logs
+   ```
+
+#### Story Completion Checklist (NON-NEGOTIABLE)
+
+**NEVER mark a story as complete until ALL of these pass:**
+
+- [ ] **Local TypeScript**: `bun run typecheck` passes with 0 errors
+- [ ] **Local Linting**: `bun run lint` passes with 0 warnings
+- [ ] **Local Tests**: All test suites pass (unit + integration)
+- [ ] **Local Build**: `bun run build` completes successfully
+- [ ] **CI Pipeline**: `bun run ci:status` shows SUCCESS for latest commit
+- [ ] **Deployment**: Site accessible and functional (for main branch)
+
+#### When CI Verification Fails
+
+**Immediate Actions Required:**
+
+1. **Don't ignore CI failures** - they represent production environment issues
+2. **Fix before proceeding** - no new work until CI is green
+3. **Document lessons learned** - update testing documentation
+4. **Use tester agent** - delegate complex CI debugging to testing specialist
+
+#### Integration with BMAD Phases
+
+**Before Phase**: Verify CI status of current branch  
+**Model Phase**: Include CI considerations in implementation planning  
+**After Phase**: Mandatory CI verification before completion  
+**Document Phase**: Capture CI-related lessons learned
 
 ### Deployment
 
@@ -217,24 +311,79 @@ NEVER proactively create documentation files (\*.md) or README files. Only creat
 
 ### Testing Infrastructure Work (MANDATORY)
 
-**When to Use the Task Tool with Testing Agent:**
-- **Test Strategy Planning**: Before implementing any new test suites
-- **Test Infrastructure Debugging**: When test frameworks or CI issues arise  
-- **Coverage Analysis**: When reviewing or improving test coverage
-- **Testing Pattern Establishment**: When creating reusable testing patterns
-- **MUST BE USED**: When test-related issues arise or new test requirements are needed
+**CRITICAL**: Testing work MUST involve the tester agent proactively, not just reactively when problems arise.
 
-**Testing Agent Usage Pattern:**
+#### Mandatory Tester Agent Usage
+
+**BEFORE implementing tests** (NON-NEGOTIABLE):
+
+- [ ] **Strategy Planning**: Delegate test approach and patterns to tester agent
+- [ ] **Requirements Analysis**: Have tester agent define coverage requirements
+- [ ] **Framework Selection**: Confirm testing tools and setup with tester agent
+
+**DURING test implementation**:
+
+- [ ] **Infrastructure Issues**: Immediately delegate Jest/framework problems to tester agent
+- [ ] **Complex Scenarios**: Use tester agent for accessibility and interaction testing
+- [ ] **CI Integration**: Have tester agent handle CI testing configuration
+
+**AFTER test implementation** (REQUIRED):
+
+- [ ] **Coverage Review**: Tester agent MUST analyze coverage and patterns
+- [ ] **Quality Assessment**: Delegate test quality evaluation to tester agent
+- [ ] **Documentation**: Tester agent handles testing lessons learned documentation
+
+#### Testing Agent Usage Pattern
+
 ```
 Use Task tool with subagent_type: "tester" for:
-- Setting up component test strategies
-- Debugging Jest/testing framework issues
-- Implementing comprehensive test patterns  
-- Reviewing test coverage and accessibility
-- Establishing testing standards and documentation
+
+PROACTIVE (before issues):
+- Test strategy planning for new features
+- Testing pattern establishment
+- Coverage requirement definition
+- CI testing integration planning
+
+REACTIVE (when issues arise):
+- Jest/testing framework debugging
+- Test infrastructure troubleshooting
+- Complex mocking scenarios
+- Accessibility testing implementation
+
+EVALUATIVE (after implementation):
+- Test coverage analysis
+- Testing pattern review
+- Quality assessment
+- Lessons learned documentation
 ```
 
-**Critical Rule**: Do NOT implement complex testing scenarios without first delegating strategy and pattern establishment to the testing specialist agent.
+#### Lessons from Story 4.1 Analysis
+
+**Failure Pattern Identified**: Story 4.1 achieved 28/28 passing tests but failed to use tester agent proactively. This missed opportunities for:
+
+- Better testing architecture
+- More comprehensive patterns
+- Systematic coverage analysis
+- Testing infrastructure optimization
+
+**Prevention Rule**: **NEVER** implement testing without tester agent involvement, even if local implementation succeeds.
+
+#### Testing Workflow Integration
+
+```bash
+# MANDATORY workflow for ANY testing work:
+
+# 1. BEFORE implementing tests
+Task tool -> tester agent: "Plan test strategy for [component/feature]"
+
+# 2. DURING implementation
+Task tool -> tester agent: "Debug [specific testing issue]" (when issues arise)
+
+# 3. AFTER implementation
+Task tool -> tester agent: "Review test coverage and patterns for [feature]"
+```
+
+**Enforcement**: Any story involving testing MUST show evidence of tester agent delegation in story documentation.
 
 ## Testing Documentation Priority
 
@@ -289,7 +438,7 @@ This protocol prevents incorrect file placement and maintains project consistenc
    ```bash
    # If not in project root, navigate immediately:
    cd /Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai
-   
+
    # Then verify you're in the right place:
    pwd
    ```
@@ -341,3 +490,109 @@ If you get "file not found" or "script not found" errors:
 5. **Then retry your original command**
 
 **Common failure pattern:** Running commands from subdirectories like `apps/web/` when scripts expect project root context.
+
+## CI Verification Scripts & Monitoring Tools
+
+### Available CI Monitoring Scripts
+
+The project includes comprehensive CI monitoring tools to support systematic verification:
+
+#### 1. **CI Status Check** (`scripts/ci-status.sh`)
+
+```bash
+# Usage: Check current CI status for branch
+bun run ci:status [branch-name]
+
+# Features:
+- Shows recent CI runs with status and timestamps
+- Displays current pipeline status (success/failure/running)
+- Provides direct GitHub Actions link
+- Exit codes: 0=success, 1=failure, others=various states
+```
+
+#### 2. **CI Monitor** (`scripts/ci-monitor.sh`)
+
+```bash
+# Usage: Monitor CI execution with timeout
+bun run ci:watch [branch-name] [timeout-seconds]
+
+# Features:
+- Real-time CI monitoring with status updates
+- Configurable timeout (default: 300 seconds)
+- Exit codes indicate final CI state
+- Automatic link to detailed logs on failure
+```
+
+#### 3. **Smart Push with CI Integration** (`scripts/smart-push.sh`)
+
+```bash
+# Usage: Intelligent push with pre-validation
+bun run push
+
+# Workflow:
+1. Pre-push validation (lint, typecheck, test)
+2. Git operations (add, commit, push)
+3. Automated CI monitoring
+4. Success/failure reporting with actionable feedback
+```
+
+### CI Integration Best Practices
+
+#### Systematic Use Pattern
+
+```bash
+# 1. Before starting work - verify baseline
+bun run ci:status
+
+# 2. During development - local validation
+bun run typecheck && bun run lint && bun test
+
+# 3. After implementation - comprehensive check
+bun run build  # Verify production build
+bun run push   # Smart push with CI monitoring
+
+# 4. Story completion - final verification
+bun run ci:status  # Confirm CI success before marking complete
+```
+
+#### Error Handling Workflow
+
+```bash
+# If CI fails after push:
+bun run ci:logs        # View detailed failure logs
+bun run ci:status      # Check current status
+# Fix issues locally, then:
+bun run push           # Re-push with monitoring
+```
+
+### Integration with Development Tools
+
+#### GitHub CLI Integration
+
+All CI scripts use GitHub CLI (`gh`) for authenticated API access:
+
+- Automatic authentication detection
+- Rich status reporting with timestamps
+- Direct links to GitHub Actions dashboard
+
+#### Exit Code Standards
+
+- **0**: Success/completion
+- **1**: Failure (CI failed, authentication issues)
+- **2**: Cancelled operations
+- **124**: Timeout reached
+- **3+**: Various warning states
+
+#### Monitoring Timeouts
+
+- **Default**: 300 seconds (5 minutes) for most pipelines
+- **Configurable**: Pass custom timeout as second argument
+- **Smart Timeout**: Scripts provide progress updates and remaining time
+
+### Documentation References
+
+For comprehensive CI setup and troubleshooting:
+
+- **[CI/CD Pipeline Setup Guide](docs/technical-guides/cicd-pipeline-setup.md)** - Complete setup instructions
+- **[Testing Infrastructure Lessons](docs/testing/technical/testing-infrastructure-lessons-learned.md)** - CI debugging patterns
+- **[Chat Component KDD](docs/testing/technical/chat-component-testing-lessons.md)** - Testing methodology improvements
