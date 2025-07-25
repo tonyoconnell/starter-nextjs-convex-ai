@@ -30,6 +30,13 @@ export default [
         sessionStorage: 'readonly',
         localStorage: 'readonly',
         crypto: 'readonly',
+        // DOM types for React components
+        HTMLDivElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLParagraphElement: 'readonly',
+        HTMLHeadingElement: 'readonly',
+        HTMLElement: 'readonly',
         // Jest globals
         jest: 'readonly',
         describe: 'readonly',

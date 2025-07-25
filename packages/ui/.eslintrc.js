@@ -18,10 +18,20 @@ module.exports = {
     '@typescript-eslint/no-empty-object-type': 'off',
     'no-undef': 'off', // TypeScript handles this, avoid conflicts with DOM types
   },
+  overrides: [
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      rules: {
+        'no-undef': 'off', // Disable no-undef for TypeScript files
+      },
+    },
+  ],
   globals: {
     HTMLButtonElement: 'readonly',
     HTMLDivElement: 'readonly',
     HTMLInputElement: 'readonly',
+    HTMLParagraphElement: 'readonly',
+    HTMLHeadingElement: 'readonly',
   },
   settings: {
     react: {

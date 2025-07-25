@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // Mock Convex modules for testing
-vi.mock('../_generated/server', () => ({
+jest.mock('../_generated/server', () => ({
   httpAction: (handler: any) => handler,
 }));
 
-vi.mock('../_generated/api', () => ({
+jest.mock('../_generated/api', () => ({
   api: {
     loggingAction: {
       createLogEntry: 'mocked-mutation-path',
@@ -15,7 +15,7 @@ vi.mock('../_generated/api', () => ({
 
 describe('LogStreamsWebhook Logic Tests', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   // Test the core logic functions separately from Convex infrastructure
@@ -38,7 +38,9 @@ describe('LogStreamsWebhook Logic Tests', () => {
 
       // Since we can't easily test internal functions, we'll test the expected behavior
       // by checking that a trace ID pattern would be found
-      const traceIdMatch = logEntry.message.match(/trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i);
+      const traceIdMatch = logEntry.message.match(
+        /trace[_-]id[:\s]+([a-zA-Z0-9_-]+)/i
+      );
       expect(traceIdMatch).toBeTruthy();
       expect(traceIdMatch?.[1]).toBe('browser_12345');
     });
@@ -130,11 +132,7 @@ describe('LogStreamsWebhook Logic Tests', () => {
         'convex webhook sender',
       ];
 
-      const invalidOrigins = [
-        'malicious-bot/1.0',
-        'unknown-client',
-        '',
-      ];
+      const invalidOrigins = ['malicious-bot/1.0', 'unknown-client', ''];
 
       validOrigins.forEach(origin => {
         expect(origin.includes('convex')).toBe(true);
@@ -208,7 +206,7 @@ describe('LogStreamsWebhook Logic Tests', () => {
       // Expected processed structure
       const extractedTraceId = 'browser_456'; // Would be extracted from message
       const mappedLevel = 'info'; // INFO -> info
-      
+
       const expectedProcessedLog = {
         level: mappedLevel,
         message: convexLogEntry.message,
@@ -227,7 +225,7 @@ describe('LogStreamsWebhook Logic Tests', () => {
             originalLevel: convexLogEntry.level,
             duration: 150,
             custom: 'data',
-          })
+          }),
         ],
         stack_trace: undefined,
       };
@@ -239,7 +237,7 @@ describe('LogStreamsWebhook Logic Tests', () => {
       expect(expectedProcessedLog.user_id).toBe('system');
       expect(expectedProcessedLog.raw_args).toHaveLength(2);
       expect(expectedProcessedLog.raw_args[0]).toBe(convexLogEntry.message);
-      
+
       const parsedMetadata = JSON.parse(expectedProcessedLog.raw_args[1]);
       expect(parsedMetadata.functionName).toBe('getUserProfile');
       expect(parsedMetadata.duration).toBe(150);
