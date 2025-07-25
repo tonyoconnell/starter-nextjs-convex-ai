@@ -2,7 +2,13 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/lib/convex-api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@starter/ui';
 import { Badge } from '@starter/ui';
 import { Alert, AlertDescription } from '@starter/ui';
 import { Database, AlertTriangle, HardDrive, RefreshCw } from 'lucide-react';
@@ -28,7 +34,9 @@ export function DatabaseHealth() {
     );
   }
 
-  const getStorageStatus = (mb: number): {
+  const getStorageStatus = (
+    mb: number
+  ): {
     status: string;
     color: 'default' | 'destructive' | 'outline' | 'secondary';
   } => {
@@ -46,9 +54,7 @@ export function DatabaseHealth() {
           <Database className="h-5 w-5" />
           Database Health
         </CardTitle>
-        <CardDescription>
-          Storage usage and table statistics
-        </CardDescription>
+        <CardDescription>Storage usage and table statistics</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Storage Overview */}
@@ -87,11 +93,15 @@ export function DatabaseHealth() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Users</span>
-              <span className="text-sm font-mono">{usage.recordCounts.users.toLocaleString()}</span>
+              <span className="text-sm font-mono">
+                {usage.recordCounts.users.toLocaleString()}
+              </span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Sessions</span>
-              <span className="text-sm font-mono">{usage.recordCounts.sessions.toLocaleString()}</span>
+              <span className="text-sm font-mono">
+                {usage.recordCounts.sessions.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
@@ -99,7 +109,7 @@ export function DatabaseHealth() {
         {/* Warnings */}
         {usage.warnings && usage.warnings.length > 0 && (
           <div className="space-y-2">
-            {usage.warnings.map((warning, index) => (
+            {usage.warnings.map((warning: string, index: number) => (
               <Alert key={index} variant="destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription className="text-sm">
@@ -115,7 +125,8 @@ export function DatabaseHealth() {
           <div className="text-sm">
             <strong>Cleanup Status:</strong>
           </div>
-          {usage.recordCounts.log_queue_sample > 1000 || usage.recordCounts.recent_log_entries_sample > 1000 ? (
+          {usage.recordCounts.log_queue_sample > 1000 ||
+          usage.recordCounts.recent_log_entries_sample > 1000 ? (
             <div className="text-xs text-muted-foreground">
               Consider running cleanup to optimize storage usage
             </div>
