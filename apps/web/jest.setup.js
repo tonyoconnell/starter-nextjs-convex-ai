@@ -114,6 +114,9 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   disconnect: jest.fn(),
 }));
 
+// Mock scrollIntoView for DOM elements
+Element.prototype.scrollIntoView = jest.fn();
+
 // Mock clipboard API - ensure navigator exists first
 if (typeof navigator !== 'undefined') {
   Object.assign(navigator, {

@@ -213,6 +213,29 @@ NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
 
+## Specialized Agent Delegation
+
+### Testing Infrastructure Work (MANDATORY)
+
+**When to Use the Task Tool with Testing Agent:**
+- **Test Strategy Planning**: Before implementing any new test suites
+- **Test Infrastructure Debugging**: When test frameworks or CI issues arise  
+- **Coverage Analysis**: When reviewing or improving test coverage
+- **Testing Pattern Establishment**: When creating reusable testing patterns
+- **MUST BE USED**: When test-related issues arise or new test requirements are needed
+
+**Testing Agent Usage Pattern:**
+```
+Use Task tool with subagent_type: "tester" for:
+- Setting up component test strategies
+- Debugging Jest/testing framework issues
+- Implementing comprehensive test patterns  
+- Reviewing test coverage and accessibility
+- Establishing testing standards and documentation
+```
+
+**Critical Rule**: Do NOT implement complex testing scenarios without first delegating strategy and pattern establishment to the testing specialist agent.
+
 ## Testing Documentation Priority
 
 When asked about testing or testing-related documentation:

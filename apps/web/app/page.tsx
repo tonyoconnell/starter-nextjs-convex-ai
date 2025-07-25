@@ -16,12 +16,12 @@ import { Input } from '@starter/ui';
 import Link from 'next/link';
 import { useState } from 'react';
 import { ThemeToggle } from '../components/theme/theme-toggle';
-import { Menu, User, Settings, LogOut } from 'lucide-react';
+import { Menu, User, Settings, MessageSquare } from 'lucide-react';
 
 export default function HomePage() {
   const testMessage = useQuery(api.queries.getTestMessage);
   const testMessages = useQuery(api.queries.getTestMessages);
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
   const [inputValue, setInputValue] = useState('');
 
   return (
@@ -48,6 +48,13 @@ export default function HomePage() {
               </Link>
               {user && (
                 <>
+                  <Link
+                    href="/chat"
+                    className="flex items-center text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    <MessageSquare className="h-4 w-4 mr-1" />
+                    Chat
+                  </Link>
                   <Link
                     href="/protected"
                     className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 px-3 py-2 rounded-md text-sm font-medium"
