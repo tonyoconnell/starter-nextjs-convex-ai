@@ -26,41 +26,37 @@ class ChromeLogCapture {
       captureNetwork: options.captureNetwork ?? true,
       captureConsole: options.captureConsole ?? true,
       captureExceptions: options.captureExceptions ?? true,
-      ...options
+      ...options,
     };
   }
-  
+
   async connect() {
     this.client = await CDP({ port: this.options.port });
     await this.enableDomains();
     await this.attachEventHandlers();
   }
-  
+
   async enableDomains() {
     const { Runtime, Network, Console } = this.client;
-    await Promise.all([
-      Runtime.enable(),
-      Network.enable(),
-      Console.enable(),
-    ]);
+    await Promise.all([Runtime.enable(), Network.enable(), Console.enable()]);
   }
-  
+
   async attachEventHandlers() {
     const { Runtime, Network } = this.client;
-    
+
     // Console API calls
     Runtime.consoleAPICalled(this.handleConsoleAPI.bind(this));
-    
+
     // Network requests/responses
     Network.responseReceived(this.handleNetworkResponse.bind(this));
-    
+
     // Runtime exceptions
     Runtime.exceptionThrown(this.handleException.bind(this));
-    
+
     // DOM mutations (optional)
     if (this.options.captureDOMChanges) {
       Runtime.evaluate({
-        expression: this.getDOMObserverScript()
+        expression: this.getDOMObserverScript(),
       });
     }
   }
@@ -71,12 +67,14 @@ class ChromeLogCapture {
 
 ### Development Workflow
 
-1. **Chrome Startup**: 
+1. **Chrome Startup**:
+
    ```bash
    chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
    ```
 
 2. **Service Startup**:
+
    ```bash
    node tools/chrome-debug-capture.js --endpoint=http://localhost:3000/api/convex/logs
    ```
@@ -89,7 +87,7 @@ class ChromeLogCapture {
 ### Event Types Captured
 
 1. **Console Events**
-   - All console.* method calls
+   - All console.\* method calls
    - Stack traces and source locations
    - Timing information
 
@@ -128,9 +126,11 @@ Browser → Chrome DevTools Protocol → Node.js Service → Convex HTTP Action 
 ```typescript
 // In lib/console-override.ts - Detection logic
 export function detectChromeDebugging(): boolean {
-  return typeof window !== 'undefined' && 
-         'chrome' in window && 
-         process.env.CHROME_DEBUG_ENABLED === 'true';
+  return (
+    typeof window !== 'undefined' &&
+    'chrome' in window &&
+    process.env.CHROME_DEBUG_ENABLED === 'true'
+  );
 }
 
 // Graceful fallback
@@ -146,18 +146,21 @@ export function initializeLogging() {
 ## Benefits
 
 ### Comprehensive Capture
+
 - All browser events, not just console
 - Network request/response data
 - Performance timing information
 - DOM mutation tracking
 
 ### Rich Debugging Context
+
 - Full stack traces
 - Source map integration
 - Timeline correlation
 - Cross-system event linking
 
 ### Development Workflow Enhancement
+
 - Real-time debugging assistance
 - Automated issue detection
 - AI-ready data export
@@ -166,16 +169,19 @@ export function initializeLogging() {
 ## Implementation Timeline
 
 ### Phase 1: Basic CDP Integration
+
 - Chrome DevTools Protocol connection
 - Console event capture
 - Basic Convex integration
 
 ### Phase 2: Network & Exception Capture
+
 - Network request/response logging
 - JavaScript exception capture
 - Performance metric collection
 
 ### Phase 3: Advanced Features
+
 - DOM mutation tracking
 - Event correlation
 - AI-powered pattern detection
@@ -183,6 +189,7 @@ export function initializeLogging() {
 ## Usage Examples
 
 ### Development Setup
+
 ```bash
 # Terminal 1: Start Chrome with debugging
 chrome --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-debug
@@ -195,11 +202,12 @@ node tools/chrome-debug-capture.js
 ```
 
 ### Integration Test
+
 ```javascript
 // Test comprehensive capture
-console.log('Test message');           // Captured by both systems
-fetch('/api/test');                    // Captured by Chrome debugging only
-throw new Error('Test error');         // Captured by Chrome debugging with full context
+console.log('Test message'); // Captured by both systems
+fetch('/api/test'); // Captured by Chrome debugging only
+throw new Error('Test error'); // Captured by Chrome debugging with full context
 ```
 
 ## Future Considerations

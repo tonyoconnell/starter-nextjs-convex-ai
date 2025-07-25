@@ -11,16 +11,16 @@ describe('Console Override', () => {
   beforeEach(() => {
     // Reset mocks
     jest.clearAllMocks();
-    
+
     // Mock window environment
     Object.defineProperty(window, 'CLAUDE_LOGGING_ENABLED', {
       writable: true,
       value: 'true',
     });
-    
+
     // Reset console to original methods
     ConsoleLogger.reset();
-    
+
     // Mock fetch to resolve successfully
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
@@ -53,7 +53,7 @@ describe('Console Override', () => {
     test('should create new trace', () => {
       const originalTraceId = ConsoleLogger.getTraceId();
       const newTraceId = ConsoleLogger.newTrace();
-      
+
       expect(newTraceId).not.toBe(originalTraceId);
       expect(newTraceId).toMatch(/^trace_\d+_[a-z0-9]+$/);
       expect(ConsoleLogger.getTraceId()).toBe(newTraceId);
@@ -61,7 +61,7 @@ describe('Console Override', () => {
 
     test('should check if enabled', () => {
       expect(ConsoleLogger.isEnabled()).toBe(true);
-      
+
       window.CLAUDE_LOGGING_ENABLED = false;
       expect(ConsoleLogger.isEnabled()).toBe(false);
     });
@@ -69,7 +69,7 @@ describe('Console Override', () => {
     test('should get status', () => {
       ConsoleLogger.setUserId('test_user');
       const status = ConsoleLogger.getStatus();
-      
+
       expect(status).toHaveProperty('initialized');
       expect(status).toHaveProperty('enabled');
       expect(status).toHaveProperty('traceId');
@@ -82,7 +82,7 @@ describe('Console Override', () => {
     test('should generate unique trace IDs', () => {
       const traceId1 = ConsoleLogger.newTrace();
       const traceId2 = ConsoleLogger.newTrace();
-      
+
       expect(traceId1).not.toBe(traceId2);
     });
 
@@ -97,9 +97,9 @@ describe('Console Override', () => {
       // Mock the typeof window check
       const originalWindow = global.window;
       delete (global as any).window;
-      
+
       expect(ConsoleLogger.isEnabled()).toBe(false);
-      
+
       // Restore window
       global.window = originalWindow;
     });
@@ -107,10 +107,10 @@ describe('Console Override', () => {
     test('should detect enabled state correctly', () => {
       window.CLAUDE_LOGGING_ENABLED = 'true';
       expect(ConsoleLogger.isEnabled()).toBe(true);
-      
+
       window.CLAUDE_LOGGING_ENABLED = 'false';
       expect(ConsoleLogger.isEnabled()).toBe(false);
-      
+
       delete (window as any).CLAUDE_LOGGING_ENABLED;
       expect(ConsoleLogger.isEnabled()).toBe(false);
     });
@@ -119,7 +119,7 @@ describe('Console Override', () => {
   describe('Error Handling', () => {
     test('should handle fetch errors gracefully', async () => {
       (global.fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
-      
+
       // This should not throw
       expect(() => {
         console.log('test message');
@@ -131,7 +131,7 @@ describe('Console Override', () => {
         ok: false,
         status: 500,
       });
-      
+
       // This should not throw
       expect(() => {
         console.log('test message');
@@ -142,7 +142,7 @@ describe('Console Override', () => {
   describe('Development Mode Toggle', () => {
     test('should not initialize when logging disabled', () => {
       window.CLAUDE_LOGGING_ENABLED = 'false';
-      
+
       const status = ConsoleLogger.getStatus();
       expect(status.enabled).toBe(false);
     });
@@ -150,7 +150,7 @@ describe('Console Override', () => {
     test('should respect enabled flag', () => {
       window.CLAUDE_LOGGING_ENABLED = 'true';
       expect(ConsoleLogger.isEnabled()).toBe(true);
-      
+
       window.CLAUDE_LOGGING_ENABLED = 'false';
       expect(ConsoleLogger.isEnabled()).toBe(false);
     });
