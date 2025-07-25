@@ -4,6 +4,7 @@ import { useAuth } from '../../components/auth/auth-provider';
 import { LoginForm } from '../../components/auth/login-form';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
+import Link from 'next/link';
 
 function LoginContent() {
   const { user, isLoading } = useAuth();
@@ -34,6 +35,16 @@ function LoginContent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Home Navigation */}
+        <div className="text-left">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          >
+            <span className="mr-1">←</span>
+            Back to Home
+          </Link>
+        </div>
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
             Sign in to your account

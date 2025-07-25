@@ -3,6 +3,7 @@
 import { PasswordResetConfirmForm } from '../../components/auth/password-reset-confirm-form';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
+import Link from 'next/link';
 
 function ResetPasswordContent() {
   const searchParams = useSearchParams();
@@ -12,6 +13,16 @@ function ResetPasswordContent() {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
+          {/* Home Navigation */}
+          <div className="text-left mb-6">
+            <Link
+              href="/"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+              <span className="mr-1">←</span>
+              Back to Home
+            </Link>
+          </div>
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <div className="text-center">
               <h2 className="text-2xl font-bold text-red-600 mb-4">
@@ -37,6 +48,16 @@ function ResetPasswordContent() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {/* Home Navigation */}
+        <div className="text-left mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+          >
+            <span className="mr-1">←</span>
+            Back to Home
+          </Link>
+        </div>
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <PasswordResetConfirmForm token={token} />
         </div>

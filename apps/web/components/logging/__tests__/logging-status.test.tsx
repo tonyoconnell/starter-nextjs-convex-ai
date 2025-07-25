@@ -20,7 +20,7 @@ const mockNewTrace = ConsoleLogger.newTrace as jest.Mock;
 describe('LoggingStatus', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Mock default status
     mockGetStatus.mockReturnValue({
       initialized: true,
@@ -28,7 +28,7 @@ describe('LoggingStatus', () => {
       traceId: 'trace_123456789_abcdef',
       userId: 'test_user',
     });
-    
+
     mockNewTrace.mockReturnValue('trace_987654321_fedcba');
   });
 
@@ -38,7 +38,7 @@ describe('LoggingStatus', () => {
 
   test('should render status indicator in development', () => {
     process.env.NODE_ENV = 'development';
-    
+
     render(<LoggingStatus />);
 
     expect(screen.getByText('Claude Logging Status')).toBeInTheDocument();
@@ -49,7 +49,7 @@ describe('LoggingStatus', () => {
 
   test('should not render in production', () => {
     process.env.NODE_ENV = 'production';
-    
+
     render(<LoggingStatus />);
 
     expect(screen.queryByText('Claude Logging Status')).not.toBeInTheDocument();
@@ -63,7 +63,7 @@ describe('LoggingStatus', () => {
       traceId: 'trace_123456789_abcdef',
       userId: 'test_user',
     });
-    
+
     render(<LoggingStatus />);
 
     expect(screen.getByText('Inactive')).toBeInTheDocument();
@@ -71,7 +71,7 @@ describe('LoggingStatus', () => {
 
   test('should show green indicator when active', () => {
     process.env.NODE_ENV = 'development';
-    
+
     render(<LoggingStatus />);
 
     const indicator = screen.getByText('Active').previousElementSibling;
@@ -86,7 +86,7 @@ describe('LoggingStatus', () => {
       traceId: 'trace_123456789_abcdef',
       userId: 'test_user',
     });
-    
+
     render(<LoggingStatus />);
 
     const indicator = screen.getByText('Inactive').previousElementSibling;
@@ -95,7 +95,7 @@ describe('LoggingStatus', () => {
 
   test('should handle new trace button click', () => {
     process.env.NODE_ENV = 'development';
-    
+
     render(<LoggingStatus />);
 
     const newTraceButton = screen.getByText('New Trace');
@@ -106,10 +106,10 @@ describe('LoggingStatus', () => {
 
   test('should update status periodically', () => {
     process.env.NODE_ENV = 'development';
-    
+
     // Use fake timers
     jest.useFakeTimers();
-    
+
     render(<LoggingStatus />);
 
     // Initial call
@@ -120,7 +120,7 @@ describe('LoggingStatus', () => {
 
     // Should have been called again
     expect(mockGetStatus).toHaveBeenCalledTimes(2);
-    
+
     // Restore real timers
     jest.useRealTimers();
   });
@@ -133,7 +133,7 @@ describe('LoggingStatus', () => {
       traceId: 'trace_very_long_trace_id_that_should_be_truncated',
       userId: 'test_user',
     });
-    
+
     render(<LoggingStatus />);
 
     expect(screen.getByText('Trace: trace_very_l...')).toBeInTheDocument();
@@ -142,7 +142,7 @@ describe('LoggingStatus', () => {
   test('should handle null status gracefully', () => {
     process.env.NODE_ENV = 'development';
     mockGetStatus.mockReturnValue(null);
-    
+
     render(<LoggingStatus />);
 
     expect(screen.queryByText('Claude Logging Status')).not.toBeInTheDocument();
