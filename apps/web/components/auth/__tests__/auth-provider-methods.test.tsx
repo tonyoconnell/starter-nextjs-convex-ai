@@ -213,7 +213,11 @@ describe('AuthProvider Methods Coverage', () => {
 
   it('should handle successful registration with auto-login', async () => {
     const mockUser = createMockUser({ name: 'New User' });
-    mockAuthService.register.mockResolvedValue({ success: true });
+    mockAuthService.register.mockResolvedValue({
+      success: true,
+      user: null,
+      sessionToken: null,
+    });
     mockAuthService.login.mockResolvedValue({
       success: true,
       user: mockUser,
@@ -243,7 +247,11 @@ describe('AuthProvider Methods Coverage', () => {
   });
 
   it('should handle registration success but login failure', async () => {
-    mockAuthService.register.mockResolvedValue({ success: true });
+    mockAuthService.register.mockResolvedValue({
+      success: true,
+      user: null,
+      sessionToken: null,
+    });
     mockAuthService.login.mockResolvedValue({
       success: false,
       error: 'Login failed after registration',
