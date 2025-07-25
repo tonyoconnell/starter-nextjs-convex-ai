@@ -253,13 +253,25 @@ This protocol prevents incorrect file placement and maintains project consistenc
 
 ### Navigation Best Practices
 
-1. **Always verify current directory before file operations:**
+**🚨 CRITICAL: ALWAYS run `pwd` as your FIRST command before any file operations!**
+
+1. **MANDATORY directory verification before ANY commands:**
 
    ```bash
-   pwd  # Check current working directory
+   pwd  # ALWAYS run this first - no exceptions!
    ```
 
-2. **Use absolute paths when referencing project files:**
+2. **All commands must be run from project root:**
+
+   ```bash
+   # If not in project root, navigate immediately:
+   cd /Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai
+   
+   # Then verify you're in the right place:
+   pwd
+   ```
+
+3. **Use absolute paths when referencing project files:**
 
    ```bash
    # Good - paths from project root
@@ -273,15 +285,15 @@ This protocol prevents incorrect file placement and maintains project consistenc
 
    **NEVER use `../..` patterns - always reference files from project root.**
 
-3. **Explicitly navigate when changing directories:**
+4. **Before running any bun/npm scripts, confirm location:**
 
    ```bash
-   cd /Users/.../starter-nextjs-convex-ai  # Return to project root
+   pwd && bun run ci:status    # Combine directory check with command
    ```
 
-4. **When using LS tool, pay attention to the path context shown in output**
+5. **When using LS tool, pay attention to the path context shown in output**
 
-5. **For hidden directories (starting with .), use explicit listing:**
+6. **For hidden directories (starting with .), use explicit listing:**
    ```bash
    ls -la | grep "^\."  # List hidden files/directories
    ```
@@ -297,9 +309,12 @@ This protocol prevents incorrect file placement and maintains project consistenc
 
 ### Troubleshooting Navigation Issues
 
-If you get "file not found" errors:
+If you get "file not found" or "script not found" errors:
 
-1. Run `pwd` to check current location
-2. Navigate to project root: `cd /Users/.../starter-nextjs-convex-ai`
-3. Use absolute paths for subsequent operations
-4. Verify directory exists before accessing
+1. **IMMEDIATELY run `pwd` to check current location**
+2. **Navigate to project root:** `cd /Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai`
+3. **Verify you're in the right place:** `pwd` (should show the full project path)
+4. **Test with a known file:** `ls package.json` (should exist at root)
+5. **Then retry your original command**
+
+**Common failure pattern:** Running commands from subdirectories like `apps/web/` when scripts expect project root context.
