@@ -66,12 +66,10 @@ describe('AuthProvider', () => {
     mockAuthService.login.mockResolvedValue({
       success: true,
       user: null,
-      sessionToken: null,
     });
     mockAuthService.register.mockResolvedValue({
       success: true,
       user: null,
-      sessionToken: null,
     });
     mockAuthService.logout.mockResolvedValue({ success: true });
     mockAuthService.requestPasswordReset.mockResolvedValue({ success: true });
@@ -85,7 +83,6 @@ describe('AuthProvider', () => {
     mockAuthService.githubOAuthLogin.mockResolvedValue({
       success: true,
       user: null,
-      sessionToken: null,
     });
     mockAuthService.getGoogleOAuthUrl.mockResolvedValue({
       success: true,
@@ -95,7 +92,6 @@ describe('AuthProvider', () => {
     mockAuthService.googleOAuthLogin.mockResolvedValue({
       success: true,
       user: null,
-      sessionToken: null,
     });
   });
 
