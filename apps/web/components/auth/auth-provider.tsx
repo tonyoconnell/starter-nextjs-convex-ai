@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { authService, User, AuthState } from '../../lib/auth';
+import { authService, AuthState } from '../../lib/auth';
 
 interface AuthContextType extends AuthState {
   login: (
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sessionToken,
         isLoading: false,
       });
-    } catch (error) {
+    } catch {
       setAuthState({
         user: null,
         sessionToken: null,
@@ -87,9 +87,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await authService.login(email, password, rememberMe);
 
     if (result.success) {
+      // Map user structure to User interface
+      const mappedUser = result.user
+        ? {
+            _id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            role: result.user.role,
+            profile_image_url: (result.user as { profile_image_url?: string })
+              .profile_image_url,
+            _creationTime: Date.now(), // Login users don't have creation time from backend
+          }
+        : null;
+
       setAuthState({
-        user: result.user,
-        sessionToken: result.sessionToken,
+        user: mappedUser,
+        sessionToken: result.sessionToken || null,
         isLoading: false,
       });
       return { success: true };
@@ -107,9 +120,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // After registration, automatically log in
       const loginResult = await authService.login(email, password);
       if (loginResult.success) {
+        // Map user structure to User interface
+        const mappedUser = loginResult.user
+          ? {
+              _id: loginResult.user.id,
+              name: loginResult.user.name,
+              email: loginResult.user.email,
+              role: loginResult.user.role,
+              profile_image_url: (
+                loginResult.user as { profile_image_url?: string }
+              ).profile_image_url,
+              _creationTime: Date.now(), // Login users don't have creation time from backend
+            }
+          : null;
+
         setAuthState({
-          user: loginResult.user,
-          sessionToken: loginResult.sessionToken,
+          user: mappedUser,
+          sessionToken: loginResult.sessionToken || null,
           isLoading: false,
         });
       } else {
@@ -164,9 +191,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await authService.githubOAuthLogin(code, state);
 
     if (result.success) {
+      // Map OAuth user structure to User interface
+      const mappedUser = result.user
+        ? {
+            _id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            role: result.user.role,
+            profile_image_url: result.user.profile_image_url,
+            _creationTime: Date.now(), // OAuth users don't have creation time from backend
+          }
+        : null;
+
       setAuthState({
-        user: result.user,
-        sessionToken: result.sessionToken,
+        user: mappedUser,
+        sessionToken: result.sessionToken || null,
         isLoading: false,
       });
       return { success: true };
@@ -184,9 +223,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const result = await authService.googleOAuthLogin(code, state);
 
     if (result.success) {
+      // Map OAuth user structure to User interface
+      const mappedUser = result.user
+        ? {
+            _id: result.user.id,
+            name: result.user.name,
+            email: result.user.email,
+            role: result.user.role,
+            profile_image_url: result.user.profile_image_url,
+            _creationTime: Date.now(), // OAuth users don't have creation time from backend
+          }
+        : null;
+
       setAuthState({
-        user: result.user,
-        sessionToken: result.sessionToken,
+        user: mappedUser,
+        sessionToken: result.sessionToken || null,
         isLoading: false,
       });
       return { success: true };
