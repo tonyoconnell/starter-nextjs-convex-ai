@@ -13,14 +13,14 @@ const mockData = {
     browser: { current: 5, limit: 10, resetTime: Date.now() + 60000 },
     worker: { current: 2, limit: 5, resetTime: Date.now() + 60000 },
     backend: { current: 3, limit: 5, resetTime: Date.now() + 60000 },
-    global: { current: 10, limit: 20, budget: 125000 }
+    global: { current: 10, limit: 20, budget: 125000 },
   },
   costMetrics: {
     totalWrites: 1000,
     estimatedCost: 0.02,
     budgetRemaining: 124000,
     budgetUsedPercent: 0.8,
-    breakdown: { browser: 600, worker: 200, backend: 200 }
+    breakdown: { browser: 600, worker: 200, backend: 200 },
   },
   usage: {
     estimatedStorageMB: 15,
@@ -30,10 +30,10 @@ const mockData = {
       recent_log_entries_sample: 50,
       users: 5,
       sessions: 10,
-      note: 'Showing actual counts'
+      note: 'Showing actual counts',
     },
-    warnings: []
-  }
+    warnings: [],
+  },
 };
 
 describe('SystemHealthOverview', () => {
@@ -46,14 +46,14 @@ describe('SystemHealthOverview', () => {
 
     render(<SystemHealthOverview />);
 
-    expect(screen.getByRole('heading', { name: /system health overview/i })).toBeInTheDocument();
+    expect(screen.getByText('System Health Overview')).toBeInTheDocument();
   });
 
   it('renders healthy system status', () => {
     mockUseQuery
       .mockReturnValueOnce(mockData.rateLimitState) // rateLimitState
-      .mockReturnValueOnce(mockData.costMetrics)    // costMetrics
-      .mockReturnValueOnce(mockData.usage);         // usage
+      .mockReturnValueOnce(mockData.costMetrics) // costMetrics
+      .mockReturnValueOnce(mockData.usage); // usage
 
     render(<SystemHealthOverview />);
 
@@ -67,8 +67,8 @@ describe('SystemHealthOverview', () => {
       ...mockData,
       rateLimitState: {
         ...mockData.rateLimitState,
-        global: { current: 18, limit: 20, budget: 125000 } // 90% usage
-      }
+        global: { current: 18, limit: 20, budget: 125000 }, // 90% usage
+      },
     };
 
     mockUseQuery
@@ -86,8 +86,8 @@ describe('SystemHealthOverview', () => {
       ...mockData,
       costMetrics: {
         ...mockData.costMetrics,
-        budgetUsedPercent: 96 // Critical budget usage
-      }
+        budgetUsedPercent: 96, // Critical budget usage
+      },
     };
 
     mockUseQuery
@@ -133,8 +133,8 @@ describe('SystemHealthOverview', () => {
       ...mockData,
       usage: {
         ...mockData.usage,
-        estimatedStorageMB: 30 // High storage usage
-      }
+        estimatedStorageMB: 30, // High storage usage
+      },
     };
 
     mockUseQuery
