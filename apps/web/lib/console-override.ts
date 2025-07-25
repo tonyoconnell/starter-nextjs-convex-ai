@@ -274,7 +274,7 @@ async function sendToConvex(level: string, args: unknown[]) {
   try {
     // Import Convex client and API dynamically to avoid issues during server-side rendering
     const { ConvexHttpClient } = await import('convex/browser');
-    const { api } = await import('../../convex/_generated/api');
+    const { api } = await import('convex-backend');
 
     // Get Convex URL from environment
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;

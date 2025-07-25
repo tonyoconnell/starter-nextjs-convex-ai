@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from 'convex/react';
-import { api } from '../convex/api';
+import { api } from 'convex-backend';
 import { useAuth } from '../components/auth/auth-provider';
 import { LogoutButton } from '../components/auth/logout-button';
 import { Button } from '@starter/ui';
