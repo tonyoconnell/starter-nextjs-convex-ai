@@ -112,7 +112,7 @@ function shouldSuppressMessage(level: string, args: unknown[]): boolean {
   for (const pattern of suppressedPatterns) {
     if (message.includes(pattern)) {
       // Log suppression locally for debugging
-      originalConsole.debug(
+      originalConsole.log(
         `🔇 Suppressed log: ${pattern} in "${message.substring(0, 100)}..."`
       );
       return true;
