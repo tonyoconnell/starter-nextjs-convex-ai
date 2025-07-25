@@ -2,6 +2,20 @@
   "name": "convex-backend",
   "version": "1.0.0",
   "private": true,
+  "exports": {
+    ".": {
+      "types": "./_generated/api.d.ts",
+      "default": "./_generated/api.js"
+    },
+    "./schema": {
+      "types": "./schema.ts",
+      "default": "./schema.ts"
+    },
+    "./types": {
+      "types": "./_generated/dataModel.d.ts",
+      "default": "./_generated/dataModel.d.ts"
+    }
+  },
   "scripts": {
     "build": "npx convex codegen",
     "dev": "npx convex dev",

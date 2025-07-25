@@ -1,5 +1,5 @@
 import { convex } from './convex';
-import { api } from '../convex/api';
+import { api } from 'convex-backend';
 
 export interface User {
   _id: string;

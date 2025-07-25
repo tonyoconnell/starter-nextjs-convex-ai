@@ -25,9 +25,11 @@
       "@/lib/*": ["./lib/*"],
       "@/app/*": ["./app/*"],
       "@/ui/*": ["../../packages/ui/*"],
-      "@starter/ui": ["../../packages/ui"]
+      "@starter/ui": ["../../packages/ui"],
+      "convex-backend": ["../convex"],
+      "convex-backend/*": ["../convex/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "convex", "../convex"]
+  "exclude": ["node_modules", "../convex/**/*"]
 }
