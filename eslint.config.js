@@ -4,8 +4,11 @@ import typescriptParser from '@typescript-eslint/parser';
 
 export default [
   js.configs.recommended,
+
+  // TIER 1: Frontend Environment (Strict)
+  // Files: apps/web/**/*.{ts,tsx} - Browser-only globals, strict rules
   {
-    files: ['**/*.{ts,tsx,js,jsx}'],
+    files: ['apps/web/**/*.{ts,tsx}'],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -16,41 +19,40 @@ export default [
         },
       },
       globals: {
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        global: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'readonly',
+        // Browser globals only
         window: 'readonly',
         document: 'readonly',
         sessionStorage: 'readonly',
         localStorage: 'readonly',
         crypto: 'readonly',
-        // Convex runtime globals
         fetch: 'readonly',
         setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        FormData: 'readonly',
         Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
         // DOM types for React components
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',
         HTMLInputElement: 'readonly',
+        HTMLFormElement: 'readonly',
+        HTMLTextAreaElement: 'readonly',
+        HTMLSelectElement: 'readonly',
         HTMLParagraphElement: 'readonly',
         HTMLHeadingElement: 'readonly',
         HTMLElement: 'readonly',
-        // Jest globals
-        jest: 'readonly',
-        describe: 'readonly',
-        it: 'readonly',
-        test: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
+        Element: 'readonly',
+        Event: 'readonly',
+        MouseEvent: 'readonly',
+        KeyboardEvent: 'readonly',
+        // React types
+        React: 'readonly',
+        JSX: 'readonly',
       },
     },
     plugins: {
@@ -62,24 +64,126 @@ export default [
       '@typescript-eslint/no-unused-vars': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      'no-console': 'warn',
+      'no-console': 'error', // Strict: no console in frontend
       'prefer-const': 'error',
-      // Coding standards enforcement
+      // Strict: no process.env in frontend
       'no-restricted-syntax': [
         'error',
         {
           selector:
             'MemberExpression[object.name="process"][property.name="env"]',
           message:
-            'Direct access to process.env is not allowed. Use centralized configuration instead.',
+            'Direct access to process.env is not allowed in frontend. Use centralized configuration instead.',
         },
       ],
     },
   },
+
+  // TIER 2: Backend Environment (Pragmatic)
+  // Files: apps/convex/**/*.ts - Convex runtime globals, flexible rules
+  {
+    files: ['apps/convex/**/*.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      globals: {
+        // Convex runtime globals
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        crypto: 'readonly',
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        FormData: 'readonly',
+        // Node.js-like globals available in Convex
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        atob: 'readonly',
+        btoa: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
+    rules: {
+      ...typescript.configs.recommended.rules,
+      '@typescript-eslint/no-explicit-any': 'warn', // Pragmatic: warn not error
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      'no-console': 'warn', // Pragmatic: console warnings OK
+      'prefer-const': 'error',
+      // Allow process.env in backend
+      'no-restricted-syntax': 'off',
+    },
+  },
+
+  // TIER 3: Generated Code (Minimal)
+  // Files: **/_generated/**/* - Most linting disabled
+  {
+    files: ['**/_generated/**/*', '**/convex/_generated/**/*'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
+    rules: {
+      // Minimal rules for generated code - focus on compilation only
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off',
+      'prefer-const': 'off',
+      'no-restricted-syntax': 'off',
+    },
+  },
+  // JavaScript files (legacy support)
   {
     files: ['**/*.js'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
+      'no-console': 'warn',
     },
   },
   // Config files and test setup
@@ -91,38 +195,92 @@ export default [
       '**/test-config/**/*',
       '**/*.config.js',
       '**/*.config.ts',
+      'eslint.config.js',
     ],
     languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
       globals: {
+        console: 'readonly',
+        process: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
         URLSearchParams: 'readonly',
         navigator: 'readonly',
+        Buffer: 'readonly',
       },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
     },
     rules: {
       'no-restricted-syntax': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       'no-console': 'off',
       'no-undef': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
-  // Test files
+  // Test files (Jest environment)
   {
     files: ['**/__tests__/**/*', '**/*.test.*', '**/*.spec.*'],
     languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
       globals: {
-        // Test-specific globals
-        URLSearchParams: 'readonly',
+        // Jest globals
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        test: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        // Browser globals for jsdom
+        window: 'readonly',
+        document: 'readonly',
+        sessionStorage: 'readonly',
+        localStorage: 'readonly',
+        HTMLInputElement: 'readonly',
+        HTMLElement: 'readonly',
+        HTMLDivElement: 'readonly',
+        HTMLButtonElement: 'readonly',
+        Element: 'readonly',
+        Event: 'readonly',
+        MouseEvent: 'readonly',
+        KeyboardEvent: 'readonly',
+        // Node.js globals for test environment
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        global: 'readonly',
+        // Standard timers
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
-        HTMLInputElement: 'readonly',
-        HTMLElement: 'readonly',
-        Event: 'readonly',
+        URLSearchParams: 'readonly',
+        // React Testing Library utilities (if imported)
         fireEvent: 'readonly',
-        // Node.js globals for test environment
-        process: 'readonly',
       },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
