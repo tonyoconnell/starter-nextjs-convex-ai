@@ -1,4 +1,3 @@
-// @ts-nocheck
 /**
  * Comprehensive tests for knowledge.ts - Query functions
  * Tests: getDocumentByPathHandler, getDocumentsHandler, getDocumentChunksHandler, getChunkByVectorizeIdHandler
@@ -38,7 +37,7 @@ describe('Knowledge Query Functions', () => {
       mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
       // Execute query
-      const result = await getDocumentByPathHandlerHandler(mockCtx, {
+      const result = await getDocumentByPathHandler(mockCtx, {
         filePath: 'test-simple.md',
       });
 
