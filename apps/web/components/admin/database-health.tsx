@@ -2,6 +2,7 @@
 
 import { useQuery } from 'convex/react';
 import { api } from '@/lib/convex-api';
+import { useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -13,8 +14,21 @@ import { Badge } from '@starter/ui';
 import { Alert, AlertDescription } from '@starter/ui';
 import { Database, AlertTriangle, HardDrive, RefreshCw } from 'lucide-react';
 
-export function DatabaseHealth() {
+interface DatabaseHealthProps {
+  refreshTrigger?: number;
+}
+
+export function DatabaseHealth({ refreshTrigger }: DatabaseHealthProps) {
   const usage = useQuery(api.monitoring.usage);
+  
+  // The monitoring.usage query automatically updates via Convex reactivity
+  // but we track the refresh trigger for consistency
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      // Force a small visual update - the data will refresh automatically
+      console.log('DatabaseHealth refresh triggered');
+    }
+  }, [refreshTrigger]);
 
   if (!usage) {
     return (

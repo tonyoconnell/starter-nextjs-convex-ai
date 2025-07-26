@@ -1,13 +1,45 @@
 'use client';
 
-import React from 'react';
-import { ConvexProvider } from 'convex/react';
-import { convex } from '../lib/convex';
+import React, { useMemo } from 'react';
+import { ConvexProvider, ConvexReactClient } from 'convex/react';
+import { useAuth } from '../components/auth/auth-provider';
+import { config } from '../lib/config';
 
 export function ConvexClientProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+  const { sessionToken } = useAuth();
+
+  // Create a Convex client that automatically includes session tokens in all requests
+  const authenticatedClient = useMemo(() => {
+    const client = new ConvexReactClient(config.convexUrl);
+    
+    // Override the client's query, mutation, and action methods to automatically inject sessionToken
+    if (sessionToken) {
+      const originalQuery = client.query.bind(client);
+      const originalMutation = client.mutation.bind(client);
+      const originalAction = client.action.bind(client);
+
+      // Override query method to inject sessionToken
+      (client as any).query = (name: any, args: any = {}) => {
+        return originalQuery(name, { ...args, sessionToken });
+      };
+
+      // Override mutation method to inject sessionToken
+      (client as any).mutation = (name: any, args: any = {}) => {
+        return originalMutation(name, { ...args, sessionToken });
+      };
+
+      // Override action method to inject sessionToken
+      (client as any).action = (name: any, args: any = {}) => {
+        return originalAction(name, { ...args, sessionToken });
+      };
+    }
+    
+    return client;
+  }, [sessionToken]);
+
+  return <ConvexProvider client={authenticatedClient}>{children}</ConvexProvider>;
 }

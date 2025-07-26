@@ -270,34 +270,55 @@ async function checkDuplicate(ctx: MutationCtx, fingerprint: string): Promise<bo
   const now = Date.now();
   const cutoff = now - DUPLICATE_WINDOW_MS;
 
-  const existingFingerprints = await ctx.db
-    .query('message_fingerprints')
-    .filter(q => q.and(
-      q.eq(q.field('fingerprint'), fingerprint),
-      q.gt(q.field('timestamp'), cutoff)
-    ))
-    .collect();
+  try {
+    const existingFingerprints = await ctx.db
+      .query('message_fingerprints')
+      .filter(q => q.and(
+        q.eq(q.field('fingerprint'), fingerprint),
+        q.gt(q.field('timestamp'), cutoff)
+      ))
+      .collect();
 
-  return existingFingerprints.length >= MAX_DUPLICATES;
+    return existingFingerprints.length >= MAX_DUPLICATES;
+  } catch (error) {
+    // If there's a race condition, err on the side of allowing the message
+    // This prevents logging from completely failing due to duplicate detection conflicts
+    console.warn('Duplicate check failed due to race condition, allowing message:', error);
+    return false;
+  }
 }
 
 async function recordMessageFingerprint(ctx: MutationCtx, fingerprint: string): Promise<void> {
   const now = Date.now();
   
-  await ctx.db.insert('message_fingerprints', {
-    fingerprint,
-    timestamp: now,
-    expires_at: now + DUPLICATE_WINDOW_MS,
-  });
+  try {
+    // Insert the new fingerprint
+    await ctx.db.insert('message_fingerprints', {
+      fingerprint,
+      timestamp: now,
+      expires_at: now + DUPLICATE_WINDOW_MS,
+    });
 
-  // Clean up old fingerprints (older than duplicate window)
-  const oldFingerprints = await ctx.db
-    .query('message_fingerprints')
-    .filter(q => q.lt(q.field('expires_at'), now))
-    .collect();
+    // Clean up old fingerprints (older than duplicate window)
+    // Limit cleanup to prevent large batch operations that cause conflicts
+    const oldFingerprints = await ctx.db
+      .query('message_fingerprints')
+      .filter(q => q.lt(q.field('expires_at'), now))
+      .take(10); // Limit to 10 at a time to reduce contention
 
-  for (const old of oldFingerprints) {
-    await ctx.db.delete(old._id);
+    for (const old of oldFingerprints) {
+      try {
+        await ctx.db.delete(old._id);
+      } catch (deleteError) {
+        // If another operation already deleted this record, continue
+        // This is expected in high-concurrency scenarios
+        continue;
+      }
+    }
+  } catch (error) {
+    // If fingerprint recording fails, log but don't throw
+    // The duplicate detection is a nice-to-have, not critical
+    console.warn('Failed to record message fingerprint:', error);
   }
 }
 

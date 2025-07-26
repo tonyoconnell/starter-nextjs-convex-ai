@@ -30,7 +30,6 @@ export default function ChatPage() {
   React.useEffect(() => {
     if (user && !sessionId) {
       createSession({
-        userId: user._id,
         title: 'Chat Session',
       }).then((session) => {
         setSessionId(session._id);
@@ -62,7 +61,6 @@ export default function ChatPage() {
       const response = await generateResponse({
         sessionId,
         message: content.trim(),
-        userId: user._id,
       });
 
       const assistantMessage: ChatMessage = {

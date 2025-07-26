@@ -991,6 +991,33 @@ export const getGoogleOAuthUrl = query({
 });
 
 // =======================
+// Helper queries for authentication middleware
+// =======================
+
+/**
+ * Find session by token (helper for ActionCtx)
+ */
+export const findSessionByToken = query({
+  args: { sessionToken: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('sessions')
+      .withIndex('by_session_token', q => q.eq('sessionToken', args.sessionToken))
+      .first();
+  },
+});
+
+/**
+ * Get user by ID (helper for ActionCtx)
+ */
+export const getUserById = query({
+  args: { id: v.id('users') },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
+  },
+});
+
+// =======================
 // LLM Access Control Functions (Story 4.2)
 // =======================
 

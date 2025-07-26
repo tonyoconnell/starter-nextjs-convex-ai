@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
+import { useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -14,8 +15,20 @@ import { Badge } from '@starter/ui';
 import { Progress } from '@starter/ui';
 import { DollarSign, AlertTriangle, TrendingUp, RefreshCw } from 'lucide-react';
 
-export function CostMonitoring() {
+interface CostMonitoringProps {
+  refreshTrigger?: number;
+}
+
+export function CostMonitoring({ refreshTrigger }: CostMonitoringProps) {
   const costMetrics = useQuery(api.rateLimiter.getCostMetrics);
+  const updateCostMetrics = useMutation(api.rateLimiter.updateCostMetrics);
+  
+  // Trigger refresh when refreshTrigger prop changes
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      updateCostMetrics({}).catch(console.error);
+    }
+  }, [refreshTrigger, updateCostMetrics]);
 
   if (!costMetrics) {
     return (

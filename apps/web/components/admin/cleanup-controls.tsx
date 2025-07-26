@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
@@ -37,13 +37,24 @@ interface CleanupResult {
   timestamp: Date;
 }
 
-export function CleanupControls() {
+interface CleanupControlsProps {
+  refreshTrigger?: number;
+}
+
+export function CleanupControls({ refreshTrigger }: CleanupControlsProps) {
   const [isRunning, setIsRunning] = useState(false);
   const [results, setResults] = useState<CleanupResult[]>([]);
   
   const cleanupStatus = useQuery(api.cleanup.status);
   const runSafeCleanup = useMutation(api.cleanup.safe);
   const runForceCleanup = useMutation(api.cleanup.force);
+  
+  // Handle refresh trigger
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      console.log('CleanupControls refresh triggered - status will update automatically');
+    }
+  }, [refreshTrigger]);
 
   const handleSafeCleanup = async () => {
     setIsRunning(true);

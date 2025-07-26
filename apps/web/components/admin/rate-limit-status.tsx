@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import {
@@ -16,7 +16,11 @@ import { Progress } from '@starter/ui';
 import { AlertTriangle, RefreshCw, Activity } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
-export function RateLimitStatus() {
+interface RateLimitStatusProps {
+  refreshTrigger?: number;
+}
+
+export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const rateLimitState = useQuery(api.rateLimiter.getRateLimitState);
   const updateRateLimit = useMutation(api.rateLimiter.updateRateLimitState);
@@ -29,6 +33,13 @@ export function RateLimitStatus() {
       setIsRefreshing(false);
     }
   };
+  
+  // Trigger refresh when refreshTrigger prop changes
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      handleRefresh();
+    }
+  }, [refreshTrigger]);
 
   if (!rateLimitState) {
     return (
