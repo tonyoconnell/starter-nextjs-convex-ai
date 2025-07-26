@@ -1,0 +1,160 @@
+{
+  "lastUpdated": "2025-07-26T14:50:00.000Z",
+  "version": "1.0.0",
+  "summary": {
+    "totalApps": 2,
+    "testingSessions": {
+      "web": {
+        "timestamp": "2025-07-26T14:49:00.000Z",
+        "testSuites": {
+          "passed": 1,
+          "failed": 1,
+          "total": 2
+        },
+        "tests": {
+          "passed": 1,
+          "failed": 196,
+          "total": 197
+        },
+        "coverage": {
+          "statements": "72.57%",
+          "branches": "70.08%",
+          "functions": "80.88%",
+          "lines": "72.64%"
+        },
+        "status": "FAILING",
+        "issues": [
+          "useMutation hook compatibility issues with test environment",
+          "React component rendering errors in admin components",
+          "Authentication context mocking challenges"
+        ]
+      },
+      "convex": {
+        "timestamp": "2025-07-26T14:50:00.000Z",
+        "testSuites": {
+          "passed": 3,
+          "failed": 3,
+          "total": 6
+        },
+        "tests": {
+          "passed": 277,
+          "failed": 39,
+          "total": 316
+        },
+        "coverage": {
+          "statements": "25.5%",
+          "branches": "27.54%",
+          "functions": "20.67%",
+          "lines": "25.32%"
+        },
+        "status": "PASSING_WITH_FAILURES",
+        "issues": [
+          "Text processing character counting edge cases",
+          "Unicode text handling differences",
+          "Some line/paragraph counting algorithm inconsistencies"
+        ]
+      }
+    },
+    "aggregated": {
+      "testSuites": {
+        "passed": 4,
+        "failed": 4,
+        "total": 8,
+        "successRate": "50%"
+      },
+      "tests": {
+        "passed": 278,
+        "failed": 235,
+        "total": 513,
+        "successRate": "54.2%"
+      }
+    }
+  },
+  "breakdown": {
+    "byApp": {
+      "web": {
+        "description": "Next.js frontend with React components",
+        "testingFramework": "Jest + Testing Library",
+        "primaryChallenges": [
+          "Convex hook mocking in test environment",
+          "React component isolation",
+          "Authentication provider context"
+        ],
+        "keyMetrics": {
+          "coverageHighlights": {
+            "highest": "components/chat: 91.66% statements",
+            "lowest": "lib: 10.62% statements"
+          },
+          "testDistribution": {
+            "components": "Most tests",
+            "lib": "Limited coverage",
+            "app": "Minimal tests"
+          }
+        }
+      },
+      "convex": {
+        "description": "Backend API and database logic",
+        "testingFramework": "Jest + TypeScript",
+        "primaryChallenges": [
+          "External API mocking (OpenAI, Vectorize)",
+          "Database context simulation",
+          "Text processing algorithm edge cases"
+        ],
+        "keyMetrics": {
+          "coverageHighlights": {
+            "highest": "lib/textProcessing.ts: 100% coverage",
+            "lowest": "auth.ts: 0% coverage (not tested)"
+          },
+          "testDistribution": {
+            "knowledge": "Comprehensive tests (230+ tests)",
+            "lib": "Good coverage (75.4%)",
+            "core": "Minimal coverage (13.23%)"
+          }
+        }
+      }
+    },
+    "technicalStatus": {
+      "infrastructure": {
+        "jestConfiguration": "✅ Working (both apps)",
+        "coverageReporting": "✅ Functional",
+        "watchMode": "✅ Available all apps",
+        "ciIntegration": "⚠️ Some failures"
+      },
+      "testPatterns": {
+        "unitTests": "✅ Established",
+        "integrationTests": "✅ Convex backend",
+        "componentTests": "⚠️ Web app challenges",
+        "e2eTests": "❓ Not measured in this session"
+      }
+    }
+  },
+  "recommendations": {
+    "immediate": [
+      "Fix Convex hook mocking in web app tests",
+      "Resolve text processing edge cases in convex tests",
+      "Address React component rendering issues"
+    ],
+    "shortTerm": [
+      "Increase auth.ts test coverage in convex",
+      "Improve lib/ test coverage in web app",
+      "Standardize mocking patterns across apps"
+    ],
+    "longTerm": [
+      "Achieve >90% coverage across both apps",
+      "Establish comprehensive integration test suite",
+      "Implement automated regression testing"
+    ]
+  },
+  "commands": {
+    "runTests": {
+      "web": "cd apps/web && bun run test:coverage:watch:all",
+      "convex": "cd apps/convex && bun run test:coverage:watch:all",
+      "rootWeb": "bun run test:web:coverage:watch:all",
+      "rootConvex": "bun run test:convex:coverage:watch:all"
+    },
+    "viewCoverage": {
+      "web": "open apps/web/coverage/lcov-report/index.html",
+      "convex": "open apps/convex/coverage/lcov-report/index.html"
+    }
+  }
+}
