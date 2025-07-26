@@ -1,11 +1,11 @@
 import { v } from 'convex/values';
-import { query } from './_generated/server';
+import { query, QueryCtx } from './_generated/server';
 
 /**
  * Handler function for getting document by file path
  */
 export async function getDocumentByPathHandler(
-  ctx: any,
+  ctx: QueryCtx,
   args: { filePath: string }
 ) {
   return await ctx.db
@@ -25,7 +25,10 @@ export const getDocumentByPath = query({
 /**
  * Handler function for getting all documents with pagination
  */
-export async function getDocumentsHandler(ctx: any, args: { limit?: number }) {
+export async function getDocumentsHandler(
+  ctx: QueryCtx,
+  args: { limit?: number }
+) {
   const limit = args.limit || 10;
 
   return await ctx.db.query('source_documents').order('desc').take(limit);
@@ -45,7 +48,7 @@ export const getDocuments = query({
  * Handler function for getting document chunks by source document
  */
 export async function getDocumentChunksHandler(
-  ctx: any,
+  ctx: QueryCtx,
   args: { sourceDocument: string; limit?: number }
 ) {
   const limit = args.limit || 50;
@@ -74,7 +77,7 @@ export const getDocumentChunks = query({
  * Handler function for getting document chunk by vectorize ID
  */
 export async function getChunkByVectorizeIdHandler(
-  ctx: any,
+  ctx: QueryCtx,
   args: { vectorizeId: string }
 ) {
   return await ctx.db
