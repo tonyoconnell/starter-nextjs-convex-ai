@@ -1,21 +1,14 @@
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 
-// Mock Convex modules for testing
-jest.mock('../_generated/server', () => ({
-  httpAction: (handler: any) => handler,
-}));
-
-jest.mock('../_generated/api', () => ({
-  api: {
-    loggingAction: {
-      createLogEntry: 'mocked-mutation-path',
-    },
-  },
-}));
+// Mock Convex modules for testing - using require approach for compatibility
+const mockServer = require('../__tests__/__mocks__/_generated/server');
+const mockApi = require('../__tests__/__mocks__/_generated/api');
 
 describe('LogStreamsWebhook Logic Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    if (global.jest) {
+      global.jest.clearAllMocks();
+    }
   });
 
   // Test the core logic functions separately from Convex infrastructure

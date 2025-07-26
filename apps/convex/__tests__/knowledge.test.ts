@@ -3,12 +3,12 @@
  * Tests: getDocumentByPath, getDocuments, getDocumentChunks, getChunkByVectorizeId
  */
 
-import { describe, it, expect, jest, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import { mockDocuments, mockChunks } from './fixtures/testData';
 
-// Mock Convex modules
-jest.mock('../_generated/server');
-jest.mock('../_generated/api');
+// Mock Convex modules at top level before imports
+const mockServer = require('../__tests__/__mocks__/_generated/server');
+const mockApi = require('../__tests__/__mocks__/_generated/api');
 
 const { createMockCtx } = require('../__tests__/__mocks__/_generated/server');
 
@@ -25,7 +25,9 @@ describe('Knowledge Query Functions', () => {
 
   beforeEach(() => {
     mockCtx = createMockCtx();
-    jest.clearAllMocks();
+    if (global.jest) {
+      global.jest.clearAllMocks();
+    }
   });
 
   describe('getDocumentByPath', () => {

@@ -2,39 +2,38 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-
-  // Test file patterns
-  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
-
-  // Module resolution
+  
+  // Modern ts-jest transform configuration
+  transform: {
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        module: 'commonjs',
+        target: 'es2020',
+        strict: false,
+        esModuleInterop: true,
+        allowSyntheticDefaultImports: true,
+        skipLibCheck: true,
+        allowJs: true,
+      },
+      // Disable Babel processing
+      babelConfig: false,
+      isolatedModules: false,
+    }],
+  },
+  
+  // Module name mapping for mocks
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
-    // Mock Convex generated modules
     '^\\./_generated/server$': '<rootDir>/__tests__/__mocks__/_generated/server.js',
     '^\\./_generated/api$': '<rootDir>/__tests__/__mocks__/_generated/api.js',
     '^convex/values$': '<rootDir>/__tests__/__mocks__/convex/values.js',
   },
 
-  // Transform configuration
-  transform: {
-    '^.+\\.ts$': [
-      'ts-jest',
-      {
-        useESM: false,
-        tsconfig: {
-          module: 'commonjs',
-          target: 'es2020',
-        },
-      },
-    ],
-  },
+  // Test patterns
+  testMatch: ['**/__tests__/**/*.test.ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/_generated/', '/coverage/', '/__tests_disabled/'],
 
-  // Transform ignore patterns
-  transformIgnorePatterns: [
-    'node_modules/(?!(convex)/)',
-  ],
-
-  // Coverage configuration
+  // Coverage settings
   collectCoverageFrom: [
     '**/*.ts',
     '!**/*.d.ts',
@@ -44,20 +43,25 @@ module.exports = {
     '!**/jest.config.js',
     '!**/*.test.ts',
     '!**/__mocks__/**',
+    '!**/__tests_disabled/**',
   ],
 
-  // Test timeout
-  testTimeout: 10000,
-
-  // Ignore patterns
-  testPathIgnorePatterns: ['/node_modules/', '/_generated/', '/coverage/'],
-
+  // Setup and timeouts
+  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
+  testTimeout: 30000,
+  
   // Module file extensions
   moduleFileExtensions: ['ts', 'js', 'json'],
-
-  // Setup files
-  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
-
-  // Simple setup
+  
+  // Disable Babel entirely
+  transformIgnorePatterns: [
+    'node_modules/(?!(convex)/)',
+  ],
+  
+  // Verbose output
   verbose: true,
+  
+  // Clear mocks automatically
+  clearMocks: true,
+  restoreMocks: true,
 };

@@ -2,6 +2,8 @@
  * Mock for Convex generated server module
  */
 
+// Jest is already available globally, no need to re-declare
+
 // Mock database context with comprehensive CRUD operations
 const createMockDb = () => {
   const mockData = new Map();
@@ -9,7 +11,7 @@ const createMockDb = () => {
 
   return {
     query: jest.fn((tableName) => ({
-      withIndex: jest.fn((indexName, callback) => ({
+      withIndex: jest.fn((_indexName, _callback) => ({
         first: jest.fn(async () => mockData.get(`${tableName}_first`) || null),
         collect: jest.fn(async () => mockData.get(`${tableName}_collect`) || []),
         order: jest.fn(() => ({
