@@ -19,6 +19,37 @@ This is a Next.js template for building AI-first applications using the BMAD (Br
 - **[CLAUDE.md](../CLAUDE.md)** - Claude Code specific instructions
 - **[BMAD Method](./methodology/bmad-context-engineering.md)** - Development methodology
 
+## 🚀 New Repository Setup
+
+**For setting up a new repository from this template:**
+
+### Essential Setup Guides
+
+- **[Technical Guides Overview](./technical-guides/index.md)** - Complete technical setup navigation
+- **[Scripts and Commands Reference](./technical-guides/scripts-and-commands-reference.md)** - All scripts and commands explained
+- **[Environment Sync Workflow](./technical-guides/environment-sync-workflow.md)** - Master environment variable management
+- **[Setup Verification Checklist](./setup-verification-checklist.md)** - Systematic verification process
+
+### Service Configuration (Required)
+
+1. **[GitHub OAuth Setup](./technical-guides/github-oauth-setup.md)** - GitHub authentication
+2. **[LLM API Setup](./technical-guides/llm-api-setup.md)** - OpenAI/OpenRouter configuration
+3. **[Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)** - Deployment setup
+4. **[CI/CD Pipeline Setup](./technical-guides/cicd-pipeline-setup.md)** - GitHub Actions automation
+
+### Optional Enhancements
+
+- **[Google OAuth Setup](./technical-guides/google-oauth-setup.md)** - Google authentication
+- **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Log management
+
+### Setup Workflow
+
+1. **Environment Setup** → Configure environment variables and scripts
+2. **Authentication Services** → Set up GitHub (required) and Google OAuth
+3. **AI Services** → Configure LLM APIs for AI features
+4. **Deployment & CI/CD** → Set up Cloudflare Pages and GitHub Actions
+5. **Verification** → Use checklist to confirm everything works
+
 ## Core Documentation (BMAD-METHOD)
 
 Following BMAD methodology, these documents form the foundation:
@@ -80,11 +111,13 @@ Following BMAD methodology, these documents form the foundation:
 **[testing/](./testing/)**
 
 #### Technical Testing (For Developers)
+
 - **[Testing Infrastructure Lessons Learned](./testing/technical/testing-infrastructure-lessons-learned.md)** - **START HERE for debugging** - Real problems and solutions from testing implementation
 - **[Testing Patterns](./testing/technical/testing-patterns.md)** - **For implementation** - Concrete patterns for React components, hooks, Convex functions
 - **[Test Strategy & Standards](./testing/technical/test-strategy-and-standards.md)** - **For context** - Testing framework, coverage targets, CI/CD integration
 
 #### Functional Testing (For QA/Product)
+
 - **[Functional Test Plans](./testing/uat/)** - User acceptance testing for individual stories
 
 ### 📚 Knowledge-Driven Development (KDD)
