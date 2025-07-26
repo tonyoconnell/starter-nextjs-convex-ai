@@ -21,34 +21,11 @@ This is a Next.js template for building AI-first applications using the BMAD (Br
 
 ## 🚀 New Repository Setup
 
-**For setting up a new repository from this template:**
+**To get a new repository running in the cloud with everything configured:**
 
-### Essential Setup Guides
+🎯 **[New Repository Setup Guide](./new-repository-setup-guide.md)** ⏱️ 2-3 hours
 
-- **[Technical Guides Overview](./technical-guides/index.md)** - Complete technical setup navigation
-- **[Scripts and Commands Reference](./technical-guides/scripts-and-commands-reference.md)** - All scripts and commands explained
-- **[Environment Sync Workflow](./technical-guides/environment-sync-workflow.md)** - Master environment variable management
-- **[Setup Verification Checklist](./setup-verification-checklist.md)** - Systematic verification process
-
-### Service Configuration (Required)
-
-1. **[GitHub OAuth Setup](./technical-guides/github-oauth-setup.md)** - GitHub authentication
-2. **[LLM API Setup](./technical-guides/llm-api-setup.md)** - OpenAI/OpenRouter configuration
-3. **[Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)** - Deployment setup
-4. **[CI/CD Pipeline Setup](./technical-guides/cicd-pipeline-setup.md)** - GitHub Actions automation
-
-### Optional Enhancements
-
-- **[Google OAuth Setup](./technical-guides/google-oauth-setup.md)** - Google authentication
-- **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Log management
-
-### Setup Workflow
-
-1. **Environment Setup** → Configure environment variables and scripts
-2. **Authentication Services** → Set up GitHub (required) and Google OAuth
-3. **AI Services** → Configure LLM APIs for AI features
-4. **Deployment & CI/CD** → Set up Cloudflare Pages and GitHub Actions
-5. **Verification** → Use checklist to confirm everything works
+Dedicated step-by-step guide for deploying this template to production with all services configured.
 
 ## Core Documentation (BMAD-METHOD)
 
