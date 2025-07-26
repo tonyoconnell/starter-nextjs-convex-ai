@@ -13,6 +13,7 @@ import {
   TextChunk
 } from './lib/textProcessing';
 import { getConfig } from './lib/config';
+import { createVectorizeClient, VectorizeVector } from './lib/vectorize';
 
 /**
  * Knowledge ingestion action for processing documents and creating vector embeddings
@@ -123,9 +124,16 @@ export const addDocument = action({
         }));
       }
 
+      // Task 3: Integrate with Cloudflare Vectorize for vector storage
+      const vectorizeClient = createVectorizeClient(config.vectorize);
       let chunksCreated = 0;
+
+      // Prepare vectors for batch insertion
+      const vectorsToInsert: VectorizeVector[] = [];
+      const chunksToStore = [];
+
       for (const chunkWithEmbedding of chunksWithEmbeddings) {
-        const { chunk } = chunkWithEmbedding;
+        const { chunk, embedding } = chunkWithEmbedding;
         
         // Create chunk hash for deduplication
         const chunkHash = crypto
@@ -133,12 +141,13 @@ export const addDocument = action({
           .update(`${args.source}:${chunk.index}:${chunk.content}`)
           .digest('hex');
 
-        // TODO: Task 3 - Vectorize integration will be implemented here
-        // For now, use placeholder vectorize ID
-        const vectorizeId = `placeholder_${chunkHash}`;
+        // Generate unique vectorize ID (max 64 bytes for Vectorize)
+        // Use first 16 chars of content hash + chunk index to stay under limit
+        const shortHash = contentHash.substring(0, 16);
+        const vectorizeId = `${shortHash}_c${chunk.index}`;
 
-        // Store chunk metadata in Convex
-        await ctx.runMutation(internal.knowledgeMutations.createDocumentChunk, {
+        // Store chunk data for later Convex insertion
+        chunksToStore.push({
           sourceDocument: args.source,
           chunkIndex: chunk.index,
           content: chunk.content,
@@ -153,7 +162,42 @@ export const addDocument = action({
           correlationId,
         });
 
+        // If we have an embedding and Vectorize client, prepare for vector insertion
+        if (embedding && vectorizeClient) {
+          vectorsToInsert.push({
+            id: vectorizeId,
+            values: embedding,
+            metadata: {
+              source_document: args.source,
+              chunk_index: chunk.index,
+              file_path: args.source,
+              file_type: args.metadata?.file_type || 'unknown',
+              chunk_size: chunk.content.length,
+              content_preview: chunk.content.substring(0, 100), // First 100 chars for debugging
+            },
+          });
+        }
+
         chunksCreated++;
+      }
+
+      // Insert vectors into Vectorize if available
+      if (vectorsToInsert.length > 0 && vectorizeClient) {
+        try {
+          console.log(`Inserting ${vectorsToInsert.length} vectors into Vectorize...`);
+          const insertResult = await vectorizeClient.insertVectors(vectorsToInsert);
+          console.log(`Successfully inserted vectors: mutation ${insertResult.mutationId}, count: ${insertResult.count}`);
+        } catch (error) {
+          console.error('Failed to insert vectors into Vectorize:', error);
+          // Continue processing - we'll store metadata even if vector insertion fails
+        }
+      } else if (vectorsToInsert.length > 0) {
+        console.warn(`${vectorsToInsert.length} vectors ready but Vectorize client not available`);
+      }
+
+      // Store chunk metadata in Convex (always do this, regardless of vector insertion success)
+      for (const chunkData of chunksToStore) {
+        await ctx.runMutation(internal.knowledgeMutations.createDocumentChunk, chunkData);
       }
 
       // Update document processing status
@@ -175,6 +219,110 @@ export const addDocument = action({
       // eslint-disable-next-line no-console
       console.error('Error processing document:', error);
       throw new ConvexError(`Failed to process document: ${(error as Error).message}`);
+    }
+  },
+});
+
+/**
+ * Query action for similarity search in vector database
+ * Used for RAG (Retrieval Augmented Generation) queries
+ */
+export const queryVectorSimilarity = action({
+  args: {
+    query: v.string(),
+    topK: v.optional(v.number()),
+    includeContent: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args): Promise<{
+    matches: Array<{
+      id: string;
+      score: number;
+      chunk: {
+        content: string;
+        source_document: string;
+        chunk_index: number;
+        metadata: any;
+      } | null;
+    }>;
+    queryStats: {
+      totalResults: number;
+      processingTimeMs: number;
+    };
+  }> => {
+    const startTime = Date.now();
+    
+    try {
+      // Generate correlation ID for tracing
+      const correlationId = crypto.randomUUID();
+      
+      // Load configuration
+      const config = getConfig();
+      
+      // Generate embedding for the query
+      if (!config.llm.openAiApiKey) {
+        throw new ConvexError('OpenAI API key required for query embedding generation');
+      }
+
+      const { generateEmbeddingForText } = await import('./lib/textProcessing');
+      const queryEmbedding = await generateEmbeddingForText(args.query, config.llm.openAiApiKey);
+      
+      // Create Vectorize client
+      const vectorizeClient = createVectorizeClient(config.vectorize);
+      if (!vectorizeClient) {
+        throw new ConvexError('Vectorize configuration incomplete');
+      }
+
+      // Query vectors
+      const topK = args.topK || 5;
+      const vectorResults = await vectorizeClient.queryVectors(
+        queryEmbedding,
+        topK,
+        true, // include metadata
+        false // don't include values
+      );
+
+      // If content is requested, fetch chunk details from Convex
+      const matches = [];
+      for (const match of vectorResults.matches) {
+        let chunkData = null;
+        
+        if (args.includeContent !== false) {
+          // Query Convex for chunk content using vectorize_id
+          const chunk = await ctx.runQuery(api.knowledge.getChunkByVectorizeId, {
+            vectorizeId: match.id,
+          });
+          
+          chunkData = chunk ? {
+            content: chunk.content,
+            source_document: chunk.source_document,
+            chunk_index: chunk.chunk_index,
+            metadata: chunk.metadata,
+          } : null;
+        }
+
+        matches.push({
+          id: match.id,
+          score: match.score,
+          chunk: chunkData,
+        });
+      }
+
+      const processingTimeMs = Date.now() - startTime;
+      
+      // eslint-disable-next-line no-console
+      console.log(`Vector similarity search completed: ${matches.length} results in ${processingTimeMs}ms`);
+
+      return {
+        matches,
+        queryStats: {
+          totalResults: matches.length,
+          processingTimeMs,
+        },
+      };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Error querying vector similarity:', error);
+      throw new ConvexError(`Failed to query vector similarity: ${(error as Error).message}`);
     }
   },
 });

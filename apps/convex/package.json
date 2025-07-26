@@ -20,7 +20,9 @@
     "build": "npx convex codegen",
     "dev": "npx convex dev",
     "deploy": "npx convex deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:coverage": "jest --coverage --passWithNoTests"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -29,6 +31,9 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^3.0.0",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.0",
     "typescript": "^5.8.3"
   }
 }

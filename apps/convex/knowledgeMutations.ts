@@ -1,5 +1,6 @@
 import { v } from 'convex/values';
-import { internalMutation, query } from './_generated/server';
+import { internalMutation, mutation, query } from './_generated/server';
+import { internal } from './_generated/api';
 import { Id } from './_generated/dataModel';
 
 /**
@@ -8,6 +9,35 @@ import { Id } from './_generated/dataModel';
 function generateSimpleId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 }
+
+/**
+ * Internal mutation to delete all chunks for a source document
+ */
+export const deleteChunksBySource = internalMutation({
+  args: {
+    sourceDocument: v.string(),
+    correlationId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // Get all chunks for this source document
+    const chunks = await ctx.db
+      .query('document_chunks')
+      .withIndex('by_source_document', (q) => q.eq('source_document', args.sourceDocument))
+      .collect();
+
+    // Delete each chunk (and return vectorize_ids for external cleanup)
+    const vectorizeIds: string[] = [];
+    for (const chunk of chunks) {
+      if (chunk.vectorize_id && chunk.vectorize_id !== 'placeholder') {
+        vectorizeIds.push(chunk.vectorize_id);
+      }
+      await ctx.db.delete(chunk._id);
+    }
+
+    console.log(`Deleted ${chunks.length} chunks for document: ${args.sourceDocument}`);
+    return vectorizeIds; // Return for Vectorize cleanup
+  },
+});
 
 /**
  * Internal mutation to create or update source document record
@@ -26,12 +56,23 @@ export const createOrUpdateDocument = internalMutation({
       .first();
 
     if (existing) {
+      // If content hash changed, clean up old chunks first
+      if (existing.content_hash !== args.contentHash) {
+        console.log(`Content changed for ${args.filePath}, cleaning up old chunks`);
+        await ctx.runMutation(internal.knowledgeMutations.deleteChunksBySource, {
+          sourceDocument: args.filePath,
+          correlationId: args.correlationId,
+        });
+      }
+
       // Update existing document
       await ctx.db.patch(existing._id, {
+        file_type: args.fileType,
         content_hash: args.contentHash,
         last_processed: Date.now(),
         processing_status: 'processing',
         correlation_id: args.correlationId,
+        chunk_count: 0, // Reset, will be updated after processing
       });
       return existing._id;
     } else {
@@ -129,5 +170,42 @@ export const getDocumentByPath = query({
       .query('source_documents')
       .withIndex('by_file_path', (q) => q.eq('file_path', args.filePath))
       .first();
+  },
+});
+
+/**
+ * Public mutation to delete a document and all its chunks
+ */
+export const deleteDocument = mutation({
+  args: { filePath: v.string() },
+  handler: async (ctx, args) => {
+    // Find the document
+    const document = await ctx.db
+      .query('source_documents')
+      .withIndex('by_file_path', (q) => q.eq('file_path', args.filePath))
+      .first();
+
+    if (!document) {
+      throw new Error(`Document not found: ${args.filePath}`);
+    }
+
+    const correlationId = generateSimpleId();
+
+    // Delete all chunks and get vectorize IDs for cleanup
+    const vectorizeIds = await ctx.runMutation(internal.knowledgeMutations.deleteChunksBySource, {
+      sourceDocument: args.filePath,
+      correlationId,
+    });
+
+    // Delete the source document
+    await ctx.db.delete(document._id);
+
+    console.log(`Deleted document: ${args.filePath} with ${vectorizeIds.length} vectorize entries`);
+    
+    return {
+      documentId: document._id,
+      chunksDeleted: document.chunk_count,
+      vectorizeIds, // For external Vectorize cleanup
+    };
   },
 });

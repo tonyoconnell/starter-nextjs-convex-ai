@@ -31,18 +31,19 @@ Before starting, ensure you have:
 - [ ] [Configure GitHub OAuth](#step-3-github-oauth-setup)
 - [ ] [Configure Google OAuth (optional)](#step-4-google-oauth-setup-optional)
 
-**Phase 3: AI Services** ⏱️ ~20 minutes
+**Phase 3: AI Services** ⏱️ ~30 minutes
 
 - [ ] [Set up OpenRouter or OpenAI](#step-5-ai-services-setup)
+- [ ] [Configure Cloudflare Vectorize for knowledge base](#step-6-vectorize-setup-optional)
 
 **Phase 4: Deployment** ⏱️ ~45 minutes
 
-- [ ] [Configure Cloudflare Pages](#step-6-cloudflare-pages-deployment)
-- [ ] [Set up GitHub Actions CI/CD](#step-7-cicd-pipeline-setup)
+- [ ] [Configure Cloudflare Pages](#step-7-cloudflare-pages-deployment)
+- [ ] [Set up GitHub Actions CI/CD](#step-8-cicd-pipeline-setup)
 
 **Phase 5: Verification** ⏱️ ~15 minutes
 
-- [ ] [Verify everything works](#step-8-verification)
+- [ ] [Verify everything works](#step-9-verification)
 
 ---
 
@@ -223,11 +224,74 @@ Before starting, ensure you have:
 
 **📖 Detailed Guide**: [LLM API Setup](./technical-guides/llm-api-setup.md)
 
+### Step 6: Vectorize Setup (Optional)
+
+**Goal**: Enable AI knowledge base with vector similarity search for enhanced responses.
+
+**Skip this step if you only need basic AI chat without knowledge base functionality.**
+
+1. **Create Cloudflare Vectorize database**:
+   ```bash
+   # Install Wrangler CLI (if not already installed)
+   npm install -g wrangler
+   
+   # Authenticate with Cloudflare
+   wrangler login
+   
+   # Create vector database (use your project name)
+   wrangler vectorize create your-project-name-knowledge \
+     --dimensions=1536 --metric=cosine
+   ```
+
+2. **Create Cloudflare API token**:
+   - Go to [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+   - Create Custom token with:
+     - **Permissions**: `Cloudflare Workers:Edit`, `Zone:Read`
+     - **Account resources**: Include your account
+     - **Zone resources**: All zones
+
+3. **Get your Account ID**:
+   - Found in Cloudflare dashboard right sidebar
+
+4. **Update environment source file**:
+   ```
+   | false  | true   | Cloudflare Vector | CLOUDFLARE_ACCOUNT_ID     | your_account_id_here     |
+   | false  | true   | Cloudflare Vector | VECTORIZE_DATABASE_ID     | your-project-name-knowledge |
+   | false  | true   | Cloudflare Vector | CLOUDFLARE_API_TOKEN      | your_api_token_here      |
+   | false  | true   | LLM Config        | OPENAI_API_KEY            | sk-proj-your-key-here    |
+   ```
+
+   **Note**: You need OpenAI API key for embeddings generation even if using OpenRouter for chat.
+
+5. **Sync and test**:
+   ```bash
+   bun run sync-env
+   
+   # Test the knowledge ingestion system
+   ./scripts/test-uat-4.2.sh tc4.2
+   ```
+
+6. **Seed your knowledge base** (optional):
+   ```bash
+   # Dry run to see what would be processed
+   bun run seed:knowledge:dry
+   
+   # Actually process and store documents
+   bun run seed:knowledge
+   ```
+
+✅ **Success Check**: 
+- Test command shows successful vector insertion
+- Knowledge seeding processes your project documents
+- AI responses can include relevant context from your knowledge base
+
+**📖 Detailed Guide**: [Cloudflare Vectorize Setup](./technical-guides/cloudflare-vectorize-setup.md)
+
 ---
 
 ## Phase 4: Deployment
 
-### Step 6: Cloudflare Pages Deployment
+### Step 7: Cloudflare Pages Deployment
 
 **Goal**: Deploy your application to the web with a public URL.
 
@@ -259,7 +323,7 @@ Before starting, ensure you have:
 
 **📖 Detailed Guide**: [Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)
 
-### Step 7: CI/CD Pipeline Setup
+### Step 8: CI/CD Pipeline Setup
 
 **Goal**: Automate deployments when you push code to GitHub.
 
@@ -294,7 +358,7 @@ Before starting, ensure you have:
 
 ## Phase 5: Verification
 
-### Step 8: Verification
+### Step 9: Verification
 
 **Goal**: Confirm everything works together correctly.
 
@@ -319,9 +383,10 @@ Use the [Setup Verification Checklist](./setup-verification-checklist.md) for sy
 - ✅ **Live application** running on Cloudflare Pages
 - ✅ **Authentication** with GitHub (and optionally Google)
 - ✅ **AI chat functionality** powered by OpenRouter/OpenAI
+- ✅ **Knowledge base** with Cloudflare Vectorize (optional)
 - ✅ **Automated deployments** via GitHub Actions
 - ✅ **Real-time backend** with Convex
-- ✅ **Cost-effective setup** under $10/month
+- ✅ **Cost-effective setup** under $15/month
 
 ## Next Steps
 
@@ -363,6 +428,12 @@ bun run sync-env --dry-run --verbose
 
 - Test API key directly: see [LLM API Setup](./technical-guides/llm-api-setup.md#test-api-access)
 - Check API credits/billing
+
+**Knowledge Base/Vectorize Issues**:
+
+- Test Vectorize connection: `./scripts/test-uat-4.2.sh tc4.2`
+- Verify API token has Vectorize permissions
+- Check vector database exists with correct dimensions (1536)
 
 **Deployment Failures**:
 

@@ -49,3 +49,16 @@ export const getDocumentChunks = query({
       .take(limit);
   },
 });
+
+/**
+ * Query to get document chunk by vectorize ID
+ */
+export const getChunkByVectorizeId = query({
+  args: { vectorizeId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('document_chunks')
+      .withIndex('by_vectorize_id', (q) => q.eq('vectorize_id', args.vectorizeId))
+      .first();
+  },
+});

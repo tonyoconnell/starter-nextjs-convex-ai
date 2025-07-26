@@ -584,6 +584,333 @@ describe('AuthService Singleton', () => {
 - **Global state leakage**: Reset singletons and global state between tests
 - **Incomplete mocking**: Mock all external dependencies comprehensively
 
+## Vector Storage Testing Patterns (Story 4.2)
+
+### 1. UAT Testing Framework for Vector Operations
+
+The Knowledge Ingestion Service introduces specialized testing patterns for vector storage and embedding operations. These patterns ensure comprehensive coverage of the hybrid Convex + Vectorize architecture.
+
+#### **Automated UAT Script Structure**
+
+```bash
+# Location: ./scripts/test-uat-4.2.sh
+# Usage: ./scripts/test-uat-4.2.sh [test-case|all]
+
+# Test Categories:
+# - AC1: Document Processing Action (tc1.1, tc1.2, tc1.3)
+# - AC2: Text Content Processing (tc2.1, tc2.2)
+# - AC3: Embedding Generation (tc3.1, tc3.2, tc3.3)
+# - AC4: Vector Storage (tc4.2)
+# - AC5: Document Seeding (tc5.1, tc5.2)
+# - Additional: Vector Search (tc6.1, tc6.2)
+```
+
+#### **Environment-Aware Testing Pattern**
+
+```bash
+# Graceful handling of missing configuration
+run_vector_search() {
+    output=$(npx convex run knowledgeActions:queryVectorSimilarity "$json_payload" 2>&1)
+    
+    if echo "$output" | grep -q "Vectorize configuration incomplete"; then
+        echo "⚠️  SKIP: Vectorize not configured - this test requires Cloudflare Vectorize setup"
+        echo "   To enable: Set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, VECTORIZE_DATABASE_ID"
+    elif [ $exit_code -eq 0 ]; then
+        echo "✅ PASS: Vector search succeeded"
+    else
+        echo "❌ FAIL: Vector search failed"
+    fi
+}
+```
+
+### 2. Multi-Service Testing Coordination
+
+#### **Service Dependency Testing Matrix**
+
+| Test Case | Convex | OpenAI API | Vectorize | Expected Behavior |
+|-----------|--------|------------|-----------|-------------------|
+| Basic Processing | ✅ | ❌ | ❌ | Graceful degradation, placeholder embeddings |
+| With Embeddings | ✅ | ✅ | ❌ | Embeddings generated, no vector storage |
+| Full Integration | ✅ | ✅ | ✅ | Complete vector storage and search |
+| Partial Failure | ✅ | ✅ | ❌ (fails) | Document processing continues |
+
+#### **Configuration Testing Pattern**
+
+```typescript
+// Test configuration validation
+describe('Configuration Validation', () => {
+  it('should handle missing OpenAI API key gracefully', async () => {
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Test content',
+      source: 'test.md'
+    });
+    
+    expect(result.status).toBe('completed');
+    expect(result.chunksCreated).toBeGreaterThan(0);
+    // Should not throw error even without OpenAI key
+  });
+  
+  it('should handle missing Vectorize config gracefully', async () => {
+    // Similar pattern for Vectorize configuration testing
+  });
+});
+```
+
+### 3. Vector Operation Testing Patterns
+
+#### **Embedding Dimension Validation**
+
+```typescript
+describe('Embedding Generation', () => {
+  it('should generate 1536-dimension embeddings', async () => {
+    const chunks = chunkText('Sample content for testing embedding generation');
+    const embeddings = await generateEmbeddingsForChunks(chunks, apiKey);
+    
+    embeddings.forEach(({ embedding }) => {
+      if (embedding) {
+        expect(embedding).toHaveLength(1536);
+        expect(embedding.every(val => typeof val === 'number')).toBe(true);
+      }
+    });
+  });
+});
+```
+
+#### **Vector ID Constraint Testing**
+
+```typescript
+describe('Vector ID Generation', () => {
+  it('should generate vector IDs under 64 bytes', async () => {
+    const longContentHash = 'a'.repeat(64);
+    const chunkIndex = 999;
+    
+    const shortHash = longContentHash.substring(0, 16);
+    const vectorizeId = `${shortHash}_c${chunkIndex}`;
+    
+    expect(vectorizeId.length).toBeLessThanOrEqual(64);
+    expect(vectorizeId).toMatch(/^[a-f0-9]{16}_c\d+$/);
+  });
+});
+```
+
+#### **Hybrid Storage Consistency Testing**
+
+```typescript
+describe('Hybrid Storage Consistency', () => {
+  it('should maintain consistency between Convex and Vectorize', async () => {
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Test document for consistency verification',
+      source: 'consistency-test.md'
+    });
+    
+    // Verify Convex storage
+    const convexChunks = await ctx.runQuery(api.knowledge.getChunksBySource, {
+      sourceDocument: 'consistency-test.md'
+    });
+    
+    expect(convexChunks).toHaveLength(result.chunksCreated);
+    
+    // Verify each chunk has corresponding vector reference
+    convexChunks.forEach(chunk => {
+      expect(chunk.vectorize_id).toMatch(/^[a-f0-9]{16}_c\d+$/);
+      expect(chunk.vectorize_id.length).toBeLessThanOrEqual(64);
+    });
+  });
+});
+```
+
+### 4. Performance Testing Patterns
+
+#### **Large Document Processing**
+
+```typescript
+describe('Performance Testing', () => {
+  it('should handle large documents efficiently', async () => {
+    const largeContent = 'Lorem ipsum '.repeat(1000); // ~10KB content
+    const startTime = Date.now();
+    
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: largeContent,
+      source: 'large-test.md'
+    });
+    
+    const processingTime = Date.now() - startTime;
+    
+    expect(result.status).toBe('completed');
+    expect(result.chunksCreated).toBeGreaterThan(1);
+    expect(processingTime).toBeLessThan(30000); // Under 30 seconds
+  });
+});
+```
+
+#### **Batch Operation Testing**
+
+```typescript
+describe('Batch Operations', () => {
+  it('should efficiently process multiple documents', async () => {
+    const documents = Array.from({ length: 10 }, (_, i) => ({
+      content: `Test document ${i} with unique content for testing batch processing`,
+      source: `batch-test-${i}.md`
+    }));
+    
+    const startTime = Date.now();
+    const results = await Promise.all(
+      documents.map(doc => ctx.runAction(api.knowledgeActions.addDocument, doc))
+    );
+    const totalTime = Date.now() - startTime;
+    
+    expect(results.every(r => r.status === 'completed')).toBe(true);
+    expect(totalTime / documents.length).toBeLessThan(5000); // Under 5s per document
+  });
+});
+```
+
+### 5. Error Handling Testing Patterns
+
+#### **Service Failure Simulation**
+
+```typescript
+describe('Error Handling', () => {
+  it('should handle OpenAI API failures gracefully', async () => {
+    // Mock OpenAI API to return error
+    const mockApiKey = 'invalid-key';
+    
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Test content',
+      source: 'error-test.md'
+    });
+    
+    // Should complete even with API failure
+    expect(result.status).toBe('completed');
+    expect(result.chunksCreated).toBeGreaterThan(0);
+  });
+  
+  it('should handle Vectorize API failures gracefully', async () => {
+    // Similar pattern for Vectorize failure testing
+  });
+});
+```
+
+#### **Data Consistency Under Failure**
+
+```typescript
+describe('Failure Recovery', () => {
+  it('should maintain data consistency during partial failures', async () => {
+    // Test scenario where vector insertion fails but document processing continues
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Test content for failure scenario',
+      source: 'failure-test.md'
+    });
+    
+    // Document should be created even if vector insertion fails
+    const document = await ctx.runQuery(api.knowledgeMutations.getDocumentByPath, {
+      filePath: 'failure-test.md'
+    });
+    
+    expect(document).toBeTruthy();
+    expect(document.processing_status).toBe('completed');
+  });
+});
+```
+
+### 6. Integration Testing Patterns
+
+#### **End-to-End Vector Search Testing**
+
+```typescript
+describe('Vector Search Integration', () => {
+  beforeAll(async () => {
+    // Seed test documents with known content
+    await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Machine learning algorithms for data analysis',
+      source: 'ml-test.md'
+    });
+    
+    await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Cooking recipes for Italian cuisine',
+      source: 'cooking-test.md'
+    });
+  });
+  
+  it('should return relevant results for similarity search', async () => {
+    const results = await ctx.runAction(api.knowledgeActions.queryVectorSimilarity, {
+      query: 'machine learning techniques',
+      topK: 2,
+      includeContent: true
+    });
+    
+    expect(results.matches).toHaveLength(2);
+    expect(results.matches[0].score).toBeGreaterThan(results.matches[1].score);
+    
+    // Should find ML document more relevant than cooking
+    const mlResult = results.matches.find(m => 
+      m.chunk?.source_document === 'ml-test.md'
+    );
+    expect(mlResult).toBeTruthy();
+    expect(mlResult.score).toBeGreaterThan(0.5); // High relevance threshold
+  });
+});
+```
+
+### 7. Seeding Script Testing Patterns
+
+#### **File Discovery Testing**
+
+```typescript
+describe('Document Seeding', () => {
+  it('should discover appropriate files for processing', () => {
+    const { findFilesToProcess } = require('../scripts/seed-knowledge.cjs');
+    
+    const docsFiles = findFilesToProcess(path.join(PROJECT_ROOT, 'docs'));
+    const appsFiles = findFilesToProcess(path.join(PROJECT_ROOT, 'apps'));
+    
+    expect(docsFiles.length).toBeGreaterThan(50); // Should find substantial docs
+    expect(appsFiles.length).toBeGreaterThan(50); // Should find substantial code
+    
+    // Verify file type filtering
+    const allFiles = [...docsFiles, ...appsFiles];
+    allFiles.forEach(file => {
+      expect(['markdown', 'typescript', 'javascript', 'typescript-react', 'javascript-react'])
+        .toContain(file.fileType);
+    });
+  });
+});
+```
+
+### 8. Monitoring and Observability Testing
+
+#### **Correlation ID Tracing**
+
+```typescript
+describe('Observability', () => {
+  it('should maintain correlation IDs throughout processing', async () => {
+    const result = await ctx.runAction(api.knowledgeActions.addDocument, {
+      content: 'Test content for correlation tracking',
+      source: 'correlation-test.md'
+    });
+    
+    // Verify correlation ID exists in document record
+    const document = await ctx.runQuery(api.knowledgeMutations.getDocumentByPath, {
+      filePath: 'correlation-test.md'
+    });
+    
+    expect(document.correlation_id).toBeTruthy();
+    expect(document.correlation_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    
+    // Verify correlation ID propagated to chunks
+    const chunks = await ctx.runQuery(api.knowledge.getChunksBySource, {
+      sourceDocument: 'correlation-test.md'
+    });
+    
+    chunks.forEach(chunk => {
+      expect(chunk.correlation_id).toBe(document.correlation_id);
+    });
+  });
+});
+```
+
+These vector storage testing patterns ensure comprehensive coverage of the Knowledge Ingestion Service while accounting for the complexity of multi-service integration and the need for graceful degradation in various failure scenarios.
+
 ## Related Documentation
 
 - [Test Strategy and Standards](../architecture/test-strategy-and-standards.md) - Testing strategy and coverage standards

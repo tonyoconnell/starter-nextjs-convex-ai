@@ -31,6 +31,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 - **[TypeScript Configuration Best Practices](./typescript-configuration-best-practices.md)** - Monorepo TypeScript setup
 - **[Authentication Architecture](./authentication-architecture.md)** - Authentication system design
 - **[Convex Components Guide](./convex-components-guide.md)** - Backend architecture patterns
+- **[Cloudflare Vectorize Setup](./cloudflare-vectorize-setup.md)** - Vector database configuration for AI applications
 
 ### 📊 Monitoring & Debugging
 
@@ -146,6 +147,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 **AI & LLM Integration:**
 
 - [LLM API Setup](./llm-api-setup.md)
+- [Cloudflare Vectorize Setup](./cloudflare-vectorize-setup.md)
 - [Cost-Effective Logging](./cost-effective-logging-in-convex-agentic-systems.md)
 
 ### By Setup Phase
