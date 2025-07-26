@@ -89,6 +89,26 @@ cd apps/web && bun dev:claude
 
 6. Open http://localhost:3000 in your browser
 
+## 🚀 Complete Setup Guide
+
+**For comprehensive setup including authentication, AI services, and deployment:**
+
+📋 **[New Repository Setup Documentation](./docs/index.md#-new-repository-setup)**
+
+This includes step-by-step guides for:
+
+- **Environment variable management** with the advanced sync system
+- **Authentication setup** (GitHub OAuth, Google OAuth)
+- **AI services configuration** (OpenAI, OpenRouter)
+- **Deployment setup** (Cloudflare Pages, CI/CD)
+- **Verification checklist** to ensure everything works
+
+**Quick Reference**:
+
+- **[Scripts & Commands](./docs/technical-guides/scripts-and-commands-reference.md)** - All available scripts explained
+- **[Setup Verification](./docs/setup-verification-checklist.md)** - Systematic verification process
+- **[Development Guide](./docs/development-guide.md)** - Port management and workflow
+
 ### Quick Commands
 
 ```bash

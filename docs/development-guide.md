@@ -388,6 +388,75 @@ NEXT_PUBLIC_CONVEX_URL=https://your-convex-deployment.convex.cloud
 **AI Ports**: 3100, 6106, 9322, 4100-4199, 8100-8199
 **Shared Services**: Convex (same URL), Cloudflare Pages (same URL)
 
+## Development Scripts & Environment Management
+
+### Script Ecosystem Integration
+
+This project includes a comprehensive script ecosystem for development workflow automation:
+
+**Package.json Scripts**:
+
+- `bun dev` - Start development servers (respects PORT environment variable)
+- `bun run sync-env` - Synchronize environment variables from source of truth
+- `bun run push` - Smart git push with pre-validation and CI monitoring
+- `bun run ci:status` - Check GitHub Actions CI status
+- `bun run ci:watch` - Monitor CI execution in real-time
+
+**Shell Scripts (`/scripts/` directory)**:
+
+- `sync-env.js` - Advanced environment variable synchronization
+- `smart-push.sh` - Intelligent git operations with validation
+- `ci-monitor.sh` & `ci-status.sh` - CI/CD monitoring utilities
+- `cleanup-logs.sh` - Convex log management for cost control
+- `grant-llm-access.sh` - User permission management
+
+### Environment Variable Management
+
+The project uses a centralized environment management system:
+
+1. **Source of Truth**: `.env.source-of-truth.local` (human-readable table format)
+2. **Distribution**: `bun run sync-env` generates app-specific environment files
+3. **Validation**: Built-in security checks and consistency validation
+4. **Backup**: Automatic backup before changes
+
+**Workflow Integration**:
+
+```bash
+# Update environment variables
+nano .env.source-of-truth.local
+
+# Sync to all applications
+bun run sync-env
+
+# Restart development servers
+bun dev
+```
+
+### Development Workflow Integration
+
+**Daily Development Workflow**:
+
+```bash
+# 1. Sync environment (if changed)
+bun run sync-env
+
+# 2. Start development with port management
+PORT=3000 bun dev    # Human development
+# OR
+PORT=3100 bun dev    # AI development
+
+# 3. Pre-commit validation
+bun run push         # Validates before pushing
+```
+
+**CI/CD Integration**:
+
+- `bun run push` includes pre-push validation (lint, typecheck, build)
+- `bun run ci:watch` monitors GitHub Actions pipeline
+- Port management ensures consistent behavior across environments
+
+For complete script documentation, see **[Scripts and Commands Reference](./technical-guides/scripts-and-commands-reference.md)**.
+
 ---
 
 For more information about development commands and workflows, see [CLAUDE.md](../CLAUDE.md).
