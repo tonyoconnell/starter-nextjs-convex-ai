@@ -91,6 +91,13 @@ export function chunkText(text: string, config: ChunkingConfig = DEFAULT_CHUNKIN
 }
 
 /**
+ * Generate embedding for a single text string (alias for generateEmbedding)
+ */
+export async function generateEmbeddingForText(text: string, apiKey: string): Promise<number[]> {
+  return await generateEmbedding(text, apiKey);
+}
+
+/**
  * Generate embeddings for text using OpenAI API
  * Implements AC 3: Generate vector embeddings for chunks
  */

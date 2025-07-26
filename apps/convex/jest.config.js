@@ -9,9 +9,13 @@ module.exports = {
   // Module resolution
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    // Mock Convex generated modules
+    '^\\./_generated/server$': '<rootDir>/__tests__/__mocks__/_generated/server.js',
+    '^\\./_generated/api$': '<rootDir>/__tests__/__mocks__/_generated/api.js',
+    '^convex/values$': '<rootDir>/__tests__/__mocks__/convex/values.js',
   },
 
-  // Simple TypeScript transform
+  // Transform configuration
   transform: {
     '^.+\\.ts$': [
       'ts-jest',
@@ -25,6 +29,11 @@ module.exports = {
     ],
   },
 
+  // Transform ignore patterns
+  transformIgnorePatterns: [
+    'node_modules/(?!(convex)/)',
+  ],
+
   // Coverage configuration
   collectCoverageFrom: [
     '**/*.ts',
@@ -32,8 +41,9 @@ module.exports = {
     '!**/_generated/**',
     '!**/node_modules/**',
     '!**/coverage/**',
-    '!jest.config.js',
+    '!**/jest.config.js',
     '!**/*.test.ts',
+    '!**/__mocks__/**',
   ],
 
   // Test timeout
@@ -44,6 +54,9 @@ module.exports = {
 
   // Module file extensions
   moduleFileExtensions: ['ts', 'js', 'json'],
+
+  // Setup files
+  setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
 
   // Simple setup
   verbose: true,

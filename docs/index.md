@@ -136,6 +136,7 @@ Real implementation examples from the project:
 - **[Monorepo Setup](./examples/monorepo-setup/)** - Complete Bun/Turborepo configuration example
 - **[Frontend Examples](./examples/frontend/)** - React and Next.js implementation examples
 - **[Backend Examples](./examples/backend/)** - Convex function examples and runtime patterns
+  - **[Knowledge Ingestion Deployment Patterns](./examples/backend/knowledge-ingestion-deployment-patterns.md)** - Vector storage deployment patterns and configuration management
 - **[Testing Examples](./examples/testing/)** - Comprehensive testing examples
 - **[CI/CD Deployment Examples](./examples/cicd-deployment/)** - Complete CI/CD pipeline and deployment examples
 - **[Configuration Examples](./examples/configuration/)** - Project configuration examples
@@ -146,6 +147,7 @@ Cross-story insights and knowledge capture:
 
 - **[Story Lessons](./lessons-learned/stories/)** - Insights from individual story implementations
   - **[Story 1.6 Lessons](./lessons-learned/stories/story-1-6-lessons.md)** - CI/CD Pipeline implementation learnings
+  - **[Story 4.2 Knowledge Ingestion Lessons](./lessons-learned/stories/story-4.2-knowledge-ingestion-lessons.md)** - Cloudflare Vectorize integration and vector storage patterns
 - **[Technology Lessons](./lessons-learned/technology/)** - Technology-specific learnings
 - **[Process Lessons](./lessons-learned/process/)** - Development workflow insights
 - **[Anti-Patterns](./lessons-learned/anti-patterns/)** - Approaches to avoid

@@ -30,8 +30,15 @@ This directory contains all testing-related documentation organized by purpose a
 - [Story 1.7 - GitHub OAuth](uat/functional-test-plan-1.7.md)
 - [Story 1.8 - Profile Management](uat/functional-test-plan-1.8.md)
 
+**Epic 2 - UI Toolkit & Component Showcase:**
+- [Story 2.1 - Integrate ShadCN/UI Library](uat/functional-test-plan-2.1.md)
+
 **Epic 3 - Resilient Real-time Logging:**
+- [Story 3.1 - Browser Log Capture Foundation](uat/functional-test-plan-3.1.md)
 - [Story 3.2 - Multi-System Log Ingestion & Correlation](uat/functional-test-plan-3.2.md)
+
+**Epic 4 - AI-Powered Chat Interface:**
+- [Story 4.2 - Knowledge Ingestion Service](uat/functional-test-plan-4.2.md)
 
 ## Testing Commands Reference
 
@@ -69,5 +76,8 @@ docs/testing/
     ├── functional-test-plan-1.6.md
     ├── functional-test-plan-1.7.md
     ├── functional-test-plan-1.8.md
-    └── functional-test-plan-3.2.md
+    ├── functional-test-plan-2.1.md
+    ├── functional-test-plan-3.1.md
+    ├── functional-test-plan-3.2.md
+    └── functional-test-plan-4.2.md
 ```
