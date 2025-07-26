@@ -178,7 +178,7 @@ export const getDocumentByPath = query({
  */
 export const deleteDocument = mutation({
   args: { filePath: v.string() },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{ deleted: boolean; vectorizeIds: string[] }> => {
     // Find the document
     const document = await ctx.db
       .query('source_documents')
@@ -192,7 +192,7 @@ export const deleteDocument = mutation({
     const correlationId = generateSimpleId();
 
     // Delete all chunks and get vectorize IDs for cleanup
-    const vectorizeIds = await ctx.runMutation(internal.knowledgeMutations.deleteChunksBySource, {
+    const vectorizeIds: string[] = await ctx.runMutation(internal.knowledgeMutations.deleteChunksBySource, {
       sourceDocument: args.filePath,
       correlationId,
     });
@@ -203,8 +203,7 @@ export const deleteDocument = mutation({
     console.log(`Deleted document: ${args.filePath} with ${vectorizeIds.length} vectorize entries`);
     
     return {
-      documentId: document._id,
-      chunksDeleted: document.chunk_count,
+      deleted: true,
       vectorizeIds, // For external Vectorize cleanup
     };
   },
