@@ -306,18 +306,27 @@ export const mockConfigurations = {
   },
 };
 
-export const createMockResponse = (data: any, status = 200, ok = true) => ({
-  ok,
-  status,
-  statusText: ok ? 'OK' : 'Error',
-  json: jest.fn().mockResolvedValue(data),
-  text: jest.fn().mockResolvedValue(JSON.stringify(data)),
-});
+export const createMockResponse = (data: any, status = 200, ok = true) => {
+  const jestFn = (global as any).jest?.fn || (() => ({ mockResolvedValue: () => Promise.resolve() }));
+  return {
+    ok,
+    status,
+    statusText: ok ? 'OK' : 'Error',
+    json: jestFn().mockResolvedValue?.(data) || (() => Promise.resolve(data)),
+    text: jestFn().mockResolvedValue?.(JSON.stringify(data)) || (() => Promise.resolve(JSON.stringify(data))),
+  };
+};
 
-export const createMockErrorResponse = (status: number, message: string) => ({
-  ok: false,
-  status,
-  statusText: 'Error',
-  json: jest.fn().mockRejectedValue(new Error('Response not JSON')),
-  text: jest.fn().mockResolvedValue(message),
-});
+export const createMockErrorResponse = (status: number, message: string) => {
+  const jestFn = (global as any).jest?.fn || (() => ({ 
+    mockRejectedValue: () => Promise.reject(),
+    mockResolvedValue: () => Promise.resolve()
+  }));
+  return {
+    ok: false,
+    status,
+    statusText: 'Error',
+    json: jestFn().mockRejectedValue?.(new Error('Response not JSON')) || (() => Promise.reject(new Error('Response not JSON'))),
+    text: jestFn().mockResolvedValue?.(message) || (() => Promise.resolve(message)),
+  };
+};
