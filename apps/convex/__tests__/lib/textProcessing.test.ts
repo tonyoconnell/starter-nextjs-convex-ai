@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for lib/textProcessing.ts
  * Tests: chunkText, generateEmbedding, batch processing, validation

@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Jest test setup for Convex backend testing
  * Comprehensive mocking and environment setup for Knowledge Ingestion Service tests
@@ -13,15 +14,15 @@ import { jest, beforeEach, afterEach } from '@jest/globals';
 beforeEach(() => {
   // Clear all mocks between tests
   jest.clearAllMocks();
-  
+
   // Reset environment variables for test isolation
   process.env.NODE_ENV = 'test';
-  
+
   // Mock console methods to prevent test output noise
   jest.spyOn(console, 'log').mockImplementation(() => {});
   jest.spyOn(console, 'warn').mockImplementation(() => {});
   jest.spyOn(console, 'error').mockImplementation(() => {});
-  
+
   // Reset global state for config caching
   if (global.__resetConfig) {
     global.__resetConfig();

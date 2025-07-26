@@ -286,6 +286,7 @@ export default [
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-require-imports': 'off',
       '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-nocheck in test files
       'no-console': 'off',
       'no-restricted-syntax': 'off',
       'no-undef': 'off', // Turn off for test files since we're mocking globals

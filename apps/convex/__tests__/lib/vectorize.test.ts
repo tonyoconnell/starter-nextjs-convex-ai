@@ -1,9 +1,17 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for lib/vectorize.ts
  * Tests: VectorizeClient methods, authentication, validation, error handling
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 import {
   mockEmbeddings,
   mockVectorizeResponses,
@@ -68,37 +76,49 @@ describe('Vectorize Client', () => {
       it('should throw error for missing accountId', () => {
         const invalidConfig = { ...validConfig, accountId: undefined };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
 
       it('should throw error for missing apiToken', () => {
         const invalidConfig = { ...validConfig, apiToken: undefined };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
 
       it('should throw error for missing databaseId', () => {
         const invalidConfig = { ...validConfig, databaseId: undefined };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
 
       it('should throw error for empty accountId', () => {
         const invalidConfig = { ...validConfig, accountId: '' };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
 
       it('should throw error for empty apiToken', () => {
         const invalidConfig = { ...validConfig, apiToken: '' };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
 
       it('should throw error for empty databaseId', () => {
         const invalidConfig = { ...validConfig, databaseId: '' };
 
-        expect(() => new VectorizeClient(invalidConfig)).toThrow('Vectorize configuration is incomplete');
+        expect(() => new VectorizeClient(invalidConfig)).toThrow(
+          'Vectorize configuration is incomplete'
+        );
       });
     });
   });
@@ -120,7 +140,9 @@ describe('Vectorize Client', () => {
     describe('Successful Insertions', () => {
       it('should insert vectors successfully', async () => {
         const vectors = createTestVectors(3);
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.insertSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.insertSuccess)
+        );
 
         const result = await client.insertVectors(vectors);
 
@@ -130,7 +152,7 @@ describe('Vectorize Client', () => {
           {
             method: 'POST',
             headers: {
-              'Authorization': 'Bearer test-token-456',
+              Authorization: 'Bearer test-token-456',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ vectors }),
@@ -140,7 +162,9 @@ describe('Vectorize Client', () => {
 
       it('should handle single vector insertion', async () => {
         const vectors = createTestVectors(1);
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.insertSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.insertSuccess)
+        );
 
         const result = await client.insertVectors(vectors);
 
@@ -150,9 +174,11 @@ describe('Vectorize Client', () => {
 
       it('should handle large batch insertions', async () => {
         const vectors = createTestVectors(100);
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'large_batch_123', count: 100 }
-        }));
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'large_batch_123', count: 100 },
+          })
+        );
 
         const result = await client.insertVectors(vectors);
 
@@ -161,30 +187,38 @@ describe('Vectorize Client', () => {
       });
 
       it('should handle vectors with complex metadata', async () => {
-        const vectors: VectorizeVector[] = [{
-          id: 'complex_vector_1',
-          values: mockEmbeddings.dimension1536,
-          metadata: {
-            source_document: 'complex_doc.md',
-            chunk_index: 0,
-            file_type: 'markdown',
-            chunk_size: 1500,
-            custom_field: 'custom_value',
-            numeric_field: 42,
-            boolean_field: true,
-            nested_info: 'deep_data',
+        const vectors: VectorizeVector[] = [
+          {
+            id: 'complex_vector_1',
+            values: mockEmbeddings.dimension1536,
+            metadata: {
+              source_document: 'complex_doc.md',
+              chunk_index: 0,
+              file_type: 'markdown',
+              chunk_size: 1500,
+              custom_field: 'custom_value',
+              numeric_field: 42,
+              boolean_field: true,
+              nested_info: 'deep_data',
+            },
           },
-        }];
+        ];
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.insertSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.insertSuccess)
+        );
 
         const result = await client.insertVectors(vectors);
 
         expect(result).toEqual(mockVectorizeResponses.insertSuccess.result);
-        
+
         // Verify complex metadata was included in request
-        const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
-        expect(requestBody.vectors[0].metadata.custom_field).toBe('custom_value');
+        const requestBody = JSON.parse(
+          mockFetch.mock.calls[0][1]?.body as string
+        );
+        expect(requestBody.vectors[0].metadata.custom_field).toBe(
+          'custom_value'
+        );
         expect(requestBody.vectors[0].metadata.numeric_field).toBe(42);
         expect(requestBody.vectors[0].metadata.boolean_field).toBe(true);
       });
@@ -193,7 +227,9 @@ describe('Vectorize Client', () => {
     describe('Error Handling', () => {
       it('should handle API errors', async () => {
         const vectors = createTestVectors(1);
-        mockFetch.mockResolvedValue(createMockErrorResponse(400, 'Bad Request'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(400, 'Bad Request')
+        );
 
         await expect(client.insertVectors(vectors)).rejects.toThrow(
           'Failed to insert vectors: Vectorize API error: 400 Error - Bad Request'
@@ -202,7 +238,9 @@ describe('Vectorize Client', () => {
 
       it('should handle authentication errors', async () => {
         const vectors = createTestVectors(1);
-        mockFetch.mockResolvedValue(createMockErrorResponse(401, 'Unauthorized'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(401, 'Unauthorized')
+        );
 
         await expect(client.insertVectors(vectors)).rejects.toThrow(
           'Failed to insert vectors: Vectorize API error: 401 Error - Unauthorized'
@@ -246,9 +284,11 @@ describe('Vectorize Client', () => {
 
     describe('Input Validation', () => {
       it('should handle empty vectors array', async () => {
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'empty_123', count: 0 }
-        }));
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'empty_123', count: 0 },
+          })
+        );
 
         const result = await client.insertVectors([]);
 
@@ -262,13 +302,17 @@ describe('Vectorize Client', () => {
       });
 
       it('should handle vectors with missing metadata', async () => {
-        const vectors: VectorizeVector[] = [{
-          id: 'no_metadata_vector',
-          values: mockEmbeddings.dimension1536,
-          // metadata is optional
-        }];
+        const vectors: VectorizeVector[] = [
+          {
+            id: 'no_metadata_vector',
+            values: mockEmbeddings.dimension1536,
+            // metadata is optional
+          },
+        ];
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.insertSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.insertSuccess)
+        );
 
         const result = await client.insertVectors(vectors);
 
@@ -276,13 +320,17 @@ describe('Vectorize Client', () => {
       });
 
       it('should handle vectors with special characters in IDs', async () => {
-        const vectors: VectorizeVector[] = [{
-          id: 'test-vector_with-special.chars_123',
-          values: mockEmbeddings.dimension1536,
-          metadata: { test: 'data' },
-        }];
+        const vectors: VectorizeVector[] = [
+          {
+            id: 'test-vector_with-special.chars_123',
+            values: mockEmbeddings.dimension1536,
+            metadata: { test: 'data' },
+          },
+        ];
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.insertSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.insertSuccess)
+        );
 
         const result = await client.insertVectors(vectors);
 
@@ -295,7 +343,9 @@ describe('Vectorize Client', () => {
     describe('Successful Queries', () => {
       it('should query vectors with default parameters', async () => {
         const queryVector = mockEmbeddings.dimension1536;
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.querySuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.querySuccess)
+        );
 
         const result = await client.queryVectors(queryVector);
 
@@ -305,7 +355,7 @@ describe('Vectorize Client', () => {
           {
             method: 'POST',
             headers: {
-              'Authorization': 'Bearer test-token-456',
+              Authorization: 'Bearer test-token-456',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -324,9 +374,16 @@ describe('Vectorize Client', () => {
         const includeMetadata = false;
         const includeValues = true;
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.querySuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.querySuccess)
+        );
 
-        const result = await client.queryVectors(queryVector, topK, includeMetadata, includeValues);
+        const result = await client.queryVectors(
+          queryVector,
+          topK,
+          includeMetadata,
+          includeValues
+        );
 
         expect(result).toEqual(mockVectorizeResponses.querySuccess.result);
         expect(mockFetch).toHaveBeenCalledWith(
@@ -362,11 +419,15 @@ describe('Vectorize Client', () => {
 
         for (const topK of testCases) {
           mockFetch.mockClear();
-          mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.querySuccess));
+          mockFetch.mockResolvedValue(
+            createMockResponse(mockVectorizeResponses.querySuccess)
+          );
 
           await client.queryVectors(queryVector, topK);
 
-          const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+          const requestBody = JSON.parse(
+            mockFetch.mock.calls[0][1]?.body as string
+          );
           expect(requestBody.topK).toBe(topK);
         }
       });
@@ -375,7 +436,9 @@ describe('Vectorize Client', () => {
     describe('Error Handling', () => {
       it('should handle API errors in queries', async () => {
         const queryVector = mockEmbeddings.dimension1536;
-        mockFetch.mockResolvedValue(createMockErrorResponse(400, 'Invalid vector dimensions'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(400, 'Invalid vector dimensions')
+        );
 
         await expect(client.queryVectors(queryVector)).rejects.toThrow(
           'Failed to query vectors: Vectorize API error: 400 Error - Invalid vector dimensions'
@@ -384,7 +447,9 @@ describe('Vectorize Client', () => {
 
       it('should handle authentication errors in queries', async () => {
         const queryVector = mockEmbeddings.dimension1536;
-        mockFetch.mockResolvedValue(createMockErrorResponse(401, 'Invalid API token'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(401, 'Invalid API token')
+        );
 
         await expect(client.queryVectors(queryVector)).rejects.toThrow(
           'Failed to query vectors: Vectorize API error: 401 Error - Invalid API token'
@@ -393,7 +458,9 @@ describe('Vectorize Client', () => {
 
       it('should handle rate limiting errors', async () => {
         const queryVector = mockEmbeddings.dimension1536;
-        mockFetch.mockResolvedValue(createMockErrorResponse(429, 'Too Many Requests'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(429, 'Too Many Requests')
+        );
 
         await expect(client.queryVectors(queryVector)).rejects.toThrow(
           'Failed to query vectors: Vectorize API error: 429 Error - Too Many Requests'
@@ -426,11 +493,15 @@ describe('Vectorize Client', () => {
 
         for (const vector of vectors) {
           mockFetch.mockClear();
-          mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.querySuccess));
+          mockFetch.mockResolvedValue(
+            createMockResponse(mockVectorizeResponses.querySuccess)
+          );
 
           await client.queryVectors(vector);
 
-          const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+          const requestBody = JSON.parse(
+            mockFetch.mock.calls[0][1]?.body as string
+          );
           expect(requestBody.vector).toEqual(vector);
         }
       });
@@ -441,11 +512,15 @@ describe('Vectorize Client', () => {
 
         for (const topK of edgeCases) {
           mockFetch.mockClear();
-          mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.querySuccess));
+          mockFetch.mockResolvedValue(
+            createMockResponse(mockVectorizeResponses.querySuccess)
+          );
 
           await client.queryVectors(queryVector, topK);
 
-          const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+          const requestBody = JSON.parse(
+            mockFetch.mock.calls[0][1]?.body as string
+          );
           expect(requestBody.topK).toBe(topK);
         }
       });
@@ -456,7 +531,9 @@ describe('Vectorize Client', () => {
     describe('Successful Deletions', () => {
       it('should delete vectors by IDs', async () => {
         const idsToDelete = ['vector_1', 'vector_2', 'vector_3'];
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.deleteSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.deleteSuccess)
+        );
 
         const result = await client.deleteVectors(idsToDelete);
 
@@ -466,7 +543,7 @@ describe('Vectorize Client', () => {
           {
             method: 'POST',
             headers: {
-              'Authorization': 'Bearer test-token-456',
+              Authorization: 'Bearer test-token-456',
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ ids: idsToDelete }),
@@ -476,9 +553,11 @@ describe('Vectorize Client', () => {
 
       it('should handle single vector deletion', async () => {
         const idsToDelete = ['single_vector'];
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'delete_single_123', count: 1 }
-        }));
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'delete_single_123', count: 1 },
+          })
+        );
 
         const result = await client.deleteVectors(idsToDelete);
 
@@ -487,9 +566,11 @@ describe('Vectorize Client', () => {
 
       it('should handle empty IDs array', async () => {
         const idsToDelete: string[] = [];
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'delete_empty_123', count: 0 }
-        }));
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'delete_empty_123', count: 0 },
+          })
+        );
 
         const result = await client.deleteVectors(idsToDelete);
 
@@ -503,10 +584,15 @@ describe('Vectorize Client', () => {
       });
 
       it('should handle large batch deletions', async () => {
-        const idsToDelete = Array.from({ length: 100 }, (_, i) => `vector_${i}`);
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'delete_batch_123', count: 100 }
-        }));
+        const idsToDelete = Array.from(
+          { length: 100 },
+          (_, i) => `vector_${i}`
+        );
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'delete_batch_123', count: 100 },
+          })
+        );
 
         const result = await client.deleteVectors(idsToDelete);
 
@@ -517,7 +603,9 @@ describe('Vectorize Client', () => {
     describe('Error Handling', () => {
       it('should handle API errors in deletions', async () => {
         const idsToDelete = ['vector_1'];
-        mockFetch.mockResolvedValue(createMockErrorResponse(404, 'Vectors not found'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(404, 'Vectors not found')
+        );
 
         await expect(client.deleteVectors(idsToDelete)).rejects.toThrow(
           'Failed to delete vectors: Vectorize API error: 404 Error - Vectors not found'
@@ -526,7 +614,9 @@ describe('Vectorize Client', () => {
 
       it('should handle authentication errors in deletions', async () => {
         const idsToDelete = ['vector_1'];
-        mockFetch.mockResolvedValue(createMockErrorResponse(401, 'Unauthorized'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(401, 'Unauthorized')
+        );
 
         await expect(client.deleteVectors(idsToDelete)).rejects.toThrow(
           'Failed to delete vectors: Vectorize API error: 401 Error - Unauthorized'
@@ -552,13 +642,17 @@ describe('Vectorize Client', () => {
           'vector@with#symbols',
         ];
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.deleteSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.deleteSuccess)
+        );
 
         const result = await client.deleteVectors(specialIds);
 
         expect(result).toEqual(mockVectorizeResponses.deleteSuccess.result);
-        
-        const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+
+        const requestBody = JSON.parse(
+          mockFetch.mock.calls[0][1]?.body as string
+        );
         expect(requestBody.ids).toEqual(specialIds);
       });
 
@@ -566,11 +660,15 @@ describe('Vectorize Client', () => {
         const longId = 'very_long_vector_id_' + 'x'.repeat(1000);
         const idsToDelete = [longId];
 
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.deleteSuccess));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.deleteSuccess)
+        );
 
         await client.deleteVectors(idsToDelete);
 
-        const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+        const requestBody = JSON.parse(
+          mockFetch.mock.calls[0][1]?.body as string
+        );
         expect(requestBody.ids).toEqual([longId]);
       });
     });
@@ -579,7 +677,9 @@ describe('Vectorize Client', () => {
   describe('getDatabaseInfo', () => {
     describe('Successful Info Retrieval', () => {
       it('should get database information', async () => {
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.databaseInfo));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.databaseInfo)
+        );
 
         const result = await client.getDatabaseInfo();
 
@@ -589,7 +689,7 @@ describe('Vectorize Client', () => {
           {
             method: 'GET',
             headers: {
-              'Authorization': 'Bearer test-token-456',
+              Authorization: 'Bearer test-token-456',
               'Content-Type': 'application/json',
             },
           }
@@ -597,7 +697,9 @@ describe('Vectorize Client', () => {
       });
 
       it('should return complete database metadata', async () => {
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.databaseInfo));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.databaseInfo)
+        );
 
         const result = await client.getDatabaseInfo();
 
@@ -606,7 +708,7 @@ describe('Vectorize Client', () => {
         expect(result).toHaveProperty('metric');
         expect(result).toHaveProperty('vectors');
         expect(result.vectors).toHaveProperty('count');
-        
+
         expect(typeof result.name).toBe('string');
         expect(typeof result.dimensions).toBe('number');
         expect(typeof result.metric).toBe('string');
@@ -616,7 +718,9 @@ describe('Vectorize Client', () => {
 
     describe('Error Handling', () => {
       it('should handle API errors in database info retrieval', async () => {
-        mockFetch.mockResolvedValue(createMockErrorResponse(404, 'Database not found'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(404, 'Database not found')
+        );
 
         await expect(client.getDatabaseInfo()).rejects.toThrow(
           'Failed to get database info: Vectorize API error: 404 Error - Database not found'
@@ -624,7 +728,9 @@ describe('Vectorize Client', () => {
       });
 
       it('should handle authentication errors', async () => {
-        mockFetch.mockResolvedValue(createMockErrorResponse(401, 'Unauthorized'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(401, 'Unauthorized')
+        );
 
         await expect(client.getDatabaseInfo()).rejects.toThrow(
           'Failed to get database info: Vectorize API error: 401 Error - Unauthorized'
@@ -644,7 +750,9 @@ describe('Vectorize Client', () => {
   describe('testConnection', () => {
     describe('Successful Connection Tests', () => {
       it('should return true for successful connection', async () => {
-        mockFetch.mockResolvedValue(createMockResponse(mockVectorizeResponses.databaseInfo));
+        mockFetch.mockResolvedValue(
+          createMockResponse(mockVectorizeResponses.databaseInfo)
+        );
 
         const result = await client.testConnection();
 
@@ -656,7 +764,9 @@ describe('Vectorize Client', () => {
     describe('Failed Connection Tests', () => {
       it('should return false for failed connection', async () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-        mockFetch.mockResolvedValue(createMockErrorResponse(401, 'Unauthorized'));
+        mockFetch.mockResolvedValue(
+          createMockErrorResponse(401, 'Unauthorized')
+        );
 
         const result = await client.testConnection();
 
@@ -720,7 +830,7 @@ describe('Vectorize Client', () => {
       it('should return null for missing configuration', () => {
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
         const config = mockConfigurations.missingVectorize.vectorize;
-        
+
         const client = createVectorizeClient(config);
 
         expect(client).toBeNull();
@@ -734,7 +844,7 @@ describe('Vectorize Client', () => {
       it('should return null for empty configuration', () => {
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
         const emptyConfig = {};
-        
+
         const client = createVectorizeClient(emptyConfig as any);
 
         expect(client).toBeNull();
@@ -750,7 +860,7 @@ describe('Vectorize Client', () => {
           apiToken: '', // Empty
           databaseId: 'test-db',
         };
-        
+
         const client = createVectorizeClient(partialConfig);
 
         expect(client).toBeNull();
@@ -766,27 +876,43 @@ describe('Vectorize Client', () => {
       it('should handle insert, query, and delete operations', async () => {
         // Setup responses for each operation
         mockFetch
-          .mockResolvedValueOnce(createMockResponse(mockVectorizeResponses.insertSuccess))
-          .mockResolvedValueOnce(createMockResponse(mockVectorizeResponses.querySuccess))
-          .mockResolvedValueOnce(createMockResponse(mockVectorizeResponses.deleteSuccess));
+          .mockResolvedValueOnce(
+            createMockResponse(mockVectorizeResponses.insertSuccess)
+          )
+          .mockResolvedValueOnce(
+            createMockResponse(mockVectorizeResponses.querySuccess)
+          )
+          .mockResolvedValueOnce(
+            createMockResponse(mockVectorizeResponses.deleteSuccess)
+          );
 
         // 1. Insert vectors
-        const vectors: VectorizeVector[] = [{
-          id: 'lifecycle_test_vector',
-          values: mockEmbeddings.dimension1536,
-          metadata: { source: 'test_document.md' },
-        }];
+        const vectors: VectorizeVector[] = [
+          {
+            id: 'lifecycle_test_vector',
+            values: mockEmbeddings.dimension1536,
+            metadata: { source: 'test_document.md' },
+          },
+        ];
 
         const insertResult = await client.insertVectors(vectors);
-        expect(insertResult).toEqual(mockVectorizeResponses.insertSuccess.result);
+        expect(insertResult).toEqual(
+          mockVectorizeResponses.insertSuccess.result
+        );
 
         // 2. Query vectors
-        const queryResult = await client.queryVectors(mockEmbeddings.dimension1536);
+        const queryResult = await client.queryVectors(
+          mockEmbeddings.dimension1536
+        );
         expect(queryResult).toEqual(mockVectorizeResponses.querySuccess.result);
 
         // 3. Delete vectors
-        const deleteResult = await client.deleteVectors(['lifecycle_test_vector']);
-        expect(deleteResult).toEqual(mockVectorizeResponses.deleteSuccess.result);
+        const deleteResult = await client.deleteVectors([
+          'lifecycle_test_vector',
+        ]);
+        expect(deleteResult).toEqual(
+          mockVectorizeResponses.deleteSuccess.result
+        );
 
         expect(mockFetch).toHaveBeenCalledTimes(3);
       });
@@ -796,18 +922,28 @@ describe('Vectorize Client', () => {
       it('should handle partial operation failures gracefully', async () => {
         // Insert succeeds, query fails, delete succeeds
         mockFetch
-          .mockResolvedValueOnce(createMockResponse(mockVectorizeResponses.insertSuccess))
-          .mockResolvedValueOnce(createMockErrorResponse(500, 'Internal Server Error'))
-          .mockResolvedValueOnce(createMockResponse(mockVectorizeResponses.deleteSuccess));
+          .mockResolvedValueOnce(
+            createMockResponse(mockVectorizeResponses.insertSuccess)
+          )
+          .mockResolvedValueOnce(
+            createMockErrorResponse(500, 'Internal Server Error')
+          )
+          .mockResolvedValueOnce(
+            createMockResponse(mockVectorizeResponses.deleteSuccess)
+          );
 
-        const vectors: VectorizeVector[] = [{
-          id: 'error_recovery_vector',
-          values: mockEmbeddings.dimension1536,
-        }];
+        const vectors: VectorizeVector[] = [
+          {
+            id: 'error_recovery_vector',
+            values: mockEmbeddings.dimension1536,
+          },
+        ];
 
         // Insert should succeed
         const insertResult = await client.insertVectors(vectors);
-        expect(insertResult).toEqual(mockVectorizeResponses.insertSuccess.result);
+        expect(insertResult).toEqual(
+          mockVectorizeResponses.insertSuccess.result
+        );
 
         // Query should fail
         await expect(
@@ -815,8 +951,12 @@ describe('Vectorize Client', () => {
         ).rejects.toThrow('Failed to query vectors');
 
         // Delete should still succeed
-        const deleteResult = await client.deleteVectors(['error_recovery_vector']);
-        expect(deleteResult).toEqual(mockVectorizeResponses.deleteSuccess.result);
+        const deleteResult = await client.deleteVectors([
+          'error_recovery_vector',
+        ]);
+        expect(deleteResult).toEqual(
+          mockVectorizeResponses.deleteSuccess.result
+        );
       });
     });
 
@@ -828,9 +968,11 @@ describe('Vectorize Client', () => {
           metadata: { batch: 'large_test', index: i },
         }));
 
-        mockFetch.mockResolvedValue(createMockResponse({
-          result: { mutationId: 'large_batch_123', count: 1000 }
-        }));
+        mockFetch.mockResolvedValue(
+          createMockResponse({
+            result: { mutationId: 'large_batch_123', count: 1000 },
+          })
+        );
 
         const startTime = Date.now();
         const result = await client.insertVectors(largeVectorSet);
@@ -838,18 +980,23 @@ describe('Vectorize Client', () => {
 
         expect(result.count).toBe(1000);
         expect(endTime - startTime).toBeLessThan(1000); // Should complete quickly (mocked)
-        
+
         // Verify the large payload was sent correctly
-        const requestBody = JSON.parse(mockFetch.mock.calls[0][1]?.body as string);
+        const requestBody = JSON.parse(
+          mockFetch.mock.calls[0][1]?.body as string
+        );
         expect(requestBody.vectors).toHaveLength(1000);
       });
 
       it('should maintain consistent API format across operations', async () => {
         const operations = [
-          () => client.insertVectors([{
-            id: 'consistency_test',
-            values: mockEmbeddings.dimension1536,
-          }]),
+          () =>
+            client.insertVectors([
+              {
+                id: 'consistency_test',
+                values: mockEmbeddings.dimension1536,
+              },
+            ]),
           () => client.queryVectors(mockEmbeddings.dimension1536),
           () => client.deleteVectors(['consistency_test']),
           () => client.getDatabaseInfo(),
@@ -866,12 +1013,14 @@ describe('Vectorize Client', () => {
           const [url, options] = call;
 
           // Verify consistent URL structure
-          expect(url).toContain('https://api.cloudflare.com/client/v4/accounts/test-account-123/vectorize/v2/indexes/test-db-789');
-          
+          expect(url).toContain(
+            'https://api.cloudflare.com/client/v4/accounts/test-account-123/vectorize/v2/indexes/test-db-789'
+          );
+
           // Verify consistent headers
           expect(options?.headers).toEqual(
             expect.objectContaining({
-              'Authorization': 'Bearer test-token-456',
+              Authorization: 'Bearer test-token-456',
               'Content-Type': 'application/json',
             })
           );

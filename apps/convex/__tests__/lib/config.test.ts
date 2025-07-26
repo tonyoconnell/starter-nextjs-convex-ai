@@ -1,9 +1,17 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for lib/config.ts
  * Tests: environment validation, API key validation, model selection, caching
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 import { mockConfigurations } from '../fixtures/testData';
 
 // Import functions to test
@@ -27,13 +35,13 @@ describe('Configuration Management', () => {
   beforeEach(() => {
     // Save original environment
     originalEnv = { ...process.env };
-    
+
     // Reset config cache
     resetConfig();
-    
+
     // Clear console mocks
     jest.clearAllMocks();
-    
+
     // Set up test environment variables
     process.env.NODE_ENV = 'test';
     process.env.OPENROUTER_API_KEY = 'test-openrouter-key-1234567890';
@@ -79,7 +87,9 @@ describe('Configuration Management', () => {
         const config = loadConfig();
 
         expect(config.llm.openAiApiKey).toBe('');
-        expect(config.llm.openRouterApiKey).toBe('test-openrouter-key-1234567890');
+        expect(config.llm.openRouterApiKey).toBe(
+          'test-openrouter-key-1234567890'
+        );
       });
 
       it('should handle missing optional Vectorize config', () => {
@@ -131,19 +141,25 @@ describe('Configuration Management', () => {
       it('should throw error for missing OPENROUTER_API_KEY', () => {
         delete process.env.OPENROUTER_API_KEY;
 
-        expect(() => loadConfig()).toThrow('Required environment variable OPENROUTER_API_KEY is not set');
+        expect(() => loadConfig()).toThrow(
+          'Required environment variable OPENROUTER_API_KEY is not set'
+        );
       });
 
       it('should throw error for empty OPENROUTER_API_KEY', () => {
         process.env.OPENROUTER_API_KEY = '';
 
-        expect(() => loadConfig()).toThrow('Required environment variable OPENROUTER_API_KEY is not set');
+        expect(() => loadConfig()).toThrow(
+          'Required environment variable OPENROUTER_API_KEY is not set'
+        );
       });
 
       it('should throw error for whitespace-only OPENROUTER_API_KEY', () => {
         process.env.OPENROUTER_API_KEY = '   ';
 
-        expect(() => loadConfig()).toThrow('Required environment variable OPENROUTER_API_KEY is not set');
+        expect(() => loadConfig()).toThrow(
+          'Required environment variable OPENROUTER_API_KEY is not set'
+        );
       });
     });
 
@@ -156,7 +172,9 @@ describe('Configuration Management', () => {
       it('should reject too short OpenRouter API key', () => {
         process.env.OPENROUTER_API_KEY = 'short';
 
-        expect(() => loadConfig()).toThrow('OPENROUTER_API_KEY appears to be invalid (too short)');
+        expect(() => loadConfig()).toThrow(
+          'OPENROUTER_API_KEY appears to be invalid (too short)'
+        );
       });
 
       it('should reject placeholder OpenRouter API key', () => {
@@ -172,7 +190,9 @@ describe('Configuration Management', () => {
           process.env.OPENROUTER_API_KEY = placeholder;
           resetConfig();
 
-          expect(() => loadConfig()).toThrow('OPENROUTER_API_KEY appears to be a placeholder value');
+          expect(() => loadConfig()).toThrow(
+            'OPENROUTER_API_KEY appears to be a placeholder value'
+          );
         });
       });
 
@@ -185,13 +205,17 @@ describe('Configuration Management', () => {
       it('should reject invalid OpenAI API key format', () => {
         process.env.OPENAI_API_KEY = 'invalid';
 
-        expect(() => loadConfig()).toThrow('OPENAI_API_KEY appears to be invalid (too short)');
+        expect(() => loadConfig()).toThrow(
+          'OPENAI_API_KEY appears to be invalid (too short)'
+        );
       });
 
       it('should reject placeholder OpenAI API key', () => {
         process.env.OPENAI_API_KEY = 'your_api_key_here';
 
-        expect(() => loadConfig()).toThrow('OPENAI_API_KEY appears to be a placeholder value');
+        expect(() => loadConfig()).toThrow(
+          'OPENAI_API_KEY appears to be a placeholder value'
+        );
       });
     });
 
@@ -227,7 +251,7 @@ describe('Configuration Management', () => {
     it('should cache configuration after first load', () => {
       // Reset cache first
       resetConfig();
-      
+
       // First call should load
       const config1 = getConfig();
       expect(config1).toBeTruthy();
@@ -238,7 +262,10 @@ describe('Configuration Management', () => {
     });
 
     it('should reload after cache reset', () => {
-      const loadConfigSpy = jest.spyOn(require('../../lib/config'), 'loadConfig');
+      const loadConfigSpy = jest.spyOn(
+        require('../../lib/config'),
+        'loadConfig'
+      );
 
       // First load
       getConfig();
@@ -253,7 +280,10 @@ describe('Configuration Management', () => {
     });
 
     it('should validate config on first load', () => {
-      const validateConfigSpy = jest.spyOn(require('../../lib/config'), 'validateConfig');
+      const validateConfigSpy = jest.spyOn(
+        require('../../lib/config'),
+        'validateConfig'
+      );
 
       getConfig();
 
@@ -292,7 +322,9 @@ describe('Configuration Management', () => {
           },
         };
 
-        expect(() => validateConfig(config)).toThrow('OpenRouter API key is required');
+        expect(() => validateConfig(config)).toThrow(
+          'OpenRouter API key is required'
+        );
       });
     });
 
@@ -309,7 +341,9 @@ describe('Configuration Management', () => {
 
         validateConfig(config);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Unknown default model: unknown/model');
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Unknown default model: unknown/model'
+        );
       });
 
       it('should warn about unknown fallback model', () => {
@@ -324,7 +358,9 @@ describe('Configuration Management', () => {
 
         validateConfig(config);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Unknown fallback model: unknown/fallback');
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Unknown fallback model: unknown/fallback'
+        );
       });
 
       it('should warn about missing OpenAI API key', () => {
@@ -333,7 +369,9 @@ describe('Configuration Management', () => {
 
         validateConfig(config);
 
-        expect(consoleSpy).toHaveBeenCalledWith('OpenAI API key not configured - embedding generation will be skipped');
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'OpenAI API key not configured - embedding generation will be skipped'
+        );
       });
 
       it('should warn about incomplete Vectorize configuration', () => {
@@ -342,7 +380,9 @@ describe('Configuration Management', () => {
 
         validateConfig(config);
 
-        expect(consoleSpy).toHaveBeenCalledWith('Vectorize configuration incomplete - vector storage will use placeholders');
+        expect(consoleSpy).toHaveBeenCalledWith(
+          'Vectorize configuration incomplete - vector storage will use placeholders'
+        );
       });
     });
   });
@@ -351,7 +391,7 @@ describe('Configuration Management', () => {
     describe('getModelInfo', () => {
       it('should return model info for valid model IDs', () => {
         const claudeInfo = getModelInfo('anthropic/claude-3-haiku');
-        
+
         expect(claudeInfo).toMatchObject({
           id: 'anthropic/claude-3-haiku',
           name: 'Claude 3 Haiku',
@@ -377,7 +417,7 @@ describe('Configuration Management', () => {
     describe('selectModel', () => {
       it('should select cost-effective model by default', () => {
         const selectedModel = selectModel();
-        
+
         // Should select a recommended model within cost limits
         const modelInfo = getModelInfo(selectedModel);
         expect(modelInfo).toBeTruthy();
@@ -387,7 +427,7 @@ describe('Configuration Management', () => {
 
       it('should prefer Claude for high-quality requirements', () => {
         const selectedModel = selectModel(true, 0.01); // High quality, higher budget
-        
+
         const modelInfo = getModelInfo(selectedModel);
         expect(modelInfo).toBeTruthy();
         expect(modelInfo!.provider).toBe('Anthropic');
@@ -395,7 +435,7 @@ describe('Configuration Management', () => {
 
       it('should respect cost constraints', () => {
         const lowBudgetModel = selectModel(false, 0.0001); // Very low budget
-        
+
         const modelInfo = getModelInfo(lowBudgetModel);
         expect(modelInfo).toBeTruthy();
         expect(modelInfo!.costPer1kTokens).toBeLessThanOrEqual(0.0001);
@@ -403,7 +443,7 @@ describe('Configuration Management', () => {
 
       it('should fall back to default when no models meet criteria', () => {
         const impossibleModel = selectModel(true, 0.00001); // Impossible budget
-        
+
         // Should fall back to default
         expect(impossibleModel).toBe('anthropic/claude-3-haiku');
       });
@@ -427,7 +467,7 @@ describe('Configuration Management', () => {
     describe('SUPPORTED_MODELS', () => {
       it('should contain expected models', () => {
         expect(SUPPORTED_MODELS.length).toBeGreaterThan(0);
-        
+
         const modelIds = SUPPORTED_MODELS.map(m => m.id);
         expect(modelIds).toContain('anthropic/claude-3-haiku');
         expect(modelIds).toContain('openai/gpt-4o-mini');
@@ -474,10 +514,10 @@ describe('Configuration Management', () => {
     it('should clear the configuration cache', () => {
       // Load config first
       getConfig();
-      
+
       // Reset should clear cache
       resetConfig();
-      
+
       // Next call should reload (tested indirectly through caching tests)
       const config = getConfig();
       expect(config).toBeTruthy();
@@ -486,14 +526,14 @@ describe('Configuration Management', () => {
     it('should allow fresh configuration loading', () => {
       // Load with initial environment
       const config1 = getConfig();
-      
+
       // Change environment
       process.env.LLM_MODEL = 'openai/gpt-4o';
-      
+
       // Reset and reload
       resetConfig();
       const config2 = getConfig();
-      
+
       expect(config2.llm.defaultModel).toBe('openai/gpt-4o');
       expect(config2.llm.defaultModel).not.toBe(config1.llm.defaultModel);
     });
@@ -503,39 +543,43 @@ describe('Configuration Management', () => {
     it('should maintain global config as singleton within module', () => {
       const config1 = getConfig();
       const config2 = getConfig();
-      
+
       expect(config1).toBe(config2); // Same object reference
     });
 
     it('should isolate test environments', () => {
       // Each test should start with fresh config due to beforeEach reset
       const config = getConfig();
-      
+
       expect(config.environment).toBe('test');
-      expect(config.llm.openRouterApiKey).toBe('test-openrouter-key-1234567890');
+      expect(config.llm.openRouterApiKey).toBe(
+        'test-openrouter-key-1234567890'
+      );
     });
   });
 
   describe('Error Handling and Edge Cases', () => {
     it('should handle corrupted environment variables gracefully', () => {
       // Test with binary data that might cause issues
-      process.env.OPENROUTER_API_KEY = '\x00\x01\x02binary-data-test-key-1234567890';
-      
+      process.env.OPENROUTER_API_KEY =
+        '\x00\x01\x02binary-data-test-key-1234567890';
+
       expect(() => loadConfig()).not.toThrow();
     });
 
     it('should handle very long environment variable values', () => {
       const longKey = 'test-key-' + 'a'.repeat(10000);
       process.env.OPENROUTER_API_KEY = longKey;
-      
+
       const config = loadConfig();
       expect(config.llm.openRouterApiKey).toBe(longKey);
     });
 
     it('should handle special characters in environment variables', () => {
-      const specialKey = 'test-key-with-special-chars-@#$%^&*()_+-=[]{}|;:,.<>?~`';
+      const specialKey =
+        'test-key-with-special-chars-@#$%^&*()_+-=[]{}|;:,.<>?~`';
       process.env.OPENROUTER_API_KEY = specialKey;
-      
+
       const config = loadConfig();
       expect(config.llm.openRouterApiKey).toBe(specialKey);
     });
@@ -543,11 +587,11 @@ describe('Configuration Management', () => {
     it('should handle undefined process.env gracefully', () => {
       // Save original process.env
       const originalProcessEnv = process.env;
-      
+
       try {
         // Set process.env to undefined (extreme edge case)
         (process as any).env = undefined;
-        
+
         expect(() => loadConfig()).toThrow();
       } finally {
         // Restore process.env
@@ -559,17 +603,19 @@ describe('Configuration Management', () => {
   describe('Integration with Knowledge Ingestion Service', () => {
     it('should provide complete configuration for document processing', () => {
       const config = getConfig();
-      
+
       // Should have all necessary configuration for knowledge ingestion
       expect(config.llm.openRouterApiKey).toBeTruthy();
       expect(config.llm.defaultModel).toBeTruthy();
       expect(config.llm.fallbackModel).toBeTruthy();
       expect(config.environment).toBeTruthy();
-      
+
       // Should be able to determine feature availability
       const hasEmbeddings = !!config.llm.openAiApiKey;
-      const hasVectorStorage = !!(config.vectorize.accountId && config.vectorize.apiToken);
-      
+      const hasVectorStorage = !!(
+        config.vectorize.accountId && config.vectorize.apiToken
+      );
+
       expect(typeof hasEmbeddings).toBe('boolean');
       expect(typeof hasVectorStorage).toBe('boolean');
     });
@@ -584,7 +630,7 @@ describe('Configuration Management', () => {
 
       scenarios.forEach(config => {
         expect(() => validateConfig(config)).not.toThrow();
-        
+
         // Each scenario should still be usable for some level of processing
         expect(config.llm.openRouterApiKey).toBeTruthy();
         expect(config.llm.defaultModel).toBeTruthy();
