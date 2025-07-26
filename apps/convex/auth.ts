@@ -1081,7 +1081,7 @@ export const updateUserLLMAccess = mutation({
       return { success: true };
     } catch (error) {
       console.error('Error updating user LLM access:', error);
-      throw new ConvexError(`Failed to update user access: ${error.message}`);
+      throw new ConvexError(`Failed to update user access: ${(error as Error).message}`);
     }
   },
 });

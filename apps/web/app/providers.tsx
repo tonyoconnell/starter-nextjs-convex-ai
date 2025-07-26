@@ -14,7 +14,7 @@ export function ConvexClientProvider({
 
   // Create a Convex client that automatically includes session tokens in all requests
   const authenticatedClient = useMemo(() => {
-    const client = new ConvexReactClient(config.convexUrl);
+    const client = new ConvexReactClient(config.convexUrl!);
     
     // Override the client's query, mutation, and action methods to automatically inject sessionToken
     if (sessionToken) {
@@ -23,17 +23,17 @@ export function ConvexClientProvider({
       const originalAction = client.action.bind(client);
 
       // Override query method to inject sessionToken
-      (client as any).query = (name: any, args: any = {}) => {
+      (client as any).query = (name: string, args: Record<string, unknown> = {}) => {
         return originalQuery(name, { ...args, sessionToken });
       };
 
       // Override mutation method to inject sessionToken
-      (client as any).mutation = (name: any, args: any = {}) => {
+      (client as any).mutation = (name: string, args: Record<string, unknown> = {}) => {
         return originalMutation(name, { ...args, sessionToken });
       };
 
       // Override action method to inject sessionToken
-      (client as any).action = (name: any, args: any = {}) => {
+      (client as any).action = (name: string, args: Record<string, unknown> = {}) => {
         return originalAction(name, { ...args, sessionToken });
       };
     }

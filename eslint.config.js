@@ -30,6 +30,10 @@ export default [
         sessionStorage: 'readonly',
         localStorage: 'readonly',
         crypto: 'readonly',
+        // Convex runtime globals
+        fetch: 'readonly',
+        setTimeout: 'readonly',
+        Response: 'readonly',
         // DOM types for React components
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',

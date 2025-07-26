@@ -2,9 +2,7 @@
 
 import { v } from 'convex/values';
 import { action } from './_generated/server';
-import { api } from './_generated/api';
-import { Id } from './_generated/dataModel';
-import { ConvexError } from 'convex/values';
+import { api, internal } from './_generated/api';
 import { getConfig } from './lib/config';
 import { withAuthAction } from './lib/auth';
 import crypto from 'crypto';
@@ -20,12 +18,21 @@ export const generateResponse = action({
     model: v.optional(v.string()),
     sessionToken: v.optional(v.string()),
   },
-  handler: withAuthAction(async (ctx, args) => {
+  handler: withAuthAction(async (ctx, args): Promise<{
+    response: string;
+    model: string;
+    tokensUsed: number;
+    hasLLMAccess: boolean;
+    fallbackMessage: string | null;
+  }> => {
     const correlationId = crypto.randomUUID();
     
     try {
       // Check user's LLM access using authenticated user context
-      const accessCheck = await ctx.runQuery(api.auth.checkUserLLMAccess, {
+      const accessCheck: {
+        hasLLMAccess: boolean;
+        fallbackMessage: string | null;
+      } = await ctx.runQuery(api.auth.checkUserLLMAccess, {
         userId: ctx.session.userId,
       });
 
@@ -41,7 +48,7 @@ export const generateResponse = action({
         const fallbackResponse = generateFallbackResponse(args.message);
         
         // Store message in database
-        await ctx.runMutation(api.agent.createChatMessage, {
+        await ctx.runMutation(internal.agent.createChatMessage, {
           sessionId: args.sessionId,
           userId: ctx.session.userId,
           role: 'assistant',
@@ -80,11 +87,12 @@ export const generateResponse = action({
         args.message,
         config.llm.openRouterApiKey,
         selectedModel,
-        config.llm.fallbackModel
+        config.llm.fallbackModel,
+        config
       );
 
       // Store response in database
-      await ctx.runMutation(api.agent.createChatMessage, {
+      await ctx.runMutation(internal.agent.createChatMessage, {
         sessionId: args.sessionId,
         userId: ctx.session.userId,
         role: 'assistant',
@@ -109,7 +117,7 @@ export const generateResponse = action({
       // In case of error, return fallback response
       const fallbackResponse = 'I apologize, but I encountered an issue processing your request. Please try again.';
       
-      await ctx.runMutation(api.agent.createChatMessage, {
+      await ctx.runMutation(internal.agent.createChatMessage, {
         sessionId: args.sessionId,
         userId: ctx.session.userId,
         role: 'assistant',
@@ -137,6 +145,7 @@ async function callOpenRouterAPI(
   apiKey: string,
   primaryModel: string,
   fallbackModel: string,
+  config: any,
   maxRetries: number = 2
 ): Promise<{ content: string; model: string; tokensUsed: number }> {
   const models = [primaryModel, fallbackModel];
@@ -151,7 +160,7 @@ async function callOpenRouterAPI(
           headers: {
             'Authorization': `Bearer ${apiKey}`,
             'Content-Type': 'application/json',
-            'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+            'HTTP-Referer': config.app.url,
             'X-Title': 'Starter NextJS Convex AI',
           },
           body: JSON.stringify({
@@ -245,11 +254,25 @@ export const createOrGetChatSession = action({
     title: v.optional(v.string()),
     sessionToken: v.optional(v.string()),
   },
-  handler: withAuthAction(async (ctx, args) => {
+  handler: withAuthAction(async (ctx, args): Promise<{
+    _id: string;
+    userId: string;
+    title?: string;
+    created_at: number;
+    updated_at: number;
+    correlation_id: string;
+  }> => {
     const correlationId = crypto.randomUUID();
     
     // Look for existing session for user (most recent)
-    const existingSessions = await ctx.runQuery(api.agent.getUserChatSessions, {
+    const existingSessions: Array<{
+      _id: string;
+      userId: string;
+      title?: string;
+      created_at: number;
+      updated_at: number;
+      correlation_id: string;
+    }> = await ctx.runQuery(api.agent.getUserChatSessions, {
       userId: ctx.session.userId,
       limit: 1,
     });
@@ -259,7 +282,7 @@ export const createOrGetChatSession = action({
     }
 
     // Create new session
-    const sessionId = await ctx.runMutation(api.agent.createChatSession, {
+    const sessionId: string = await ctx.runMutation(internal.agent.createChatSession, {
       userId: ctx.session.userId,
       title: args.title || 'New Chat',
       correlationId,

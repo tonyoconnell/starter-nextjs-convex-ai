@@ -19,7 +19,7 @@ export default function ChatPage() {
   // Check user's LLM access
   const llmAccess = useQuery(
     api.auth.checkUserLLMAccess,
-    user && sessionToken ? { userId: user._id } : 'skip'
+    user && sessionToken ? { userId: user._id as Id<'users'> } : 'skip'
   );
   
   // Convex actions
@@ -32,7 +32,7 @@ export default function ChatPage() {
       createSession({
         title: 'Chat Session',
       }).then((session) => {
-        setSessionId(session._id);
+        setSessionId(session._id as Id<'chat_sessions'>);
       }).catch((err) => {
         // eslint-disable-next-line no-console
         console.error('Failed to create session:', err);
@@ -73,7 +73,7 @@ export default function ChatPage() {
           model: response.model,
           tokensUsed: response.tokensUsed,
           hasLLMAccess: response.hasLLMAccess,
-          fallbackMessage: response.fallbackMessage,
+          fallbackMessage: response.fallbackMessage || undefined,
         },
       };
 

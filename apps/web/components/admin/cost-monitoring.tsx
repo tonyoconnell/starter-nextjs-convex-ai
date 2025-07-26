@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import { useEffect } from 'react';
 import {
@@ -21,14 +21,13 @@ interface CostMonitoringProps {
 
 export function CostMonitoring({ refreshTrigger }: CostMonitoringProps) {
   const costMetrics = useQuery(api.rateLimiter.getCostMetrics);
-  const updateCostMetrics = useMutation(api.rateLimiter.updateCostMetrics);
   
-  // Trigger refresh when refreshTrigger prop changes
+  // Cost metrics refresh automatically via Convex reactivity
+  // The refreshTrigger prop is kept for API compatibility but not needed
   useEffect(() => {
-    if (refreshTrigger !== undefined && refreshTrigger > 0) {
-      updateCostMetrics({}).catch(console.error);
-    }
-  }, [refreshTrigger, updateCostMetrics]);
+    // Note: getCostMetrics automatically updates when the underlying data changes
+    // No manual refresh needed due to Convex's reactive queries
+  }, [refreshTrigger]);
 
   if (!costMetrics) {
     return (
