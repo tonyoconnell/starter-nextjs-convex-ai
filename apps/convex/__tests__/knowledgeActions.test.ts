@@ -1,7 +1,7 @@
 // @ts-nocheck
 /**
  * Comprehensive tests for knowledgeActions.ts
- * Tests: addDocument action, queryVectorSimilarity, deduplication logic, integration workflows
+ * Tests: addDocumentHandler action, queryVectorSimilarityHandler, deduplication logic, integration workflows
  */
 
 import {
@@ -33,8 +33,11 @@ jest.mock('../lib/vectorize');
 
 const { createMockCtx } = require('../__tests__/__mocks__/_generated/server');
 
-// Import functions to test
-import { addDocument, queryVectorSimilarity } from '../knowledgeActions';
+// Import handler functions to test
+import {
+  addDocumentHandler,
+  queryVectorSimilarityHandler,
+} from '../knowledgeActions';
 
 describe('Knowledge Actions', () => {
   let mockCtx: any;
@@ -117,7 +120,7 @@ describe('Knowledge Actions', () => {
     jest.restoreAllMocks();
   });
 
-  describe('addDocument', () => {
+  describe('addDocumentHandler', () => {
     const validArgs = {
       content: mockTextContent.medium,
       source: 'test-document.md',
@@ -130,7 +133,7 @@ describe('Knowledge Actions', () => {
 
     describe('Successful Document Processing', () => {
       it('should process new document completely', async () => {
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result).toEqual({
           documentId: 'mock_document_id',
@@ -158,7 +161,7 @@ describe('Knowledge Actions', () => {
       });
 
       it('should generate and use correlation ID consistently', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         // Verify correlation ID is used in document creation
         const createDocumentCall = mockCtx.runMutation.mock.calls.find(
@@ -171,7 +174,7 @@ describe('Knowledge Actions', () => {
       });
 
       it('should create content hash for deduplication', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         const createDocumentCall = mockCtx.runMutation.mock.calls.find(
           call =>
@@ -191,7 +194,7 @@ describe('Knowledge Actions', () => {
           },
         };
 
-        await addDocument(mockCtx, argsWithMeta);
+        await addDocumentHandler(mockCtx, argsWithMeta);
 
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
           'internal/knowledgeMutations/createOrUpdateDocument',
@@ -208,7 +211,7 @@ describe('Knowledge Actions', () => {
           source: validArgs.source,
         };
 
-        await addDocument(mockCtx, argsWithoutMeta);
+        await addDocumentHandler(mockCtx, argsWithoutMeta);
 
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
           'internal/knowledgeMutations/createOrUpdateDocument',
@@ -220,7 +223,7 @@ describe('Knowledge Actions', () => {
       });
 
       it('should create chunks with proper vectorize IDs', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         // Find chunk creation calls
         const chunkCalls = mockCtx.runMutation.mock.calls.filter(
@@ -238,7 +241,7 @@ describe('Knowledge Actions', () => {
       });
 
       it('should update document status to completed', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
           'internal/knowledgeMutations/updateDocumentStatus',
@@ -270,7 +273,7 @@ describe('Knowledge Actions', () => {
 
         mockCtx.runQuery.mockResolvedValue(existingDoc);
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result).toEqual({
           documentId: existingDoc._id,
@@ -294,7 +297,7 @@ describe('Knowledge Actions', () => {
 
         mockCtx.runQuery.mockResolvedValue(existingDoc);
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result.status).toBe('completed');
         expect(mockTextProcessing.chunkText).toHaveBeenCalled();
@@ -303,7 +306,7 @@ describe('Knowledge Actions', () => {
       it('should process document if no existing document found', async () => {
         mockCtx.runQuery.mockResolvedValue(null);
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result.status).toBe('completed');
         expect(mockTextProcessing.chunkText).toHaveBeenCalled();
@@ -312,7 +315,7 @@ describe('Knowledge Actions', () => {
 
     describe('Embedding Generation', () => {
       it('should generate embeddings when OpenAI key is available', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(
           mockTextProcessing.generateEmbeddingsForChunks
@@ -327,7 +330,7 @@ describe('Knowledge Actions', () => {
 
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           'OpenAI API key not configured - skipping embedding generation'
@@ -345,7 +348,7 @@ describe('Knowledge Actions', () => {
           new Error('Embedding generation failed')
         );
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result.status).toBe('completed');
         expect(consoleSpy).toHaveBeenCalledWith(
@@ -362,7 +365,7 @@ describe('Knowledge Actions', () => {
           new Error('API error')
         );
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         // Should still create chunks with null embeddings
         const chunkCalls = mockCtx.runMutation.mock.calls.filter(
@@ -376,7 +379,7 @@ describe('Knowledge Actions', () => {
       it('should insert vectors when Vectorize client is available', async () => {
         const mockClient = mockVectorize.createVectorizeClient();
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(mockClient.insertVectors).toHaveBeenCalledWith(
           expect.arrayContaining([
@@ -396,7 +399,7 @@ describe('Knowledge Actions', () => {
         mockVectorize.createVectorizeClient.mockReturnValue(null);
         const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result.status).toBe('completed');
         expect(consoleSpy).toHaveBeenCalledWith(
@@ -416,7 +419,7 @@ describe('Knowledge Actions', () => {
 
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
-        const result = await addDocument(mockCtx, validArgs);
+        const result = await addDocumentHandler(mockCtx, validArgs);
 
         expect(result.status).toBe('completed');
         expect(consoleSpy).toHaveBeenCalledWith(
@@ -428,7 +431,7 @@ describe('Knowledge Actions', () => {
       });
 
       it('should generate valid vectorize IDs under 64 bytes', async () => {
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         const chunkCalls = mockCtx.runMutation.mock.calls.filter(
           call => call[0] === 'internal/knowledgeMutations/createDocumentChunk'
@@ -446,7 +449,7 @@ describe('Knowledge Actions', () => {
       it('should reject empty content', async () => {
         const invalidArgs = { ...validArgs, content: '' };
 
-        await expect(addDocument(mockCtx, invalidArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, invalidArgs)).rejects.toThrow(
           'Content cannot be empty'
         );
       });
@@ -454,7 +457,7 @@ describe('Knowledge Actions', () => {
       it('should reject whitespace-only content', async () => {
         const invalidArgs = { ...validArgs, content: '   \n\t   ' };
 
-        await expect(addDocument(mockCtx, invalidArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, invalidArgs)).rejects.toThrow(
           'Content cannot be empty'
         );
       });
@@ -462,7 +465,7 @@ describe('Knowledge Actions', () => {
       it('should reject empty source', async () => {
         const invalidArgs = { ...validArgs, source: '' };
 
-        await expect(addDocument(mockCtx, invalidArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, invalidArgs)).rejects.toThrow(
           'Source cannot be empty'
         );
       });
@@ -470,7 +473,7 @@ describe('Knowledge Actions', () => {
       it('should reject whitespace-only source', async () => {
         const invalidArgs = { ...validArgs, source: '   ' };
 
-        await expect(addDocument(mockCtx, invalidArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, invalidArgs)).rejects.toThrow(
           'Source cannot be empty'
         );
       });
@@ -479,7 +482,7 @@ describe('Knowledge Actions', () => {
         const largeContent = mockTextContent.long.repeat(10);
         const largeArgs = { ...validArgs, content: largeContent };
 
-        const result = await addDocument(mockCtx, largeArgs);
+        const result = await addDocumentHandler(mockCtx, largeArgs);
 
         expect(result.status).toBe('completed');
         expect(mockTextProcessing.chunkText).toHaveBeenCalledWith(
@@ -492,7 +495,7 @@ describe('Knowledge Actions', () => {
         const unicodeContent = 'Unicode test: 世界 🌍 café naïve résumé';
         const unicodeArgs = { ...validArgs, content: unicodeContent };
 
-        const result = await addDocument(mockCtx, unicodeArgs);
+        const result = await addDocumentHandler(mockCtx, unicodeArgs);
 
         expect(result.status).toBe('completed');
       });
@@ -502,7 +505,7 @@ describe('Knowledge Actions', () => {
       it('should handle document creation failures', async () => {
         mockCtx.runMutation.mockRejectedValue(new Error('Database error'));
 
-        await expect(addDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, validArgs)).rejects.toThrow(
           'Failed to process document: Database error'
         );
       });
@@ -513,7 +516,7 @@ describe('Knowledge Actions', () => {
           .mockResolvedValueOnce('mock_document_id')
           .mockRejectedValue(new Error('Chunk creation failed'));
 
-        await expect(addDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, validArgs)).rejects.toThrow(
           'Failed to process document: Chunk creation failed'
         );
       });
@@ -523,7 +526,7 @@ describe('Knowledge Actions', () => {
           throw new Error('Text chunking failed');
         });
 
-        await expect(addDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(addDocumentHandler(mockCtx, validArgs)).rejects.toThrow(
           'Failed to process document: Text chunking failed'
         );
       });
@@ -532,7 +535,7 @@ describe('Knowledge Actions', () => {
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
         mockCtx.runMutation.mockRejectedValue(new Error('Test error'));
 
-        await expect(addDocument(mockCtx, validArgs)).rejects.toThrow();
+        await expect(addDocumentHandler(mockCtx, validArgs)).rejects.toThrow();
 
         expect(consoleSpy).toHaveBeenCalledWith(
           'Error processing document:',
@@ -547,7 +550,7 @@ describe('Knowledge Actions', () => {
       it('should log processing steps', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           expect.stringContaining(`Processing document ${validArgs.source}`)
@@ -565,7 +568,7 @@ describe('Knowledge Actions', () => {
       it('should log embedding generation', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           expect.stringContaining('Generating embeddings for 2 chunks')
@@ -580,7 +583,7 @@ describe('Knowledge Actions', () => {
       it('should log vector insertion', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        await addDocument(mockCtx, validArgs);
+        await addDocumentHandler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           expect.stringContaining('Inserting 2 vectors into Vectorize')
@@ -594,7 +597,7 @@ describe('Knowledge Actions', () => {
     });
   });
 
-  describe('queryVectorSimilarity', () => {
+  describe('queryVectorSimilarityHandler', () => {
     const validArgs = {
       query: 'test search query',
       topK: 5,
@@ -608,7 +611,7 @@ describe('Knowledge Actions', () => {
 
     describe('Successful Vector Queries', () => {
       it('should perform complete similarity search with content', async () => {
-        const result = await queryVectorSimilarity(mockCtx, validArgs);
+        const result = await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(result).toEqual({
           matches: expect.arrayContaining([
@@ -650,7 +653,10 @@ describe('Knowledge Actions', () => {
       it('should handle query without content inclusion', async () => {
         const argsWithoutContent = { ...validArgs, includeContent: false };
 
-        const result = await queryVectorSimilarity(mockCtx, argsWithoutContent);
+        const result = await queryVectorSimilarityHandler(
+          mockCtx,
+          argsWithoutContent
+        );
 
         expect(result.matches[0].chunk).toBeNull();
         expect(mockCtx.runQuery).not.toHaveBeenCalledWith(
@@ -662,7 +668,7 @@ describe('Knowledge Actions', () => {
       it('should use default parameters when not specified', async () => {
         const minimalArgs = { query: 'test query' };
 
-        await queryVectorSimilarity(mockCtx, minimalArgs);
+        await queryVectorSimilarityHandler(mockCtx, minimalArgs);
 
         const mockClient = mockVectorize.createVectorizeClient();
         expect(mockClient.queryVectors).toHaveBeenCalledWith(
@@ -676,7 +682,7 @@ describe('Knowledge Actions', () => {
       it('should handle custom topK values', async () => {
         const customArgs = { ...validArgs, topK: 10 };
 
-        await queryVectorSimilarity(mockCtx, customArgs);
+        await queryVectorSimilarityHandler(mockCtx, customArgs);
 
         const mockClient = mockVectorize.createVectorizeClient();
         expect(mockClient.queryVectors).toHaveBeenCalledWith(
@@ -698,7 +704,7 @@ describe('Knowledge Actions', () => {
         const mockClient = mockVectorize.createVectorizeClient();
         mockClient.queryVectors.mockResolvedValue(multipleMatches);
 
-        await queryVectorSimilarity(mockCtx, validArgs);
+        await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(mockCtx.runQuery).toHaveBeenCalledTimes(2);
         expect(mockCtx.runQuery).toHaveBeenCalledWith(
@@ -714,13 +720,13 @@ describe('Knowledge Actions', () => {
       it('should handle missing chunks gracefully', async () => {
         mockCtx.runQuery.mockResolvedValue(null); // Chunk not found
 
-        const result = await queryVectorSimilarity(mockCtx, validArgs);
+        const result = await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(result.matches[0].chunk).toBeNull();
       });
 
       it('should track processing time', async () => {
-        const result = await queryVectorSimilarity(mockCtx, validArgs);
+        const result = await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(result.queryStats.processingTimeMs).toBeGreaterThan(0);
         expect(typeof result.queryStats.processingTimeMs).toBe('number');
@@ -731,7 +737,9 @@ describe('Knowledge Actions', () => {
       it('should require OpenAI API key for query embedding', async () => {
         mockConfig.getConfig.mockReturnValue(mockConfigurations.missingOpenAI);
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
+        await expect(
+          queryVectorSimilarityHandler(mockCtx, validArgs)
+        ).rejects.toThrow(
           'OpenAI API key required for query embedding generation'
         );
       });
@@ -739,15 +747,15 @@ describe('Knowledge Actions', () => {
       it('should require Vectorize configuration', async () => {
         mockVectorize.createVectorizeClient.mockReturnValue(null);
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
-          'Vectorize configuration incomplete'
-        );
+        await expect(
+          queryVectorSimilarityHandler(mockCtx, validArgs)
+        ).rejects.toThrow('Vectorize configuration incomplete');
       });
 
       it('should work with complete configuration', async () => {
         mockConfig.getConfig.mockReturnValue(mockConfigurations.complete);
 
-        const result = await queryVectorSimilarity(mockCtx, validArgs);
+        const result = await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(result).toBeTruthy();
         expect(result.matches).toBeDefined();
@@ -761,7 +769,9 @@ describe('Knowledge Actions', () => {
           new Error('Embedding generation failed')
         );
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
+        await expect(
+          queryVectorSimilarityHandler(mockCtx, validArgs)
+        ).rejects.toThrow(
           'Failed to query vector similarity: Embedding generation failed'
         );
       });
@@ -772,7 +782,9 @@ describe('Knowledge Actions', () => {
           new Error('Vectorize API error')
         );
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
+        await expect(
+          queryVectorSimilarityHandler(mockCtx, validArgs)
+        ).rejects.toThrow(
           'Failed to query vector similarity: Vectorize API error'
         );
       });
@@ -780,9 +792,9 @@ describe('Knowledge Actions', () => {
       it('should handle chunk retrieval failures', async () => {
         mockCtx.runQuery.mockRejectedValue(new Error('Database error'));
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
-          'Failed to query vector similarity: Database error'
-        );
+        await expect(
+          queryVectorSimilarityHandler(mockCtx, validArgs)
+        ).rejects.toThrow('Failed to query vector similarity: Database error');
       });
 
       it('should log errors before throwing', async () => {
@@ -791,7 +803,7 @@ describe('Knowledge Actions', () => {
         mockClient.queryVectors.mockRejectedValue(new Error('Test error'));
 
         await expect(
-          queryVectorSimilarity(mockCtx, validArgs)
+          queryVectorSimilarityHandler(mockCtx, validArgs)
         ).rejects.toThrow();
 
         expect(consoleSpy).toHaveBeenCalledWith(
@@ -811,7 +823,7 @@ describe('Knowledge Actions', () => {
           randomUUID: jest.fn(() => mockUUID),
         };
 
-        await queryVectorSimilarity(mockCtx, validArgs);
+        await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(global.crypto.randomUUID).toHaveBeenCalled();
       });
@@ -821,7 +833,7 @@ describe('Knowledge Actions', () => {
       it('should log successful query completion', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        await queryVectorSimilarity(mockCtx, validArgs);
+        await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           expect.stringContaining('Vector similarity search completed')
@@ -833,7 +845,7 @@ describe('Knowledge Actions', () => {
       it('should include result count and timing in logs', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        const result = await queryVectorSimilarity(mockCtx, validArgs);
+        const result = await queryVectorSimilarityHandler(mockCtx, validArgs);
 
         const logCall = consoleSpy.mock.calls.find(call =>
           call[0].includes('Vector similarity search completed')
@@ -851,7 +863,7 @@ describe('Knowledge Actions', () => {
 
         // Should pass validation to embedding generation which might handle it
         await expect(
-          queryVectorSimilarity(mockCtx, emptyArgs)
+          queryVectorSimilarityHandler(mockCtx, emptyArgs)
         ).rejects.toThrow(); // Will fail at embedding generation
       });
 
@@ -859,7 +871,7 @@ describe('Knowledge Actions', () => {
         const longQuery = 'very long query '.repeat(1000);
         const longArgs = { ...validArgs, query: longQuery };
 
-        await queryVectorSimilarity(mockCtx, longArgs);
+        await queryVectorSimilarityHandler(mockCtx, longArgs);
 
         expect(
           mockTextProcessing.generateEmbeddingForText
@@ -870,7 +882,7 @@ describe('Knowledge Actions', () => {
         const unicodeQuery = 'Unicode search: 世界 🌍 café naïve';
         const unicodeArgs = { ...validArgs, query: unicodeQuery };
 
-        await queryVectorSimilarity(mockCtx, unicodeArgs);
+        await queryVectorSimilarityHandler(mockCtx, unicodeArgs);
 
         expect(
           mockTextProcessing.generateEmbeddingForText
@@ -880,7 +892,7 @@ describe('Knowledge Actions', () => {
       it('should handle extreme topK values', async () => {
         const extremeArgs = { ...validArgs, topK: 0 };
 
-        await queryVectorSimilarity(mockCtx, extremeArgs);
+        await queryVectorSimilarityHandler(mockCtx, extremeArgs);
 
         const mockClient = mockVectorize.createVectorizeClient();
         expect(mockClient.queryVectors).toHaveBeenCalledWith(
@@ -907,7 +919,7 @@ describe('Knowledge Actions', () => {
           },
         };
 
-        const ingestResult = await addDocument(mockCtx, ingestArgs);
+        const ingestResult = await addDocumentHandler(mockCtx, ingestArgs);
         expect(ingestResult.status).toBe('completed');
 
         // Step 2: Search for content
@@ -917,7 +929,10 @@ describe('Knowledge Actions', () => {
           includeContent: true,
         };
 
-        const searchResult = await queryVectorSimilarity(mockCtx, searchArgs);
+        const searchResult = await queryVectorSimilarityHandler(
+          mockCtx,
+          searchArgs
+        );
         expect(searchResult.matches).toBeDefined();
         expect(searchResult.queryStats.totalResults).toBeGreaterThanOrEqual(0);
       });
@@ -931,7 +946,7 @@ describe('Knowledge Actions', () => {
 
         const results = [];
         for (const doc of documents) {
-          const result = await addDocument(mockCtx, doc);
+          const result = await addDocumentHandler(mockCtx, doc);
           results.push(result);
         }
 
@@ -948,7 +963,7 @@ describe('Knowledge Actions', () => {
           source: 'recovery-test.md',
         };
 
-        const ingestResult = await addDocument(mockCtx, ingestArgs);
+        const ingestResult = await addDocumentHandler(mockCtx, ingestArgs);
         expect(ingestResult.status).toBe('completed');
 
         // Simulate vector search failure
@@ -960,7 +975,7 @@ describe('Knowledge Actions', () => {
         const searchArgs = { query: 'test query' };
 
         await expect(
-          queryVectorSimilarity(mockCtx, searchArgs)
+          queryVectorSimilarityHandler(mockCtx, searchArgs)
         ).rejects.toThrow('Search service down');
       });
 
@@ -973,7 +988,7 @@ describe('Knowledge Actions', () => {
           source: 'degraded-test.md',
         };
 
-        const result = await addDocument(mockCtx, args);
+        const result = await addDocumentHandler(mockCtx, args);
 
         expect(result.status).toBe('completed');
         expect(result.chunksCreated).toBeGreaterThan(0);
@@ -1004,7 +1019,7 @@ describe('Knowledge Actions', () => {
 
         const startTime = Date.now();
 
-        const result = await addDocument(mockCtx, {
+        const result = await addDocumentHandler(mockCtx, {
           content: largeContent,
           source: 'large-document.md',
         });
@@ -1024,7 +1039,7 @@ describe('Knowledge Actions', () => {
         ];
 
         const searchPromises = queries.map(query =>
-          queryVectorSimilarity(mockCtx, { query })
+          queryVectorSimilarityHandler(mockCtx, { query })
         );
 
         const results = await Promise.all(searchPromises);
@@ -1062,7 +1077,7 @@ describe('Knowledge Actions', () => {
             });
           }
 
-          const result = await addDocument(mockCtx, args);
+          const result = await addDocumentHandler(mockCtx, args);
 
           expect(result.status).toBe('completed');
           // Should succeed regardless of configuration

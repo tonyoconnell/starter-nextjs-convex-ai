@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for knowledge.ts - Query functions
  * Tests: getDocumentByPathHandler, getDocumentsHandler, getDocumentChunksHandler, getChunkByVectorizeIdHandler
