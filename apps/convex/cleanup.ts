@@ -1,4 +1,5 @@
 import { mutation, query, MutationCtx, QueryCtx } from './_generated/server';
+import { v } from 'convex/values';
 
 type LogEntry = {
   _id: string;
@@ -80,7 +81,9 @@ export const status = query({
 
 // Safe cleanup - normal maintenance (expired logs and older entries)
 export const safe = mutation({
-  args: {},
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
   handler: async (ctx: MutationCtx) => {
     const now = Date.now();
     const oneHourAgo = now - 60 * 60 * 1000;
@@ -123,7 +126,9 @@ export const safe = mutation({
 
 // Force cleanup - delete ALL logs regardless of age (testing/emergency only)
 export const force = mutation({
-  args: {},
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
   handler: async (ctx: MutationCtx) => {
     // Delete ALL recent_log_entries regardless of expiry
     const allRecent = await ctx.db.query('recent_log_entries').take(100);

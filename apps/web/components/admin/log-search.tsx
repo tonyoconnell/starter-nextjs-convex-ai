@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import {
@@ -32,11 +32,22 @@ interface SearchParams {
   limit?: number;
 }
 
-export function LogSearch() {
+interface LogSearchProps {
+  refreshTrigger?: number;
+}
+
+export function LogSearch({ refreshTrigger }: LogSearchProps) {
   const [searchParams, setSearchParams] = useState<SearchParams>({
     limit: 50,
   });
   const [isSearching, setIsSearching] = useState(false);
+
+  // Handle refresh trigger
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      console.log('LogSearch refresh triggered - recent traces will update automatically');
+    }
+  }, [refreshTrigger]);
 
   // Get recent traces for quick selection
   const recentTraces = useQuery(api.logCorrelation.getRecentTraces, {

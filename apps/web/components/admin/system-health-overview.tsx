@@ -1,7 +1,8 @@
 'use client';
 
-import { useQuery } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
 import { Badge } from '@starter/ui';
 import { Alert, AlertDescription } from '@starter/ui';
@@ -15,10 +16,27 @@ import {
   RefreshCw
 } from 'lucide-react';
 
-export function SystemHealthOverview() {
+interface SystemHealthOverviewProps {
+  refreshTrigger?: number;
+}
+
+export function SystemHealthOverview({ refreshTrigger }: SystemHealthOverviewProps) {
   const rateLimitState = useQuery(api.rateLimiter.getRateLimitState);
   const costMetrics = useQuery(api.rateLimiter.getCostMetrics);
   const usage = useQuery(api.monitoring.usage);
+  
+  // Mutations to trigger data refresh
+  const updateRateLimit = useMutation(api.rateLimiter.updateRateLimitState);
+  const updateCostMetrics = useMutation(api.rateLimiter.updateCostMetrics);
+  
+  // Trigger refresh when refreshTrigger prop changes
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      updateRateLimit({}).catch(console.error);
+      updateCostMetrics({}).catch(console.error);
+      // Note: monitoring.usage updates automatically via Convex reactivity
+    }
+  }, [refreshTrigger, updateRateLimit, updateCostMetrics]);
 
   if (!rateLimitState || !costMetrics || !usage) {
     return (

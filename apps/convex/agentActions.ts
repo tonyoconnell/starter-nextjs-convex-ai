@@ -6,6 +6,7 @@ import { api } from './_generated/api';
 import { Id } from './_generated/dataModel';
 import { ConvexError } from 'convex/values';
 import { getConfig } from './lib/config';
+import { withAuthAction } from './lib/auth';
 import crypto from 'crypto';
 
 /**
@@ -16,22 +17,22 @@ export const generateResponse = action({
   args: {
     sessionId: v.id('chat_sessions'),
     message: v.string(),
-    userId: v.id('users'),
     model: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: withAuthAction(async (ctx, args) => {
     const correlationId = crypto.randomUUID();
     
     try {
-      // Check user's LLM access
+      // Check user's LLM access using authenticated user context
       const accessCheck = await ctx.runQuery(api.auth.checkUserLLMAccess, {
-        userId: args.userId,
+        userId: ctx.session.userId,
       });
 
       if (!accessCheck.hasLLMAccess) {
         // Log access denial
         await ctx.runMutation(api.auth.logAccessEvent, {
-          userId: args.userId,
+          userId: ctx.session.userId,
           eventType: 'access_denied',
           details: 'LLM access requested but user lacks permission',
         });
@@ -42,7 +43,7 @@ export const generateResponse = action({
         // Store message in database
         await ctx.runMutation(api.agent.createChatMessage, {
           sessionId: args.sessionId,
-          userId: args.userId,
+          userId: ctx.session.userId,
           role: 'assistant',
           content: fallbackResponse,
           correlationId,
@@ -60,7 +61,7 @@ export const generateResponse = action({
 
       // User has LLM access - proceed with AI generation
       await ctx.runMutation(api.auth.logAccessEvent, {
-        userId: args.userId,
+        userId: ctx.session.userId,
         eventType: 'access_granted',
         details: 'LLM access granted for message generation',
       });
@@ -85,7 +86,7 @@ export const generateResponse = action({
       // Store response in database
       await ctx.runMutation(api.agent.createChatMessage, {
         sessionId: args.sessionId,
-        userId: args.userId,
+        userId: ctx.session.userId,
         role: 'assistant',
         content: response.content,
         correlationId,
@@ -110,7 +111,7 @@ export const generateResponse = action({
       
       await ctx.runMutation(api.agent.createChatMessage, {
         sessionId: args.sessionId,
-        userId: args.userId,
+        userId: ctx.session.userId,
         role: 'assistant',
         content: fallbackResponse,
         correlationId,
@@ -125,7 +126,7 @@ export const generateResponse = action({
         fallbackMessage: 'An error occurred while processing your request.',
       };
     }
-  },
+  }),
 });
 
 /**
@@ -241,15 +242,15 @@ function generateFallbackResponse(message: string): string {
  */
 export const createOrGetChatSession = action({
   args: {
-    userId: v.id('users'),
     title: v.optional(v.string()),
+    sessionToken: v.optional(v.string()),
   },
-  handler: async (ctx, args) => {
+  handler: withAuthAction(async (ctx, args) => {
     const correlationId = crypto.randomUUID();
     
     // Look for existing session for user (most recent)
     const existingSessions = await ctx.runQuery(api.agent.getUserChatSessions, {
-      userId: args.userId,
+      userId: ctx.session.userId,
       limit: 1,
     });
 
@@ -259,18 +260,18 @@ export const createOrGetChatSession = action({
 
     // Create new session
     const sessionId = await ctx.runMutation(api.agent.createChatSession, {
-      userId: args.userId,
+      userId: ctx.session.userId,
       title: args.title || 'New Chat',
       correlationId,
     });
 
     return {
       _id: sessionId,
-      userId: args.userId,
+      userId: ctx.session.userId,
       title: args.title || 'New Chat',
       created_at: Date.now(),
       updated_at: Date.now(),
       correlation_id: correlationId,
     };
-  },
+  }),
 });
