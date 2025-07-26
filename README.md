@@ -89,25 +89,25 @@ cd apps/web && bun dev:claude
 
 6. Open http://localhost:3000 in your browser
 
-## 🚀 Complete Setup Guide
+## 🚀 New Repository Setup
 
-**For comprehensive setup including authentication, AI services, and deployment:**
+**To get a new repository running in the cloud with everything configured:**
 
-📋 **[New Repository Setup Documentation](./docs/index.md#-new-repository-setup)**
+🎯 **[New Repository Setup Guide](./docs/new-repository-setup-guide.md)** ⏱️ 2-3 hours
 
-This includes step-by-step guides for:
+This dedicated guide takes you from zero to a fully deployed AI application with:
 
-- **Environment variable management** with the advanced sync system
-- **Authentication setup** (GitHub OAuth, Google OAuth)
-- **AI services configuration** (OpenAI, OpenRouter)
-- **Deployment setup** (Cloudflare Pages, CI/CD)
-- **Verification checklist** to ensure everything works
+- ✅ **Live site** on Cloudflare Pages
+- ✅ **GitHub authentication** (+ optional Google)
+- ✅ **AI chat** powered by OpenRouter/OpenAI
+- ✅ **Automated deployments** via GitHub Actions
+- ✅ **Under $10/month** total cost
 
 **Quick Reference**:
 
-- **[Scripts & Commands](./docs/technical-guides/scripts-and-commands-reference.md)** - All available scripts explained
-- **[Setup Verification](./docs/setup-verification-checklist.md)** - Systematic verification process
-- **[Development Guide](./docs/development-guide.md)** - Port management and workflow
+- **[Setup Verification Checklist](./docs/setup-verification-checklist.md)** - Systematic verification process
+- **[Development Guide](./docs/development-guide.md)** - Daily development workflow
+- **[Scripts & Commands](./docs/technical-guides/scripts-and-commands-reference.md)** - All available commands
 
 ### Quick Commands
 
