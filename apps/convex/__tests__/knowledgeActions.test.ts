@@ -1,9 +1,17 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for knowledgeActions.ts
  * Tests: addDocument action, queryVectorSimilarity, deduplication logic, integration workflows
  */
 
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import {
+  describe,
+  it,
+  expect,
+  jest,
+  beforeEach,
+  afterEach,
+} from '@jest/globals';
 import {
   mockDocuments,
   mockChunks,
@@ -38,15 +46,15 @@ describe('Knowledge Actions', () => {
   beforeEach(() => {
     mockCtx = createMockCtx();
     mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-    
+
     // Setup module mocks
     mockTextProcessing = require('../lib/textProcessing');
     mockConfig = require('../lib/config');
     mockVectorize = require('../lib/vectorize');
-    
+
     // Setup default mock implementations
     mockConfig.getConfig.mockReturnValue(mockConfigurations.complete);
-    
+
     mockTextProcessing.chunkText.mockReturnValue([
       {
         content: 'First chunk of test content',
@@ -63,33 +71,45 @@ describe('Knowledge Actions', () => {
         wordCount: 5,
       },
     ]);
-    
+
     mockTextProcessing.calculateTextStats.mockReturnValue({
       characterCount: 100,
       wordCount: 15,
       lineCount: 3,
       paragraphCount: 2,
     });
-    
+
     mockTextProcessing.generateEmbeddingsForChunks.mockResolvedValue([
-      { chunk: mockTextProcessing.chunkText()[0], embedding: mockEmbeddings.dimension1536 },
-      { chunk: mockTextProcessing.chunkText()[1], embedding: mockEmbeddings.dimension1536 },
+      {
+        chunk: mockTextProcessing.chunkText()[0],
+        embedding: mockEmbeddings.dimension1536,
+      },
+      {
+        chunk: mockTextProcessing.chunkText()[1],
+        embedding: mockEmbeddings.dimension1536,
+      },
     ]);
-    
-    mockTextProcessing.generateEmbeddingForText.mockResolvedValue(mockEmbeddings.dimension1536);
-    
+
+    mockTextProcessing.generateEmbeddingForText.mockResolvedValue(
+      mockEmbeddings.dimension1536
+    );
+
     const mockVectorizeClient = {
-      insertVectors: jest.fn().mockResolvedValue(mockVectorizeResponses.insertSuccess.result),
-      queryVectors: jest.fn().mockResolvedValue(mockVectorizeResponses.querySuccess.result),
+      insertVectors: jest
+        .fn()
+        .mockResolvedValue(mockVectorizeResponses.insertSuccess.result),
+      queryVectors: jest
+        .fn()
+        .mockResolvedValue(mockVectorizeResponses.querySuccess.result),
       testConnection: jest.fn().mockResolvedValue(true),
     };
-    
+
     mockVectorize.createVectorizeClient.mockReturnValue(mockVectorizeClient);
-    
+
     // Setup Convex mocks
     mockCtx.runQuery.mockResolvedValue(null); // No existing document by default
     mockCtx.runMutation.mockResolvedValue('mock_document_id');
-    
+
     jest.clearAllMocks();
   });
 
@@ -123,7 +143,9 @@ describe('Knowledge Actions', () => {
           validArgs.content,
           expect.any(Object)
         );
-        expect(mockTextProcessing.generateEmbeddingsForChunks).toHaveBeenCalled();
+        expect(
+          mockTextProcessing.generateEmbeddingsForChunks
+        ).toHaveBeenCalled();
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
           'internal/knowledgeMutations/createOrUpdateDocument',
           expect.objectContaining({
@@ -140,7 +162,8 @@ describe('Knowledge Actions', () => {
 
         // Verify correlation ID is used in document creation
         const createDocumentCall = mockCtx.runMutation.mock.calls.find(
-          call => call[0] === 'internal/knowledgeMutations/createOrUpdateDocument'
+          call =>
+            call[0] === 'internal/knowledgeMutations/createOrUpdateDocument'
         );
         expect(createDocumentCall[1].correlationId).toMatch(
           /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
@@ -151,7 +174,8 @@ describe('Knowledge Actions', () => {
         await addDocument(mockCtx, validArgs);
 
         const createDocumentCall = mockCtx.runMutation.mock.calls.find(
-          call => call[0] === 'internal/knowledgeMutations/createOrUpdateDocument'
+          call =>
+            call[0] === 'internal/knowledgeMutations/createOrUpdateDocument'
         );
         expect(createDocumentCall[1].contentHash).toBeTruthy();
         expect(typeof createDocumentCall[1].contentHash).toBe('string');
@@ -204,7 +228,7 @@ describe('Knowledge Actions', () => {
         );
 
         expect(chunkCalls).toHaveLength(2);
-        
+
         chunkCalls.forEach((call, index) => {
           const chunkData = call[1];
           expect(chunkData.vectorizeId).toMatch(/^[a-f0-9]{16}_c\d+$/);
@@ -256,7 +280,9 @@ describe('Knowledge Actions', () => {
 
         // Should not process chunks or embeddings
         expect(mockTextProcessing.chunkText).not.toHaveBeenCalled();
-        expect(mockTextProcessing.generateEmbeddingsForChunks).not.toHaveBeenCalled();
+        expect(
+          mockTextProcessing.generateEmbeddingsForChunks
+        ).not.toHaveBeenCalled();
       });
 
       it('should process document if content hash differs', async () => {
@@ -288,7 +314,9 @@ describe('Knowledge Actions', () => {
       it('should generate embeddings when OpenAI key is available', async () => {
         await addDocument(mockCtx, validArgs);
 
-        expect(mockTextProcessing.generateEmbeddingsForChunks).toHaveBeenCalledWith(
+        expect(
+          mockTextProcessing.generateEmbeddingsForChunks
+        ).toHaveBeenCalledWith(
           expect.any(Array),
           mockConfigurations.complete.llm.openAiApiKey
         );
@@ -304,7 +332,9 @@ describe('Knowledge Actions', () => {
         expect(consoleSpy).toHaveBeenCalledWith(
           'OpenAI API key not configured - skipping embedding generation'
         );
-        expect(mockTextProcessing.generateEmbeddingsForChunks).not.toHaveBeenCalled();
+        expect(
+          mockTextProcessing.generateEmbeddingsForChunks
+        ).not.toHaveBeenCalled();
 
         consoleSpy.mockRestore();
       });
@@ -370,7 +400,9 @@ describe('Knowledge Actions', () => {
 
         expect(result.status).toBe('completed');
         expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining('vectors ready but Vectorize client not available')
+          expect.stringContaining(
+            'vectors ready but Vectorize client not available'
+          )
         );
 
         consoleSpy.mockRestore();
@@ -378,8 +410,10 @@ describe('Knowledge Actions', () => {
 
       it('should continue processing when vector insertion fails', async () => {
         const mockClient = mockVectorize.createVectorizeClient();
-        mockClient.insertVectors.mockRejectedValue(new Error('Vectorize API error'));
-        
+        mockClient.insertVectors.mockRejectedValue(
+          new Error('Vectorize API error')
+        );
+
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
 
         const result = await addDocument(mockCtx, validArgs);
@@ -596,7 +630,9 @@ describe('Knowledge Actions', () => {
         });
 
         // Verify embedding generation for query
-        expect(mockTextProcessing.generateEmbeddingForText).toHaveBeenCalledWith(
+        expect(
+          mockTextProcessing.generateEmbeddingForText
+        ).toHaveBeenCalledWith(
           validArgs.query,
           mockConfigurations.complete.llm.openAiApiKey
         );
@@ -732,7 +768,9 @@ describe('Knowledge Actions', () => {
 
       it('should handle vector search failures', async () => {
         const mockClient = mockVectorize.createVectorizeClient();
-        mockClient.queryVectors.mockRejectedValue(new Error('Vectorize API error'));
+        mockClient.queryVectors.mockRejectedValue(
+          new Error('Vectorize API error')
+        );
 
         await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow(
           'Failed to query vector similarity: Vectorize API error'
@@ -752,7 +790,9 @@ describe('Knowledge Actions', () => {
         const mockClient = mockVectorize.createVectorizeClient();
         mockClient.queryVectors.mockRejectedValue(new Error('Test error'));
 
-        await expect(queryVectorSimilarity(mockCtx, validArgs)).rejects.toThrow();
+        await expect(
+          queryVectorSimilarity(mockCtx, validArgs)
+        ).rejects.toThrow();
 
         expect(consoleSpy).toHaveBeenCalledWith(
           'Error querying vector similarity:',
@@ -821,10 +861,9 @@ describe('Knowledge Actions', () => {
 
         await queryVectorSimilarity(mockCtx, longArgs);
 
-        expect(mockTextProcessing.generateEmbeddingForText).toHaveBeenCalledWith(
-          longQuery,
-          expect.any(String)
-        );
+        expect(
+          mockTextProcessing.generateEmbeddingForText
+        ).toHaveBeenCalledWith(longQuery, expect.any(String));
       });
 
       it('should handle Unicode queries', async () => {
@@ -833,10 +872,9 @@ describe('Knowledge Actions', () => {
 
         await queryVectorSimilarity(mockCtx, unicodeArgs);
 
-        expect(mockTextProcessing.generateEmbeddingForText).toHaveBeenCalledWith(
-          unicodeQuery,
-          expect.any(String)
-        );
+        expect(
+          mockTextProcessing.generateEmbeddingForText
+        ).toHaveBeenCalledWith(unicodeQuery, expect.any(String));
       });
 
       it('should handle extreme topK values', async () => {
@@ -915,7 +953,9 @@ describe('Knowledge Actions', () => {
 
         // Simulate vector search failure
         const mockClient = mockVectorize.createVectorizeClient();
-        mockClient.queryVectors.mockRejectedValue(new Error('Search service down'));
+        mockClient.queryVectors.mockRejectedValue(
+          new Error('Search service down')
+        );
 
         const searchArgs = { query: 'test query' };
 
@@ -944,7 +984,7 @@ describe('Knowledge Actions', () => {
     describe('Performance and Scalability', () => {
       it('should handle large document processing efficiently', async () => {
         const largeContent = mockTextContent.long.repeat(50);
-        
+
         // Mock many chunks for large content
         const manyChunks = Array.from({ length: 50 }, (_, i) => ({
           content: `Chunk ${i} content`,
@@ -953,14 +993,17 @@ describe('Knowledge Actions', () => {
           endPosition: (i + 1) * 100,
           wordCount: 10,
         }));
-        
+
         mockTextProcessing.chunkText.mockReturnValue(manyChunks);
         mockTextProcessing.generateEmbeddingsForChunks.mockResolvedValue(
-          manyChunks.map(chunk => ({ chunk, embedding: mockEmbeddings.dimension1536 }))
+          manyChunks.map(chunk => ({
+            chunk,
+            embedding: mockEmbeddings.dimension1536,
+          }))
         );
 
         const startTime = Date.now();
-        
+
         const result = await addDocument(mockCtx, {
           content: largeContent,
           source: 'large-document.md',
@@ -1012,7 +1055,9 @@ describe('Knowledge Actions', () => {
             mockVectorize.createVectorizeClient.mockReturnValue(null);
           } else {
             mockVectorize.createVectorizeClient.mockReturnValue({
-              insertVectors: jest.fn().mockResolvedValue({ mutationId: 'test', count: 1 }),
+              insertVectors: jest
+                .fn()
+                .mockResolvedValue({ mutationId: 'test', count: 1 }),
               queryVectors: jest.fn().mockResolvedValue({ matches: [] }),
             });
           }

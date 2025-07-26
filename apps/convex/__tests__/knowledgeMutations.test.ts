@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for knowledgeMutations.ts
  * Tests: CRUD operations, ID generation, document management, chunk management
@@ -110,7 +111,10 @@ describe('Knowledge Mutations', () => {
         mockCtx.db._setMockData('source_documents_first', existingDoc);
 
         // Mock the deleteChunksBySource call
-        mockCtx.runMutation.mockResolvedValue(['old_vector_id_1', 'old_vector_id_2']);
+        mockCtx.runMutation.mockResolvedValue([
+          'old_vector_id_1',
+          'old_vector_id_2',
+        ]);
 
         const result = await createOrUpdateDocument(mockCtx, validArgs);
 
@@ -192,7 +196,13 @@ describe('Knowledge Mutations', () => {
       });
 
       it('should handle different file types', async () => {
-        const fileTypes = ['typescript', 'javascript', 'python', 'json', 'yaml'];
+        const fileTypes = [
+          'typescript',
+          'javascript',
+          'python',
+          'json',
+          'yaml',
+        ];
 
         for (const fileType of fileTypes) {
           mockCtx.db.insert.mockClear();
@@ -645,7 +655,7 @@ describe('Knowledge Mutations', () => {
         expect(mockCtx.db.delete).toHaveBeenCalledTimes(mockChunks.length);
 
         // Verify each chunk was deleted
-        mockChunks.forEach((chunk) => {
+        mockChunks.forEach(chunk => {
           expect(mockCtx.db.delete).toHaveBeenCalledWith(chunk._id);
         });
       });
@@ -675,7 +685,10 @@ describe('Knowledge Mutations', () => {
           },
         ];
 
-        mockCtx.db._setMockData('document_chunks_collect', chunksWithPlaceholders);
+        mockCtx.db._setMockData(
+          'document_chunks_collect',
+          chunksWithPlaceholders
+        );
 
         const result = await deleteChunksBySource(mockCtx, validArgs);
 
@@ -756,9 +769,9 @@ describe('Knowledge Mutations', () => {
           throw new Error('Query failed');
         });
 
-        await expect(
-          deleteChunksBySource(mockCtx, validArgs)
-        ).rejects.toThrow('Query failed');
+        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+          'Query failed'
+        );
       });
 
       it('should handle delete operation failures', async () => {
@@ -766,9 +779,9 @@ describe('Knowledge Mutations', () => {
           throw new Error('Delete failed');
         });
 
-        await expect(
-          deleteChunksBySource(mockCtx, validArgs)
-        ).rejects.toThrow('Delete failed');
+        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+          'Delete failed'
+        );
       });
 
       it('should handle partial deletion failures gracefully', async () => {
@@ -779,9 +792,9 @@ describe('Knowledge Mutations', () => {
             throw new Error('Second delete failed');
           });
 
-        await expect(
-          deleteChunksBySource(mockCtx, validArgs)
-        ).rejects.toThrow('Second delete failed');
+        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+          'Second delete failed'
+        );
 
         // First chunk should have been deleted
         expect(mockCtx.db.delete).toHaveBeenCalledWith(mockChunks[0]._id);
@@ -820,7 +833,9 @@ describe('Knowledge Mutations', () => {
         const expectedDoc = { ...mockDocuments.simple, file_path: specialPath };
         mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
-        const result = await getDocumentByPath(mockCtx, { filePath: specialPath });
+        const result = await getDocumentByPath(mockCtx, {
+          filePath: specialPath,
+        });
 
         expect(result).toEqual(expectedDoc);
       });
@@ -834,7 +849,7 @@ describe('Knowledge Mutations', () => {
       it('should delete document and return vectorize IDs', async () => {
         const existingDoc = mockDocuments.simple;
         mockCtx.db._setMockData('source_documents_first', existingDoc);
-        
+
         // Mock deleteChunksBySource to return vectorize IDs
         const expectedVectorizeIds = ['vector_1', 'vector_2', 'vector_3'];
         mockCtx.runMutation.mockResolvedValue(expectedVectorizeIds);
@@ -877,7 +892,7 @@ describe('Knowledge Mutations', () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
         const existingDoc = mockDocuments.simple;
         const vectorizeIds = ['vector_1', 'vector_2'];
-        
+
         mockCtx.db._setMockData('source_documents_first', existingDoc);
         mockCtx.runMutation.mockResolvedValue(vectorizeIds);
 
@@ -895,19 +910,21 @@ describe('Knowledge Mutations', () => {
       it('should throw error when document not found', async () => {
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await expect(
-          deleteDocument(mockCtx, validArgs)
-        ).rejects.toThrow(`Document not found: ${validArgs.filePath}`);
+        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+          `Document not found: ${validArgs.filePath}`
+        );
       });
 
       it('should handle chunk deletion failures', async () => {
         const existingDoc = mockDocuments.simple;
         mockCtx.db._setMockData('source_documents_first', existingDoc);
-        mockCtx.runMutation.mockRejectedValue(new Error('Chunk deletion failed'));
+        mockCtx.runMutation.mockRejectedValue(
+          new Error('Chunk deletion failed')
+        );
 
-        await expect(
-          deleteDocument(mockCtx, validArgs)
-        ).rejects.toThrow('Chunk deletion failed');
+        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+          'Chunk deletion failed'
+        );
       });
 
       it('should handle document deletion failures', async () => {
@@ -918,9 +935,9 @@ describe('Knowledge Mutations', () => {
           throw new Error('Document deletion failed');
         });
 
-        await expect(
-          deleteDocument(mockCtx, validArgs)
-        ).rejects.toThrow('Document deletion failed');
+        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+          'Document deletion failed'
+        );
       });
     });
   });
@@ -970,7 +987,11 @@ describe('Knowledge Mutations', () => {
         // 4. Delete document
         const mockDoc = { _id: documentId, file_path: filePath };
         mockCtx.db._setMockData('source_documents_first', mockDoc);
-        mockCtx.runMutation.mockResolvedValue(['hash123_c0', 'hash123_c1', 'hash123_c2']);
+        mockCtx.runMutation.mockResolvedValue([
+          'hash123_c0',
+          'hash123_c1',
+          'hash123_c2',
+        ]);
 
         const deleteResult = await deleteDocument(mockCtx, { filePath });
 

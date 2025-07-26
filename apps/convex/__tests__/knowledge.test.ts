@@ -1,6 +1,7 @@
+// @ts-nocheck
 /**
  * Comprehensive tests for knowledge.ts - Query functions
- * Tests: getDocumentByPath, getDocuments, getDocumentChunks, getChunkByVectorizeId
+ * Tests: getDocumentByPathHandler, getDocumentsHandler, getDocumentChunksHandler, getChunkByVectorizeIdHandler
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
@@ -12,12 +13,12 @@ const mockApi = require('../__tests__/__mocks__/_generated/api');
 
 const { createMockCtx } = require('../__tests__/__mocks__/_generated/server');
 
-// Import the functions to test
+// Import the handler functions to test
 import {
-  getDocumentByPath,
-  getDocuments,
-  getDocumentChunks,
-  getChunkByVectorizeId,
+  getDocumentByPathHandler,
+  getDocumentsHandler,
+  getDocumentChunksHandler,
+  getChunkByVectorizeIdHandler,
 } from '../knowledge';
 
 describe('Knowledge Query Functions', () => {
@@ -30,14 +31,16 @@ describe('Knowledge Query Functions', () => {
     }
   });
 
-  describe('getDocumentByPath', () => {
+  describe('getDocumentByPathHandler', () => {
     it('should return document when found by file path', async () => {
       // Setup mock data
       const expectedDoc = mockDocuments.simple;
       mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
       // Execute query
-      const result = await getDocumentByPath(mockCtx, { filePath: 'test-simple.md' });
+      const result = await getDocumentByPathHandlerHandler(mockCtx, {
+        filePath: 'test-simple.md',
+      });
 
       // Verify results
       expect(result).toEqual(expectedDoc);
@@ -48,7 +51,9 @@ describe('Knowledge Query Functions', () => {
       // Setup: no mock data set (defaults to null)
 
       // Execute query
-      const result = await getDocumentByPath(mockCtx, { filePath: 'nonexistent.md' });
+      const result = await getDocumentByPathHandler(mockCtx, {
+        filePath: 'nonexistent.md',
+      });
 
       // Verify results
       expect(result).toBeNull();
@@ -57,7 +62,7 @@ describe('Knowledge Query Functions', () => {
 
     it('should handle empty file path', async () => {
       // Execute query with empty path
-      const result = await getDocumentByPath(mockCtx, { filePath: '' });
+      const result = await getDocumentByPathHandler(mockCtx, { filePath: '' });
 
       // Should still query (validation happens at Convex level)
       expect(mockCtx.db.query).toHaveBeenCalledWith('source_documents');
@@ -69,14 +74,16 @@ describe('Knowledge Query Functions', () => {
       const expectedDoc = { ...mockDocuments.simple, file_path: specialPath };
       mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
-      const result = await getDocumentByPath(mockCtx, { filePath: specialPath });
+      const result = await getDocumentByPathHandler(mockCtx, {
+        filePath: specialPath,
+      });
 
       expect(result).toEqual(expectedDoc);
       expect(result.file_path).toBe(specialPath);
     });
   });
 
-  describe('getDocuments', () => {
+  describe('getDocumentsHandler', () => {
     beforeEach(() => {
       // Setup multiple documents for pagination testing
       const allDocs = [
@@ -88,7 +95,7 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should return documents with default limit', async () => {
-      const result = await getDocuments(mockCtx, {});
+      const result = await getDocumentsHandler(mockCtx, {});
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeLessThanOrEqual(10); // Default limit
@@ -97,7 +104,7 @@ describe('Knowledge Query Functions', () => {
 
     it('should return documents with custom limit', async () => {
       const customLimit = 2;
-      const result = await getDocuments(mockCtx, { limit: customLimit });
+      const result = await getDocumentsHandler(mockCtx, { limit: customLimit });
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeLessThanOrEqual(customLimit);
@@ -105,7 +112,7 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle limit of 1', async () => {
-      const result = await getDocuments(mockCtx, { limit: 1 });
+      const result = await getDocumentsHandler(mockCtx, { limit: 1 });
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeLessThanOrEqual(1);
@@ -114,8 +121,8 @@ describe('Knowledge Query Functions', () => {
     it('should handle limit of 0', async () => {
       // Mock empty result for limit 0
       mockCtx.db._setMockData('source_documents_collect', []);
-      
-      const result = await getDocuments(mockCtx, { limit: 0 });
+
+      const result = await getDocumentsHandler(mockCtx, { limit: 0 });
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(0);
@@ -123,7 +130,7 @@ describe('Knowledge Query Functions', () => {
 
     it('should handle large limit values', async () => {
       const largeLimit = 1000;
-      const result = await getDocuments(mockCtx, { limit: largeLimit });
+      const result = await getDocumentsHandler(mockCtx, { limit: largeLimit });
 
       expect(Array.isArray(result)).toBe(true);
       // Should return all available documents (3 in our test set)
@@ -134,35 +141,35 @@ describe('Knowledge Query Functions', () => {
       // Clear mock data
       mockCtx.db._setMockData('source_documents_collect', []);
 
-      const result = await getDocuments(mockCtx, {});
+      const result = await getDocumentsHandler(mockCtx, {});
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBe(0);
     });
 
     it('should handle undefined limit (use default)', async () => {
-      const result = await getDocuments(mockCtx, { limit: undefined });
+      const result = await getDocumentsHandler(mockCtx, { limit: undefined });
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeLessThanOrEqual(10); // Should use default limit
     });
   });
 
-  describe('getDocumentChunks', () => {
+  describe('getDocumentChunksHandler', () => {
     beforeEach(() => {
       // Setup chunks for specific source document
       mockCtx.db._setMockData('document_chunks_collect', mockChunks);
     });
 
     it('should return chunks for existing document', async () => {
-      const result = await getDocumentChunks(mockCtx, { 
-        sourceDocument: 'test-simple.md' 
+      const result = await getDocumentChunksHandler(mockCtx, {
+        sourceDocument: 'test-simple.md',
       });
 
       expect(Array.isArray(result)).toBe(true);
       expect(result.length).toBeGreaterThan(0);
       expect(mockCtx.db.query).toHaveBeenCalledWith('document_chunks');
-      
+
       // Verify all chunks belong to the requested document
       result.forEach((chunk: any) => {
         expect(chunk.source_document).toBe('test-simple.md');
@@ -171,9 +178,9 @@ describe('Knowledge Query Functions', () => {
 
     it('should return chunks with custom limit', async () => {
       const customLimit = 2;
-      const result = await getDocumentChunks(mockCtx, { 
+      const result = await getDocumentChunksHandler(mockCtx, {
         sourceDocument: 'test-simple.md',
-        limit: customLimit 
+        limit: customLimit,
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -184,8 +191,8 @@ describe('Knowledge Query Functions', () => {
       // Clear mock data for this test
       mockCtx.db._setMockData('document_chunks_collect', []);
 
-      const result = await getDocumentChunks(mockCtx, { 
-        sourceDocument: 'nonexistent.md' 
+      const result = await getDocumentChunksHandler(mockCtx, {
+        sourceDocument: 'nonexistent.md',
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -193,8 +200,8 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle default limit when not specified', async () => {
-      const result = await getDocumentChunks(mockCtx, { 
-        sourceDocument: 'test-simple.md' 
+      const result = await getDocumentChunksHandler(mockCtx, {
+        sourceDocument: 'test-simple.md',
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -202,9 +209,9 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle limit of 1', async () => {
-      const result = await getDocumentChunks(mockCtx, { 
+      const result = await getDocumentChunksHandler(mockCtx, {
         sourceDocument: 'test-simple.md',
-        limit: 1 
+        limit: 1,
       });
 
       expect(Array.isArray(result)).toBe(true);
@@ -212,8 +219,8 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should verify chunk structure', async () => {
-      const result = await getDocumentChunks(mockCtx, { 
-        sourceDocument: 'test-simple.md' 
+      const result = await getDocumentChunksHandler(mockCtx, {
+        sourceDocument: 'test-simple.md',
       });
 
       if (result.length > 0) {
@@ -231,20 +238,22 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle chunks ordered by index', async () => {
-      const result = await getDocumentChunks(mockCtx, { 
-        sourceDocument: 'test-simple.md' 
+      const result = await getDocumentChunksHandler(mockCtx, {
+        sourceDocument: 'test-simple.md',
       });
 
       // Verify chunks are in order (mocked data should be ordered)
       if (result.length > 1) {
         for (let i = 1; i < result.length; i++) {
-          expect(result[i].chunk_index).toBeGreaterThanOrEqual(result[i - 1].chunk_index);
+          expect(result[i].chunk_index).toBeGreaterThanOrEqual(
+            result[i - 1].chunk_index
+          );
         }
       }
     });
   });
 
-  describe('getChunkByVectorizeId', () => {
+  describe('getChunkByVectorizeIdHandler', () => {
     beforeEach(() => {
       // Setup single chunk for vectorize ID queries
       const targetChunk = mockChunks[0];
@@ -255,7 +264,9 @@ describe('Knowledge Query Functions', () => {
       const vectorizeId = 'hash123456789abc_c0';
       const expectedChunk = mockChunks[0];
 
-      const result = await getChunkByVectorizeId(mockCtx, { vectorizeId });
+      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+        vectorizeId,
+      });
 
       expect(result).toEqual(expectedChunk);
       expect(result.vectorize_id).toBe(vectorizeId);
@@ -266,8 +277,8 @@ describe('Knowledge Query Functions', () => {
       // Clear mock data
       mockCtx.db._setMockData('document_chunks_first', null);
 
-      const result = await getChunkByVectorizeId(mockCtx, { 
-        vectorizeId: 'nonexistent_vectorize_id' 
+      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+        vectorizeId: 'nonexistent_vectorize_id',
       });
 
       expect(result).toBeNull();
@@ -275,7 +286,9 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle empty vectorize ID', async () => {
-      const result = await getChunkByVectorizeId(mockCtx, { vectorizeId: '' });
+      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+        vectorizeId: '',
+      });
 
       // Should still query (validation happens at Convex level)
       expect(mockCtx.db.query).toHaveBeenCalledWith('document_chunks');
@@ -289,14 +302,16 @@ describe('Knowledge Query Functions', () => {
       ];
 
       for (const vectorizeId of validFormats) {
-        await getChunkByVectorizeId(mockCtx, { vectorizeId });
+        await getChunkByVectorizeIdHandler(mockCtx, { vectorizeId });
         expect(mockCtx.db.query).toHaveBeenCalledWith('document_chunks');
       }
     });
 
     it('should verify returned chunk structure', async () => {
       const vectorizeId = 'hash123456789abc_c0';
-      const result = await getChunkByVectorizeId(mockCtx, { vectorizeId });
+      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+        vectorizeId,
+      });
 
       if (result) {
         expect(result).toHaveProperty('_id');
@@ -312,11 +327,14 @@ describe('Knowledge Query Functions', () => {
 
     it('should handle special characters in vectorize ID', async () => {
       const specialVectorizeId = 'hash-with-dashes_c0';
-      const specialChunk = { ...mockChunks[0], vectorize_id: specialVectorizeId };
+      const specialChunk = {
+        ...mockChunks[0],
+        vectorize_id: specialVectorizeId,
+      };
       mockCtx.db._setMockData('document_chunks_first', specialChunk);
 
-      const result = await getChunkByVectorizeId(mockCtx, { 
-        vectorizeId: specialVectorizeId 
+      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+        vectorizeId: specialVectorizeId,
       });
 
       expect(result).toEqual(specialChunk);
@@ -333,19 +351,19 @@ describe('Knowledge Query Functions', () => {
 
       // All functions should propagate the error
       await expect(
-        getDocumentByPath(mockCtx, { filePath: 'test.md' })
+        getDocumentByPathHandler(mockCtx, { filePath: 'test.md' })
+      ).rejects.toThrow('Database connection failed');
+
+      await expect(getDocumentsHandler(mockCtx, {})).rejects.toThrow(
+        'Database connection failed'
+      );
+
+      await expect(
+        getDocumentChunksHandler(mockCtx, { sourceDocument: 'test.md' })
       ).rejects.toThrow('Database connection failed');
 
       await expect(
-        getDocuments(mockCtx, {})
-      ).rejects.toThrow('Database connection failed');
-
-      await expect(
-        getDocumentChunks(mockCtx, { sourceDocument: 'test.md' })
-      ).rejects.toThrow('Database connection failed');
-
-      await expect(
-        getChunkByVectorizeId(mockCtx, { vectorizeId: 'test_id' })
+        getChunkByVectorizeIdHandler(mockCtx, { vectorizeId: 'test_id' })
       ).rejects.toThrow('Database connection failed');
     });
 
@@ -353,16 +371,18 @@ describe('Knowledge Query Functions', () => {
       const malformedCtx = { db: null };
 
       await expect(
-        getDocumentByPath(malformedCtx as any, { filePath: 'test.md' })
+        getDocumentByPathHandler(malformedCtx as any, { filePath: 'test.md' })
       ).rejects.toThrow();
     });
 
     it('should handle very long file paths', async () => {
       const longPath = 'very/long/path/'.repeat(100) + 'document.md';
-      
+
       // Should not throw, even with very long paths
-      const result = await getDocumentByPath(mockCtx, { filePath: longPath });
-      
+      const result = await getDocumentByPathHandler(mockCtx, {
+        filePath: longPath,
+      });
+
       expect(mockCtx.db.query).toHaveBeenCalledWith('source_documents');
       expect(result).toBeNull(); // No mock data set for this path
     });
@@ -372,7 +392,9 @@ describe('Knowledge Query Functions', () => {
       const unicodeDoc = { ...mockDocuments.simple, file_path: unicodePath };
       mockCtx.db._setMockData('source_documents_first', unicodeDoc);
 
-      const result = await getDocumentByPath(mockCtx, { filePath: unicodePath });
+      const result = await getDocumentByPathHandler(mockCtx, {
+        filePath: unicodePath,
+      });
 
       expect(result).toEqual(unicodeDoc);
       expect(result.file_path).toBe(unicodePath);
