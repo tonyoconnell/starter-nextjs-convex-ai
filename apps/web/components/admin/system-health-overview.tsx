@@ -3,6 +3,7 @@
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import { useEffect } from 'react';
+import type { ComponentType } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@starter/ui';
 import { Badge } from '@starter/ui';
 import { Alert, AlertDescription } from '@starter/ui';
@@ -27,16 +28,16 @@ export function SystemHealthOverview({ refreshTrigger }: SystemHealthOverviewPro
   
   // Mutations to trigger data refresh
   const updateRateLimit = useMutation(api.rateLimiter.updateRateLimitState);
-  const updateCostMetrics = useMutation(api.rateLimiter.updateCostMetrics);
   
   // Trigger refresh when refreshTrigger prop changes
   useEffect(() => {
     if (refreshTrigger !== undefined && refreshTrigger > 0) {
-      updateRateLimit({}).catch(console.error);
-      updateCostMetrics({}).catch(console.error);
-      // Note: monitoring.usage updates automatically via Convex reactivity
+      updateRateLimit({}).catch((error) => {
+        console.error('Failed to update rate limit:', error);
+      });
+      // Note: costMetrics and monitoring.usage update automatically via Convex reactivity
     }
-  }, [refreshTrigger, updateRateLimit, updateCostMetrics]);
+  }, [refreshTrigger, updateRateLimit]);
 
   if (!rateLimitState || !costMetrics || !usage) {
     return (
@@ -96,7 +97,7 @@ export function SystemHealthOverview({ refreshTrigger }: SystemHealthOverviewPro
                        health.warnings.length > 0 ? 'warning' : 'healthy';
 
   const getStatusBadge = (): {
-    icon: any;
+    icon: ComponentType<{ className?: string }>;
     color: 'default' | 'destructive' | 'outline' | 'secondary';
     text: string;
   } => {

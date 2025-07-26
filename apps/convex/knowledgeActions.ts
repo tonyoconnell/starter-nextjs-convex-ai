@@ -2,7 +2,7 @@
 
 import { v } from 'convex/values';
 import { action } from './_generated/server';
-import { api } from './_generated/api';
+import { api, internal } from './_generated/api';
 import { ConvexError } from 'convex/values';
 import crypto from 'crypto';
 import { 
@@ -28,7 +28,11 @@ export const addDocument = action({
       modified_at: v.number(),
     })),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    documentId: string;
+    chunksCreated: number;
+    status: string;
+  }> => {
     try {
       // Generate correlation ID for tracing
       const correlationId = crypto.randomUUID();
@@ -49,7 +53,11 @@ export const addDocument = action({
         .digest('hex');
 
       // Check if document already exists and is up to date
-      const existingDoc = await ctx.runQuery(api.knowledge.getDocumentByPath, {
+      const existingDoc: {
+        _id: string;
+        content_hash: string;
+        chunk_count: number;
+      } | null = await ctx.runQuery(api.knowledgeMutations.getDocumentByPath, {
         filePath: args.source,
       });
 
@@ -64,7 +72,7 @@ export const addDocument = action({
       }
 
       // Create or update source document record
-      const documentId = await ctx.runMutation(api.knowledgeMutations.createOrUpdateDocument, {
+      const documentId = await ctx.runMutation(internal.knowledgeMutations.createOrUpdateDocument, {
         filePath: args.source,
         fileType: args.metadata?.file_type || 'unknown',
         contentHash,
@@ -130,7 +138,7 @@ export const addDocument = action({
         const vectorizeId = `placeholder_${chunkHash}`;
 
         // Store chunk metadata in Convex
-        await ctx.runMutation(api.knowledgeMutations.createDocumentChunk, {
+        await ctx.runMutation(internal.knowledgeMutations.createDocumentChunk, {
           sourceDocument: args.source,
           chunkIndex: chunk.index,
           content: chunk.content,
@@ -149,7 +157,7 @@ export const addDocument = action({
       }
 
       // Update document processing status
-      await ctx.runMutation(api.knowledgeMutations.updateDocumentStatus, {
+      await ctx.runMutation(internal.knowledgeMutations.updateDocumentStatus, {
         documentId,
         status: 'completed',
         chunkCount: chunksCreated,
