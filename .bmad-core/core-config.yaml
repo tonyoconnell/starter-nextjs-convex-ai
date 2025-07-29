@@ -16,6 +16,9 @@ devLoadAlwaysFiles:
   - docs/architecture/coding-standards.md
   - docs/architecture/tech-stack.md
   - docs/architecture/source-tree.md
+  - docs/testing/technical/testing-infrastructure-lessons-learned.md
+  - docs/testing/technical/testing-patterns.md
+  - docs/testing/technical/test-strategy-and-standards.md
 devDebugLog: .ai/debug-log.md
 devStoryLocation: docs/stories
 slashPrefix: BMad
