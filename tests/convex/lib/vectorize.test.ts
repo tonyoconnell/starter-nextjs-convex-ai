@@ -25,9 +25,11 @@ import {
   VectorizeClient,
   createVectorizeClient,
   type VectorizeVector,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type VectorizeInsertResponse,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type VectorizeQueryResponse,
-} from '../../../apps/convex/lib/vectorize';
+} from '@convex/lib/vectorize';
 
 describe('Vectorize Client', () => {
   let mockFetch: jest.MockedFunction<typeof fetch>;

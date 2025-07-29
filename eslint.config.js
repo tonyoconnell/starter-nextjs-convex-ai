@@ -230,7 +230,13 @@ export default [
   },
   // Test files (Jest environment)
   {
-    files: ['**/__tests__/**/*', '**/*.test.*', '**/*.spec.*'],
+    files: [
+      '**/__tests__/**/*',
+      '**/*.test.*',
+      '**/*.spec.*',
+      '**/__mocks__/**/*',
+      'tests/**/*',
+    ],
     languageOptions: {
       parser: typescriptParser,
       parserOptions: {
@@ -290,6 +296,7 @@ export default [
       'no-console': 'off',
       'no-restricted-syntax': 'off',
       'no-undef': 'off', // Turn off for test files since we're mocking globals
+      'no-unused-vars': 'off', // Turn off basic ESLint unused vars rule for test files
     },
   },
   {

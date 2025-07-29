@@ -16,7 +16,9 @@ import {
   mockTextContent,
   mockEmbeddings,
   mockOpenAIResponses,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createMockResponse,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createMockErrorResponse,
 } from '../fixtures/testData';
 
@@ -42,7 +44,7 @@ import {
   DEFAULT_CHUNKING_CONFIG,
   type ChunkingConfig,
   type TextChunk,
-} from '../../../apps/convex/lib/textProcessing';
+} from '@convex/lib/textProcessing';
 
 describe('Text Processing Library', () => {
   let mockOpenAI: any;
@@ -175,6 +177,7 @@ describe('Text Processing Library', () => {
             const currentChunk = chunks[i];
 
             // Extract overlap from end of previous chunk
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const prevEnd = prevChunk.content.substring(
               Math.max(0, prevChunk.content.length - config.overlapSize)
             );
@@ -551,7 +554,8 @@ describe('Text Processing Library', () => {
 
         // Mock setTimeout to track delays
         const originalSetTimeout = global.setTimeout;
-        const setTimeoutSpy = jest.fn((callback, delay) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const setTimeoutSpy = jest.fn((callback, _delay) => {
           callback();
           return {} as any;
         });
@@ -581,7 +585,8 @@ describe('Text Processing Library', () => {
 
         // Mock setTimeout to track delays
         const originalSetTimeout = global.setTimeout;
-        const setTimeoutSpy = jest.fn((callback, delay) => {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const setTimeoutSpy = jest.fn((callback, _delay) => {
           callback();
           return {} as any;
         });
