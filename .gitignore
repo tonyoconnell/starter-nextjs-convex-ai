@@ -127,6 +127,7 @@ playwright/.cache/
 
 # Jest
 coverage/
+test-coverage/
 
 # Sentry Config File
 .sentryclirc
