@@ -93,7 +93,7 @@ jobs:
       - name: Check if E2E tests exist
         id: check-e2e
         run: |
-          if [ -d "tests" ] && [ "$(ls -A tests 2>/dev/null)" ]; then
+          if [ -d "tests/e2e" ] && [ "$(ls -A tests/e2e 2>/dev/null)" ]; then
             echo "e2e_exists=true" >> $GITHUB_OUTPUT
           else
             echo "e2e_exists=false" >> $GITHUB_OUTPUT
