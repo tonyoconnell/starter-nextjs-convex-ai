@@ -8,8 +8,8 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { mockDocuments, mockChunks } from './fixtures/testData';
 
 // Mock Convex modules
-jest.mock('../../apps/convex/_generated/server');
-jest.mock('../../apps/convex/_generated/api');
+jest.mock('@convex/_generated/server');
+jest.mock('@convex/_generated/api');
 
 const { createMockCtx } = require('./__mocks__/_generated/server');
 
@@ -21,7 +21,7 @@ import {
   deleteDocument,
   deleteChunksBySource,
   getDocumentByPath,
-} from '../../apps/convex/knowledgeMutations';
+} from '@convex/knowledgeMutations';
 
 describe('Knowledge Mutations', () => {
   let mockCtx: any;

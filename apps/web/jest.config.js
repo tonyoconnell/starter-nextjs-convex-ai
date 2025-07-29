@@ -15,6 +15,7 @@ const config = {
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
+    '^@test-coverage/(.*)$': '<rootDir>/../../test-coverage/$1',
   },
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
@@ -23,10 +24,10 @@ const config = {
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
-    '!**/coverage/**',
+    '!**/test-coverage/**',
     '!**/test-utils.tsx',
   ],
-  coverageDirectory: 'coverage',
+  coverageDirectory: '../../test-coverage/web',
   coverageReporters: ['text', 'lcov', 'html'],
   coverageThreshold: {
     global: {

@@ -90,6 +90,7 @@ Following BMAD methodology, these documents form the foundation:
 #### Technical Testing (For Developers)
 
 - **[Testing Infrastructure Lessons Learned](./testing/technical/testing-infrastructure-lessons-learned.md)** - **START HERE for debugging** - Real problems and solutions from testing implementation
+- **[Testing Infrastructure Architecture KDD](./testing/technical/testing-infrastructure-architecture-kdd.md)** - **Critical architecture lessons** - BadConvexModuleIdentifier resolution and test separation patterns
 - **[Testing Patterns](./testing/technical/testing-patterns.md)** - **For implementation** - Concrete patterns for React components, hooks, Convex functions
 - **[Test Strategy & Standards](./testing/technical/test-strategy-and-standards.md)** - **For context** - Testing framework, coverage targets, CI/CD integration
 

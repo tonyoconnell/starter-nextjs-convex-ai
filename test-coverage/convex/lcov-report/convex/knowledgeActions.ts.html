@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">13.04% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/92</span>
+                <span class='fraction'>12/92</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">13.33% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/90</span>
+                <span class='fraction'>12/90</span>
             </div>
         
             
@@ -459,25 +459,25 @@
 <a name='L394'></a><a href='#L394'>394</a>
 <a name='L395'></a><a href='#L395'>395</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -713,7 +713,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -731,7 +731,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -843,7 +843,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -853,25 +853,25 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use node';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >import { v } from 'convex/values';</span>
-<span class="cstat-no" title="statement not covered" >import { action } from './_generated/server';</span>
-<span class="cstat-no" title="statement not covered" >import { api, internal } from './_generated/api';</span>
-<span class="cstat-no" title="statement not covered" >import { ConvexError } from 'convex/values';</span>
-<span class="cstat-no" title="statement not covered" >import crypto from 'crypto';</span>
-<span class="cstat-no" title="statement not covered" >import {</span>
+import { v } from 'convex/values';
+import { action } from './_generated/server';
+import { api, internal } from './_generated/api';
+import { ConvexError } from 'convex/values';
+import crypto from 'crypto';
+import {
   chunkText,
   generateEmbeddingsForChunks,
   DEFAULT_CHUNKING_CONFIG,
   calculateTextStats,
   TextChunk,
 } from './lib/textProcessing';
-<span class="cstat-no" title="statement not covered" >import { getConfig } from './lib/config';</span>
-<span class="cstat-no" title="statement not covered" >import { createVectorizeClient, VectorizeVector } from './lib/vectorize';</span>
+import { getConfig } from './lib/config';
+import { createVectorizeClient, VectorizeVector } from './lib/vectorize';
 &nbsp;
 /**
  * Handler function for adding a document with embeddings and vector storage
  */
-<span class="cstat-no" title="statement not covered" >export a</span>sync function <span class="fstat-no" title="function not covered" >addDocumentHandler(</span>
+export async function <span class="fstat-no" title="function not covered" >addDocumentHandler(</span>
   ctx: any,
   args: {
     content: string;
@@ -1107,7 +1107,7 @@
  * Knowledge ingestion action for processing documents and creating vector embeddings
  * Follows AC 1 &amp; 2: Create Convex action that takes text content as input
  */
-export const <span class="cstat-no" title="statement not covered" >addDocument = action({</span>
+export const addDocument = action({
   args: {
     content: v.string(),
     source: v.string(),
@@ -1125,7 +1125,7 @@ export const <span class="cstat-no" title="statement not covered" >addDocument =
 /**
  * Handler function for querying vector similarity
  */
-<span class="cstat-no" title="statement not covered" >export a</span>sync function <span class="fstat-no" title="function not covered" >queryVectorSimilarityHandler(</span>
+export async function <span class="fstat-no" title="function not covered" >queryVectorSimilarityHandler(</span>
   ctx: any,
   args: {
     query: string;
@@ -1237,7 +1237,7 @@ export const <span class="cstat-no" title="statement not covered" >addDocument =
  * Query action for similarity search in vector database
  * Used for RAG (Retrieval Augmented Generation) queries
  */
-export const <span class="cstat-no" title="statement not covered" >queryVectorSimilarity = action({</span>
+export const queryVectorSimilarity = action({
   args: {
     query: v.string(),
     topK: v.optional(v.number()),
@@ -1252,7 +1252,7 @@ export const <span class="cstat-no" title="statement not covered" >queryVectorSi
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-07-29T00:20:19.135Z
+                at 2025-07-29T01:27:23.930Z
             </div>
         <script src="../prettify.js"></script>
         <script>

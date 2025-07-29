@@ -24,6 +24,16 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Path mapping for clean imports
+    "baseUrl": ".",
+    "paths": {
+      "@convex/*": ["apps/convex/*"],
+      "@convex-tests/*": ["tests/convex/*"],
+      "@web/*": ["apps/web/*"],
+      "@ui/*": ["packages/ui/*"],
+      "@test-coverage/*": ["test-coverage/*"]
+    }
   }
 }

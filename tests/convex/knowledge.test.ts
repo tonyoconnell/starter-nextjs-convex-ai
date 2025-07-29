@@ -5,13 +5,15 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { mockDocuments, mockChunks } from './fixtures/testData';
+import { mockDocuments, mockChunks } from '@convex-tests/fixtures/testData';
 
 // Mock Convex modules at top level before imports
-const mockServer = require('./__mocks__/_generated/server');
-const mockApi = require('./__mocks__/_generated/api');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockServer = require('@convex-tests/__mocks__/_generated/server');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockApi = require('@convex-tests/__mocks__/_generated/api');
 
-const { createMockCtx } = require('./__mocks__/_generated/server');
+const { createMockCtx } = require('@convex-tests/__mocks__/_generated/server');
 
 // Import the handler functions to test
 import {
@@ -19,7 +21,7 @@ import {
   getDocumentsHandler,
   getDocumentChunksHandler,
   getChunkByVectorizeIdHandler,
-} from '../../apps/convex/knowledge';
+} from '@convex/knowledge';
 
 describe('Knowledge Query Functions', () => {
   let mockCtx: any;
@@ -286,7 +288,7 @@ describe('Knowledge Query Functions', () => {
     });
 
     it('should handle empty vectorize ID', async () => {
-      const result = await getChunkByVectorizeIdHandler(mockCtx, {
+      await getChunkByVectorizeIdHandler(mockCtx, {
         vectorizeId: '',
       });
 

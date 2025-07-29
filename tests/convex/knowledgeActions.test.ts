@@ -4,43 +4,40 @@
  * Tests: addDocumentHandler action, queryVectorSimilarityHandler, deduplication logic, integration workflows
  */
 
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import {
-  describe,
-  it,
-  expect,
-  jest,
-  beforeEach,
-  afterEach,
-} from '@jest/globals';
-import {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   mockDocuments,
   mockChunks,
   mockTextContent,
   mockEmbeddings,
   mockVectorizeResponses,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   mockOpenAIResponses,
   mockConfigurations,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createMockResponse,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createMockErrorResponse,
-} from './fixtures/testData';
+} from '@convex-tests/fixtures/testData';
 
-// Mock external modules
-jest.mock('../../apps/convex/_generated/server');
-jest.mock('../../apps/convex/_generated/api');
-jest.mock('../../apps/convex/lib/textProcessing');
-jest.mock('../../apps/convex/lib/config');
-jest.mock('../../apps/convex/lib/vectorize');
+// Mock Convex modules at top level before imports
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockServer = require('@convex-tests/__mocks__/_generated/server');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockApi = require('@convex-tests/__mocks__/_generated/api');
 
-const { createMockCtx } = require('./__mocks__/_generated/server');
+const { createMockCtx } = require('@convex-tests/__mocks__/_generated/server');
 
 // Import handler functions to test
 import {
   addDocumentHandler,
   queryVectorSimilarityHandler,
-} from '../../apps/convex/knowledgeActions';
+} from '@convex/knowledgeActions';
 
 describe('Knowledge Actions', () => {
   let mockCtx: any;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let mockFetch: jest.MockedFunction<typeof fetch>;
   let mockTextProcessing: any;
   let mockConfig: any;
@@ -51,9 +48,9 @@ describe('Knowledge Actions', () => {
     mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
 
     // Setup module mocks
-    mockTextProcessing = require('../lib/textProcessing');
-    mockConfig = require('../lib/config');
-    mockVectorize = require('../lib/vectorize');
+    mockTextProcessing = require('@convex/lib/textProcessing');
+    mockConfig = require('@convex/lib/config');
+    mockVectorize = require('@convex/lib/vectorize');
 
     // Setup default mock implementations
     mockConfig.getConfig.mockReturnValue(mockConfigurations.complete);

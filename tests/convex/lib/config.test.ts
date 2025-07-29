@@ -24,10 +24,13 @@ import {
   selectModel,
   SUPPORTED_MODELS,
   type AppConfig,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type LLMConfig,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type VectorizeConfig,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type ModelInfo,
-} from '../../../apps/convex/lib/config';
+} from '@convex/lib/config';
 
 describe('Configuration Management', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -263,7 +266,7 @@ describe('Configuration Management', () => {
 
     it('should reload after cache reset', () => {
       const loadConfigSpy = jest.spyOn(
-        require('../../lib/config'),
+        require('@convex/lib/config'),
         'loadConfig'
       );
 
@@ -281,7 +284,7 @@ describe('Configuration Management', () => {
 
     it('should validate config on first load', () => {
       const validateConfigSpy = jest.spyOn(
-        require('../../lib/config'),
+        require('@convex/lib/config'),
         'validateConfig'
       );
 
