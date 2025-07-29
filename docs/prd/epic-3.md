@@ -1,6 +1,19 @@
 # Epic 3: Resilient Real-time Logging
 
-**Goal:** To implement a developer-first real-time logging system that captures distributed traces across browser, Cloudflare Workers, and Convex backend, optimized for AI agent assistance and debugging workflows, with a clear evolution path to production-grade logging infrastructure.
+**Goal:** To implement a developer-first real-time logging system using Cloudflare Workers + Upstash Redis architecture that captures distributed traces across browser, Cloudflare Workers, and Convex backend, optimized for AI agent assistance and debugging workflows, with cost-effective and reliable infrastructure.
+
+## Technical Documentation
+
+**Primary Implementation Documents:**
+
+- [`docs/technical-guides/logging-refactor-comprehensive-specifications.md`](../technical-guides/logging-refactor-comprehensive-specifications.md) - Complete technical specifications, architecture diagrams, component details, and integration patterns
+- [`docs/technical-guides/worker-redis-logging-architecture.md`](../technical-guides/worker-redis-logging-architecture.md) - Detailed architecture overview with system flow and component specifications
+- [`docs/technical-guides/convex-logging-cleanup-strategy.md`](../technical-guides/convex-logging-cleanup-strategy.md) - Systematic cleanup plan for removing broken Convex logging system
+- [`docs/technical-guides/logging-refactor-agent-delegation-guidelines.md`](../technical-guides/logging-refactor-agent-delegation-guidelines.md) - Agent delegation strategy and implementation phases
+
+**System Analysis:**
+
+- [`docs/logging-system-comprehensive-analysis.md`](../logging-system-comprehensive-analysis.md) - Analysis of current broken system, race conditions, and components to preserve
 
 ---
 
@@ -47,30 +60,30 @@ _As a developer, I need administrative controls and monitoring tools to manage t
 
 ---
 
-## Story 3.4: Development-Optimized Log Processing & AI Integration
+## Story 3.4: Specialized Worker Infrastructure & Redis Integration
 
-_As a developer, I want logs to be processed in real-time during development with trace correlation and context enrichment, so that AI agents can provide intelligent debugging assistance._
+_As a developer, I need a robust Cloudflare Worker + Upstash Redis logging infrastructure that handles high-frequency log ingestion without race conditions, so that I can reliably capture logs from all systems during development._
 
 **Acceptance Criteria:**
 
-1.  A log processing system runs in real-time for development mode (immediate processing).
-2.  Trace correlation engine links logs across browser, workers, and Convex using trace_id.
-3.  Context enrichment adds user session data, system state, and error patterns to logs.
-4.  AI-ready data export generates structured summaries for Claude Code consumption.
-5.  **Production Design**: Configuration system designed for batched processing with sampling when production mode is needed.
-6.  **Future Enhancement**: Pattern detection identifies common error flows and performance bottlenecks.
+1.  A specialized Cloudflare Worker (`apps/workers/log-ingestion/`) handles log ingestion with built-in rate limiting and batching.
+2.  Upstash Redis integration provides cost-effective short-term log storage with 1-hour TTL (~$2/month vs $10).
+3.  Multi-system support ingests logs from browser, Convex functions, and other Cloudflare Workers with automatic system detection.
+4.  Worker-based rate limiting eliminates database race conditions while preserving trace correlation capabilities.
+5.  **Integration**: Monorepo deployment patterns with Turbo for coordinated development and deployment workflows.
+6.  **Migration**: Complete removal of broken Convex logging tables and files with fresh start approach.
 
 ---
 
-## Story 3.5: Developer Dashboard & Claude Code Integration
+## Story 3.5: On-Demand Log Visualization & Clean Admin Interface
 
-_As a developer, I want a real-time dashboard that shows correlated logs across all systems with AI-powered insights, so that I can quickly identify and resolve issues during development._
+_As a developer, I want a clean debugging interface that fetches logs on-demand from Redis storage and provides trace correlation analysis, so that I can efficiently debug issues without real-time overhead._
 
 **Acceptance Criteria:**
 
-1.  The `/logs` page displays real-time correlated logs from browser, workers, and Convex with trace timeline visualization.
-2.  Console logging status indicator shows current capture state with toggle controls.
-3.  Trace viewer displays complete request flows across system boundaries with performance timing.
-4.  Claude Code integration endpoints provide structured log context for AI debugging assistance.
-5.  **Future Enhancement**: Chrome remote debugging mode provides comprehensive browser event capture with DevTools Protocol integration.
-6.  **Developer Experience**: Error correlation alerts and pattern detection help identify issues proactively.
+1.  A new `/debug` interface allows trace ID search to fetch logs from Redis storage on-demand.
+2.  Timeline visualization displays chronological logs across all systems (browser, Convex, workers) with system filtering.
+3.  Convex integration fetches logs from Redis only during active debugging sessions, not for real-time processing.
+4.  Log correlation engine operates on fetched data to provide error chain analysis and performance insights.
+5.  **Claude Code Integration**: Structured log export functionality for AI debugging assistance and pattern analysis.
+6.  **Developer Experience**: Clean, focused interface optimized for debugging workflows rather than real-time monitoring.
