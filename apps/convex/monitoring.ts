@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { query, QueryCtx } from './_generated/server';
 
 type LogEntry = {

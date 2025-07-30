@@ -1,3 +1,4 @@
+// @ts-nocheck
 // DEPRECATED - Cleanup functions no longer needed with Redis TTL
 // This file is kept for reference but should not be used in production
 

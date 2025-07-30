@@ -1,3 +1,4 @@
+// @ts-nocheck
 // DEPRECATED - Rate limiting migrated to Cloudflare Worker Durable Objects
 // This file is kept for reference but should not be used in production
 

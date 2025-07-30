@@ -2,17 +2,20 @@
 // Tests system detection, data consistency, and coordination between different log sources
 
 import worker from '../src/index';
-import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils } from './setup';
+import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils, setupGlobalTestCleanup } from './setup';
 import { WorkerLogRequest, RedisLogEntry } from '../src/types';
 
 describe('Cross-System Tests: Browser, Convex, and Worker Coordination', () => {
   let mockEnv: ReturnType<typeof createMockEnvironment>;
   let mockCtx: ExecutionContext;
 
+  // Use global test cleanup for cross-file isolation
+  setupGlobalTestCleanup();
+
   beforeEach(() => {
     mockEnv = createMockEnvironment();
     mockCtx = new ExecutionContext();
-    jest.clearAllMocks();
+    // Note: setupGlobalTestCleanup() handles jest.clearAllMocks()
   });
 
   describe('System Auto-Detection and Classification', () => {

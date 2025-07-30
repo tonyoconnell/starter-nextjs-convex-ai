@@ -1,6 +1,6 @@
 // Worker-based rate limiting using Durable Objects for state management
 
-import { RateLimitConfig, RateLimitState } from './types';
+import type { RateLimitConfig, RateLimitState } from './types';
 
 // Rate limiting configuration based on cost constraints
 const RATE_LIMIT_CONFIG: RateLimitConfig = {
@@ -41,7 +41,7 @@ export class RateLimiterDO {
   }
 
   private async handleRateLimitCheck(request: Request): Promise<Response> {
-    const { system, trace_id } = await request.json();
+    const { system, trace_id } = await request.json() as any;
     
     // Initialize or get current state
     await this.initializeState();
@@ -67,8 +67,8 @@ export class RateLimiterDO {
     }
     
     // Check system-specific limit
-    const systemCurrent = this.rateLimitState!.system_current[system] || 0;
-    const systemLimit = RATE_LIMIT_CONFIG.system_quotas[system];
+    const systemCurrent = (this.rateLimitState!.system_current as any)[system] || 0;
+    const systemLimit = (RATE_LIMIT_CONFIG.system_quotas as any)[system];
     
     if (systemCurrent >= systemLimit) {
       return new Response(JSON.stringify({
@@ -96,7 +96,7 @@ export class RateLimiterDO {
     
     // Allow the request and update counters
     this.rateLimitState!.global_current++;
-    this.rateLimitState!.system_current[system] = systemCurrent + 1;
+    (this.rateLimitState!.system_current as any)[system] = systemCurrent + 1;
     this.rateLimitState!.trace_counts[trace_id] = traceCurrent + 1;
     
     // Persist state

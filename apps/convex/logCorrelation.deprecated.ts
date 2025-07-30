@@ -1,3 +1,4 @@
+// @ts-nocheck
 // DEPRECATED - Log correlation migrated to Worker + Redis
 // This file is kept for reference but should not be used in production
 

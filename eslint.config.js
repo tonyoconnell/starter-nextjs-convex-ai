@@ -1,5 +1,5 @@
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
+// import storybook from "eslint-plugin-storybook"; // Temporarily disabled due to dependency issues
 
 import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
@@ -304,4 +304,4 @@ export default [js.configs.recommended, // TIER 1: Frontend Environment (Strict)
     'coverage/',
     'apps/convex/_generated/',
   ],
-}, ...storybook.configs["flat/recommended"]];
+}]; // Temporarily disabled storybook plugin: ...storybook.configs["flat/recommended"]];

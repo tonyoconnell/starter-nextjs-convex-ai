@@ -551,6 +551,419 @@ describe('AuthService Singleton', () => {
 
 **Rationale**: Ensures proper test isolation and predictable state
 
+## State Management Testing Patterns
+
+### Shared Mock Isolation Pattern
+
+**Context**: Testing services that use shared mock instances (Durable Objects, singletons)  
+**Problem**: State persistence across tests causes false failures and test interdependence  
+**Solution**: Implement proper state reset between tests
+
+**Example**:
+
+```typescript
+// Test setup - create shared mock with reset capability
+export class MockDurableObjectStub {
+  private state = {
+    global_current: 0,
+    system_current: { browser: 0, convex: 0, worker: 0 },
+    trace_counts: {},
+    window_start: Date.now()
+  };
+  
+  resetState(windowStart?: number) {
+    this.state = {
+      global_current: 0,
+      system_current: { browser: 0, convex: 0, worker: 0 },
+      trace_counts: {},
+      window_start: windowStart || Date.now()
+    };
+  }
+  
+  // Simulation methods for testing
+  simulateRateLimit(system: string) {
+    const systemLimit = this.config.system_quotas[system];
+    if (systemLimit) {
+      this.state.system_current[system] = systemLimit;
+    }
+  }
+}
+
+// Shared instance for test isolation
+let sharedRateLimiterStub: MockDurableObjectStub;
+
+export function createMockEnvironment() {
+  if (!sharedRateLimiterStub) {
+    sharedRateLimiterStub = new MockDurableObjectStub();
+  }
+  
+  return {
+    RATE_LIMIT_STATE: {
+      idFromName: jest.fn().mockReturnValue('mock-id'),
+      get: jest.fn().mockReturnValue(sharedRateLimiterStub),
+    },
+  };
+}
+
+// Critical: Reset function for test isolation
+export function resetRateLimiterState() {
+  if (sharedRateLimiterStub) {
+    sharedRateLimiterStub.resetState();
+  }
+}
+
+// Test file pattern - MANDATORY for shared state
+describe('WorkerTests', () => {
+  beforeEach(() => {
+    mockEnv = createMockEnvironment();
+    jest.clearAllMocks();
+    // Critical: Reset shared state for test isolation
+    resetRateLimiterState();
+  });
+  
+  it('should handle rate limiting', async () => {
+    const mockStub = mockEnv.RATE_LIMIT_STATE.get('mock-id');
+    mockStub.simulateRateLimit('browser');
+    
+    const response = await worker.fetch(request, mockEnv, mockCtx);
+    expect(response.status).toBe(429);
+  });
+  
+  it('should process normal requests', async () => {
+    // This test would fail without resetRateLimiterState() 
+    // because previous test left rate limiting in effect
+    const response = await worker.fetch(request, mockEnv, mockCtx);
+    expect(response.status).toBe(200);
+  });
+});
+```
+
+**Critical Requirements**:
+- **Import reset function**: Include reset function in test imports
+- **beforeEach hook**: Call reset function in every test suite's beforeEach
+- **Shared instance management**: Use shared instances for realistic testing
+- **State verification**: Test that reset function actually clears all state
+
+**Rationale**: Prevents test interdependence and ensures reliable, repeatable test results
+
+## Rate Limiter Testing Patterns
+
+### Context: Business Logic Systems with Cost Implications
+
+Rate limiters are cost control mechanisms that require precise testing for business logic while maintaining flexibility for implementation details. These patterns ensure accurate cost control validation.
+
+### 1. System Configuration Testing Pattern
+
+**Context**: Rate limiters have specific quotas that must be enforced precisely  
+**Implementation**: Test actual system quotas, not assumed values
+
+**Example**:
+
+```typescript
+// System configuration testing
+describe('Rate Limiter Configuration', () => {
+  const SYSTEM_QUOTAS = {
+    browser: 400,   // Actual configured quota
+    convex: 300,    // Actual configured quota
+    worker: 300     // Actual configured quota
+  };
+  
+  it('should enforce browser system quota precisely', async () => {
+    // Test actual quota, not assumed value
+    for (let i = 0; i < SYSTEM_QUOTAS.browser; i++) {
+      const result = await checkRateLimit('browser');
+      expect(result.allowed).toBe(true);
+      expect(result.remaining_quota).toBe(SYSTEM_QUOTAS.browser - (i + 1));
+    }
+    
+    // Next request should be denied
+    const result = await checkRateLimit('browser');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('SYSTEM_RATE_LIMIT');
+  });
+});
+```
+
+**Key Principles**:
+- **Know your quotas**: Check actual system configuration before writing tests
+- **Test precise calculations**: Rate limiting = cost control = exact math matters
+- **Verify limit enforcement**: Test that limits actually prevent overuse
+
+### 2. Mock API Integration Pattern
+
+**Context**: Working with existing mock capabilities instead of inventing non-existent methods  
+**Implementation**: Use available simulation methods pragmatically
+
+**Example**:
+
+```typescript
+// Mock Durable Object with proper simulation methods
+export class MockDurableObjectStub {
+  private state = {
+    global_current: 0,
+    system_current: { browser: 0, convex: 0, worker: 0 },
+    trace_counts: {},
+    window_start: Date.now()
+  };
+  
+  private config = {
+    global_limit: 1000,
+    system_quotas: { browser: 400, convex: 300, worker: 300 },
+    per_trace_limit: 100
+  };
+  
+  // Available simulation methods (don't invent new ones)
+  simulateGlobalRateLimit() {
+    this.state.global_current = this.config.global_limit;
+  }
+  
+  simulateSystemRateLimit(system: string) {
+    if (this.config.system_quotas[system]) {
+      this.state.system_current[system] = this.config.system_quotas[system];
+    }
+  }
+  
+  resetState() {
+    this.state = {
+      global_current: 0,
+      system_current: { browser: 0, convex: 0, worker: 0 },
+      trace_counts: {},
+      window_start: Date.now()
+    };
+  }
+}
+
+// Test using available methods
+describe('Rate Limiter Mock Integration', () => {
+  let mockStub: MockDurableObjectStub;
+  
+  beforeEach(() => {
+    mockStub = new MockDurableObjectStub();
+    mockStub.resetState(); // Use available reset method
+  });
+  
+  it('should use existing simulation methods', async () => {
+    // ✅ Use available API method
+    mockStub.simulateGlobalRateLimit();
+    
+    const result = await checkRateLimit('browser');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('GLOBAL_RATE_LIMIT');
+  });
+  
+  it('should not attempt non-existent methods', async () => {
+    // ❌ Don't do this - method doesn't exist
+    // mockStub.setResponse('/check', { allowed: false });
+    
+    // ✅ Use available simulation instead
+    mockStub.simulateSystemRateLimit('browser');
+    
+    const result = await checkRateLimit('browser');
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toBe('SYSTEM_RATE_LIMIT');
+  });
+});
+```
+
+**Key Principles**:
+- **Study mock API first**: Understand available methods before writing tests
+- **Use existing capabilities**: Don't extend mocks unless absolutely necessary
+- **Reset state properly**: Use provided reset methods for test isolation
+
+### 3. Business Logic vs Implementation Detail Pattern
+
+**Context**: Distinguishing between precise business rules and flexible implementation details  
+**Implementation**: Be precise for cost control, flexible for technical details
+
+**Example**:
+
+```typescript
+describe('Rate Limiter Business Rules vs Implementation', () => {
+  it('should enforce business rules precisely', async () => {
+    // ✅ PRECISE: Business logic - cost control
+    const quotaUsed = 1;
+    const remainingQuota = 400 - quotaUsed; // Exact calculation
+    
+    const result = await checkRateLimit('browser');
+    
+    expect(result.allowed).toBe(true);
+    expect(result.remaining_quota).toBe(remainingQuota); // Exact quota math
+    expect(result.system).toBe('browser'); // Specific system
+  });
+  
+  it('should be flexible for implementation details', async () => {
+    mockStub.simulateSystemRateLimit('browser');
+    const response = await worker.fetch(request, mockEnv, mockCtx);
+    
+    // ✅ PRECISE: Business outcome
+    expect(response.status).toBe(429); // Standard rate limit status
+    
+    // ✅ FLEXIBLE: Implementation details
+    const body = await response.json();
+    expect(body.error).toMatch(/(rate limit|quota exceeded)/i); // Message format flexible
+    expect(body.timestamp).toBeDefined(); // Timing flexible
+    expect(body.retry_after).toBeGreaterThan(0); // Positive retry time
+  });
+});
+```
+
+**Precision Guidelines for Rate Limiters**:
+
+**BE PRECISE for**:
+- Quota calculations (remaining counts)
+- Rate limiting decisions (allowed/denied)
+- Cost control limits (max requests per system)
+- Business rule enforcement (which limits apply when)
+
+**BE FLEXIBLE for**:
+- Error message exact wording
+- Response timing and metadata
+- HTTP header details
+- Internal implementation mechanisms
+
+### 4. Test Isolation for Shared State Pattern
+
+**Context**: Rate limiters often use shared objects that maintain state across requests  
+**Implementation**: Proper state management for test isolation
+
+**Example**:
+
+```typescript
+// Shared mock instance with reset capability
+let sharedRateLimiterStub: MockDurableObjectStub;
+
+export function createMockEnvironment() {
+  if (!sharedRateLimiterStub) {
+    sharedRateLimiterStub = new MockDurableObjectStub();
+  }
+  
+  return {
+    RATE_LIMIT_STATE: {
+      idFromName: jest.fn().mockReturnValue('mock-id'),
+      get: jest.fn().mockReturnValue(sharedRateLimiterStub),
+    },
+  };
+}
+
+export function resetRateLimiterState() {
+  if (sharedRateLimiterStub) {
+    sharedRateLimiterStub.resetState();
+  }
+}
+
+// Test suite with proper isolation
+describe('Rate Limiter Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    resetRateLimiterState(); // Critical for test isolation
+  });
+  
+  it('should handle first request correctly', async () => {
+    const result = await checkRateLimit('browser');
+    expect(result.allowed).toBe(true);
+    expect(result.remaining_quota).toBe(399); // 400 - 1
+  });
+  
+  it('should handle second request correctly', async () => {
+    // This test would fail without resetRateLimiterState()
+    // because previous test would have used 1 quota
+    const result = await checkRateLimit('browser');
+    expect(result.allowed).toBe(true);
+    expect(result.remaining_quota).toBe(399); // Fresh state: 400 - 1
+  });
+});
+```
+
+**Key Principles**:
+- **Reset shared state**: Always reset between tests for isolation
+- **Use consistent reset methods**: Follow established reset patterns
+- **Verify isolation**: Ensure tests don't depend on execution order
+
+### 5. Cost Control Validation Pattern
+
+**Context**: Rate limiters prevent cost overruns - tests must validate this protection  
+**Implementation**: Focus on business outcomes, not technical implementation
+
+**Example**:
+
+```typescript
+describe('Cost Control Validation', () => {
+  it('should prevent browser system cost overrun', async () => {
+    const MAX_REQUESTS = 400; // Business rule: browser gets 400 requests
+    const responses = [];
+    
+    // Make requests up to limit
+    for (let i = 0; i < MAX_REQUESTS + 5; i++) {
+      responses.push(await checkRateLimit('browser'));
+    }
+    
+    // Verify cost control enforcement
+    const allowed = responses.filter(r => r.allowed);
+    const denied = responses.filter(r => !r.allowed);
+    
+    expect(allowed.length).toBe(MAX_REQUESTS); // Exactly the quota
+    expect(denied.length).toBe(5); // All excess requests denied
+    
+    // Verify denial reasons
+    denied.forEach(response => {
+      expect(response.reason).toBe('SYSTEM_RATE_LIMIT');
+      expect(response.allowed).toBe(false);
+    });
+  });
+  
+  it('should handle multiple systems independently', async () => {
+    // Each system should have independent quotas
+    const browserResult = await checkRateLimit('browser');
+    const convexResult = await checkRateLimit('convex');
+    const workerResult = await checkRateLimit('worker');
+    
+    // All should be allowed initially
+    expect(browserResult.allowed).toBe(true);
+    expect(convexResult.allowed).toBe(true);
+    expect(workerResult.allowed).toBe(true);
+    
+    // Each should have their specific quota
+    expect(browserResult.remaining_quota).toBe(399); // 400 - 1
+    expect(convexResult.remaining_quota).toBe(299);  // 300 - 1
+    expect(workerResult.remaining_quota).toBe(299);  // 300 - 1
+  });
+});
+```
+
+### Common Anti-Patterns to Avoid
+
+#### **Testing Anti-Patterns**:
+
+```typescript
+// ❌ DON'T: Assume quota values
+expect(result.remaining_quota).toBe(100); // Where did 100 come from?
+
+// ✅ DO: Use actual system configuration
+expect(result.remaining_quota).toBe(BROWSER_QUOTA - requestCount);
+
+// ❌ DON'T: Invent non-existent mock methods
+mockStub.setResponse('/check', { success: false }); // Method doesn't exist
+
+// ✅ DO: Use available simulation methods
+mockStub.simulateSystemRateLimit('browser');
+
+// ❌ DON'T: Test implementation timing in mocks
+expect(responseTime).toBeLessThan(100); // Mock timing is unpredictable
+
+// ✅ DO: Test functional behavior
+expect(result.allowed).toBe(false); // Business outcome
+```
+
+### Rate Limiter Test Strategy
+
+1. **Configuration Testing**: Verify actual quotas and limits
+2. **Business Logic Testing**: Precise quota calculations and enforcement
+3. **Integration Testing**: Mock API capabilities and limitations
+4. **Cost Control Testing**: Prevent overruns and validate protection
+5. **State Management Testing**: Proper isolation and reset between tests
+
+**Rationale**: Ensures rate limiters effectively control costs while maintaining test reliability and avoiding mock API limitations
+
 ## Anti-Patterns to Avoid
 
 ### Testing Implementation Details
@@ -583,6 +996,13 @@ describe('AuthService Singleton', () => {
 - **Mock hoisting problems**: Define mocks inline, not as variables
 - **Global state leakage**: Reset singletons and global state between tests
 - **Incomplete mocking**: Mock all external dependencies comprehensively
+
+### State Isolation Anti-Patterns
+
+- **Missing state reset**: Not calling reset functions between tests
+- **Partial state reset**: Resetting some but not all shared state
+- **Test order dependency**: Tests that only pass in specific order
+- **Shared mock reuse**: Using same mock instance without proper isolation
 
 ## Vector Storage Testing Patterns (Story 4.2)
 
@@ -910,6 +1330,8 @@ describe('Observability', () => {
 ```
 
 These vector storage testing patterns ensure comprehensive coverage of the Knowledge Ingestion Service while accounting for the complexity of multi-service integration and the need for graceful degradation in various failure scenarios.
+
+**Rationale**: Rate limiter testing patterns balance business precision with implementation flexibility, ensuring cost control mechanisms work correctly while adapting to mock environment limitations
 
 ## Related Documentation
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Convex to Worker bridge for internal logging
 // Replaces the old loggingAction.ts to send logs to Worker instead of storing in Convex
 

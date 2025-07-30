@@ -1,6 +1,6 @@
 // Log validation and processing logic
 
-import { WorkerLogRequest, RedisLogEntry } from './types';
+import type { WorkerLogRequest, RedisLogEntry } from './types';
 
 // Sensitive data patterns for redaction
 const SENSITIVE_PATTERNS = [

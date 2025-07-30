@@ -1,5 +1,6 @@
 // Jest setup for Cloudflare Worker testing environment
 // Sets up Worker globals, mocks, and test utilities
+// @ts-nocheck
 
 import { jest } from '@jest/globals';
 
@@ -43,56 +44,7 @@ global.Request = class MockRequest {
   }
 } as any;
 
-global.Response = class MockResponse {
-  status: number;
-  statusText: string;
-  headers: Map<string, string>;
-  body: any;
-  ok: boolean;
-
-  constructor(body?: any, init?: ResponseInit) {
-    this.body = body;
-    this.status = init?.status || 200;
-    this.statusText = init?.statusText || 'OK';
-    this.ok = this.status >= 200 && this.status < 300;
-    this.headers = new Map();
-
-    if (init?.headers) {
-      if (init.headers instanceof Headers) {
-        init.headers.forEach((value, key) => {
-          this.headers.set(key.toLowerCase(), value);
-        });
-      } else if (Array.isArray(init.headers)) {
-        init.headers.forEach(([key, value]) => {
-          this.headers.set(key.toLowerCase(), value);
-        });
-      } else {
-        Object.entries(init.headers).forEach(([key, value]) => {
-          this.headers.set(key.toLowerCase(), value);
-        });
-      }
-    }
-  }
-
-  async json() {
-    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
-  }
-
-  async text() {
-    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
-  }
-
-  static json(body: any, init?: ResponseInit) {
-    return new MockResponse(JSON.stringify(body), {
-      ...init,
-      headers: {
-        'content-type': 'application/json',
-        ...init?.headers,
-      },
-    });
-  }
-} as any;
-
+// Mock Headers class - must be defined before MockResponse
 global.Headers = class MockHeaders {
   private headers: Map<string, string>;
 
@@ -137,7 +89,106 @@ global.Headers = class MockHeaders {
   }
 } as any;
 
-// Mock URL constructor for Worker environment - enhanced version
+// Mock Response class - uses Headers (which is MockHeaders)
+global.Response = class MockResponse {
+  status: number;
+  statusText: string;
+  headers: Headers;
+  body: any;
+  ok: boolean;
+
+  constructor(body?: any, init?: ResponseInit) {
+    this.body = body;
+    this.status = init?.status || 200;
+    this.statusText = init?.statusText || 'OK';
+    this.ok = this.status >= 200 && this.status < 300;
+    this.headers = new Headers(init?.headers);
+  }
+
+  async json() {
+    return typeof this.body === 'string' ? JSON.parse(this.body) : this.body;
+  }
+
+  async text() {
+    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+  }
+
+  static json(body: any, init?: ResponseInit) {
+    return new MockResponse(JSON.stringify(body), {
+      ...init,
+      headers: {
+        'content-type': 'application/json',
+        ...init?.headers,
+      },
+    });
+  }
+} as any;
+
+// Mock URLSearchParams for proper query parameter handling
+class MockURLSearchParams {
+  private params: Map<string, string>;
+
+  constructor(search?: string) {
+    this.params = new Map();
+    
+    if (search) {
+      // Remove leading '?' if present
+      const cleanSearch = search.startsWith('?') ? search.slice(1) : search;
+      
+      // Parse query parameters
+      if (cleanSearch) {
+        cleanSearch.split('&').forEach(pair => {
+          const [key, value = ''] = pair.split('=');
+          if (key) {
+            this.params.set(
+              decodeURIComponent(key), 
+              decodeURIComponent(value)
+            );
+          }
+        });
+      }
+    }
+  }
+
+  get(name: string): string | null {
+    return this.params.get(name) || null;
+  }
+
+  set(name: string, value: string): void {
+    this.params.set(name, value);
+  }
+
+  has(name: string): boolean {
+    return this.params.has(name);
+  }
+
+  delete(name: string): void {
+    this.params.delete(name);
+  }
+
+  append(name: string, value: string): void {
+    const existing = this.params.get(name);
+    if (existing) {
+      this.params.set(name, `${existing},${value}`);
+    } else {
+      this.params.set(name, value);
+    }
+  }
+
+  toString(): string {
+    const pairs: string[] = [];
+    this.params.forEach((value, key) => {
+      pairs.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+    });
+    return pairs.join('&');
+  }
+
+  forEach(callback: (value: string, key: string) => void): void {
+    this.params.forEach(callback);
+  }
+}
+
+// Mock URL constructor for Worker environment - enhanced version with searchParams
 global.URL = class MockURL {
   protocol: string;
   hostname: string;
@@ -147,6 +198,7 @@ global.URL = class MockURL {
   hash: string;
   href: string;
   origin: string;
+  searchParams: MockURLSearchParams;
 
   constructor(url: string, base?: string) {
     // Handle relative URLs with base
@@ -193,6 +245,9 @@ global.URL = class MockURL {
     // Extract hash
     const hashMatch = fullUrl.match(/#(.*)$/);
     this.hash = hashMatch ? `#${hashMatch[1]}` : '';
+
+    // Initialize searchParams with parsed query string
+    this.searchParams = new MockURLSearchParams(this.search);
   }
 } as any;
 
@@ -234,6 +289,11 @@ export class MockDurableObjectState {
     };
   }
 
+  // Return storage interface for testing
+  getStorage() {
+    return this.storage;
+  }
+
   // Reset storage between tests
   reset() {
     this.storageMap.clear();
@@ -242,41 +302,48 @@ export class MockDurableObjectState {
 
 global.DurableObjectState = MockDurableObjectState as any;
 
-// Mock DurableObjectStub for main worker testing
+// Mock DurableObjectStub for main worker testing with actual rate limiting simulation
 export class MockDurableObjectStub {
-  private responses: Map<string, any> = new Map();
+  private config = {
+    global_limit: 1000,
+    system_quotas: { browser: 400, convex: 300, worker: 300 },
+    per_trace_limit: 100,
+    window_ms: 3600000
+  };
+  
+  private state = {
+    global_current: 0,
+    system_current: { browser: 0, convex: 0, worker: 0 },
+    trace_counts: {} as Record<string, number>,
+    window_start: Date.now()
+  };
   
   constructor() {
-    // Set default responses
-    this.setResponse('/status', { 
-      config: {
-        global_limit: 1000,
-        system_quotas: { browser: 400, convex: 300, worker: 300 },
-        per_trace_limit: 100,
-        window_ms: 3600000
-      },
-      current_state: {
-        global_current: 0,
-        system_current: { browser: 0, convex: 0, worker: 0 },
-        trace_counts: {},
-        window_start: Date.now()
-      },
-      window_remaining_ms: 3600000
-    });
-    
-    this.setResponse('/check', {
-      allowed: true,
-      remaining_quota: 100
-    });
+    this.resetState();
   }
   
   async fetch(url: string, init?: RequestInit): Promise<Response> {
     const urlObj = new URL(url);
-    const key = urlObj.pathname;
+    const pathname = urlObj.pathname;
     
-    if (this.responses.has(key)) {
-      const responseData = this.responses.get(key);
-      return new Response(JSON.stringify(responseData), {
+    if (pathname === '/status' && init?.method !== 'POST') {
+      return new Response(JSON.stringify({
+        config: this.config,
+        current_state: { ...this.state },
+        window_remaining_ms: Math.max(0, this.config.window_ms - (Date.now() - this.state.window_start))
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    
+    if (pathname === '/check' && init?.method === 'POST') {
+      return this.handleRateLimitCheck(init);
+    }
+    
+    if (pathname === '/reset' && init?.method === 'POST') {
+      this.resetState();
+      return new Response(JSON.stringify({ success: true, message: 'Rate limits reset' }), {
         status: 200,
         headers: { 'content-type': 'application/json' }
       });
@@ -288,21 +355,118 @@ export class MockDurableObjectStub {
     });
   }
   
-  setResponse(path: string, data: any) {
-    this.responses.set(path, data);
-  }
-  
-  // Simulate rate limit exceeded
-  simulateRateLimit(system: string) {
-    this.setResponse('/check', {
-      allowed: false,
-      reason: `${system} system rate limit exceeded`,
-      remaining_quota: 0
+  private async handleRateLimitCheck(init: RequestInit): Promise<Response> {
+    const body = JSON.parse(init.body as string);
+    const { system, trace_id } = body;
+    
+    // Check if window has expired
+    const now = Date.now();
+    if (now - this.state.window_start >= this.config.window_ms) {
+      this.resetState(now);
+    }
+    
+    // Check global limit
+    if (this.state.global_current >= this.config.global_limit) {
+      return new Response(JSON.stringify({
+        allowed: false,
+        reason: 'Global rate limit exceeded',
+        remaining_quota: 0,
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    
+    // Check system limit
+    const systemCurrent = this.state.system_current[system] || 0;
+    const systemLimit = this.config.system_quotas[system];
+    
+    if (systemCurrent >= systemLimit) {
+      return new Response(JSON.stringify({
+        allowed: false,
+        reason: `${system} system rate limit exceeded`,
+        remaining_quota: systemLimit - systemCurrent,
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    
+    // Check per-trace limit
+    const traceCurrent = this.state.trace_counts[trace_id] || 0;
+    if (traceCurrent >= this.config.per_trace_limit) {
+      return new Response(JSON.stringify({
+        allowed: false,
+        reason: `Per-trace rate limit exceeded for ${trace_id}`,
+        remaining_quota: this.config.per_trace_limit - traceCurrent,
+      }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' }
+      });
+    }
+    
+    // Allow the request and update counters
+    this.state.global_current++;
+    this.state.system_current[system] = systemCurrent + 1;
+    this.state.trace_counts[trace_id] = traceCurrent + 1;
+    
+    return new Response(JSON.stringify({
+      allowed: true,
+      remaining_quota: systemLimit - (systemCurrent + 1),
+    }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' }
     });
   }
   
-  reset() {
-    this.responses.clear();
+  resetState(windowStart?: number) {
+    this.state = {
+      global_current: 0,
+      system_current: { browser: 0, convex: 0, worker: 0 },
+      trace_counts: {},
+      window_start: windowStart || Date.now()
+    };
+  }
+  
+  // For testing - set custom state
+  setState(newState: Partial<typeof this.state>) {
+    this.state = { ...this.state, ...newState };
+  }
+  
+  // For testing - get current state
+  getState() {
+    return { ...this.state };
+  }
+
+  // Test helper methods for simulating different rate limit scenarios
+  simulateRateLimit(system: string) {
+    // Set system to be at or above its limit
+    const systemLimit = this.config.system_quotas[system];
+    if (systemLimit) {
+      this.state.system_current[system] = systemLimit;
+    }
+  }
+
+  simulateGlobalRateLimit() {
+    // Set global to be at limit
+    this.state.global_current = this.config.global_limit;
+  }
+
+  simulateTraceRateLimit(traceId: string) {
+    // Set specific trace to be at limit
+    this.state.trace_counts[traceId] = this.config.per_trace_limit;
+  }
+
+  // Test helper to check if a system is rate limited
+  isSystemRateLimited(system: string): boolean {
+    const systemCurrent = this.state.system_current[system] || 0;
+    const systemLimit = this.config.system_quotas[system];
+    return systemCurrent >= systemLimit;
+  }
+
+  // Test helper to check if global is rate limited
+  isGlobalRateLimited(): boolean {
+    return this.state.global_current >= this.config.global_limit;
   }
 }
 
@@ -312,23 +476,47 @@ global.DurableObjectStub = MockDurableObjectStub as any;
 export interface MockEnvironment {
   UPSTASH_REDIS_REST_URL: string;
   UPSTASH_REDIS_REST_TOKEN: string;
-  RATE_LIMIT_STATE: {
-    idFromName: (name: string) => any;
-    get: (id: any) => MockDurableObjectStub;
-  };
+  RATE_LIMIT_STATE: any; // Simplified for testing
 }
 
+// Per-file instance management for complete test isolation
+let currentRateLimiterStub: MockDurableObjectStub | null = null;
+
 export function createMockEnvironment(): MockEnvironment {
-  const mockDurableObjectStub = new MockDurableObjectStub();
+  // Create fresh instance for each test file (managed by setupGlobalTestCleanup)
+  if (!currentRateLimiterStub) {
+    currentRateLimiterStub = new MockDurableObjectStub();
+  }
   
   return {
     UPSTASH_REDIS_REST_URL: 'https://mock-redis.upstash.io',
     UPSTASH_REDIS_REST_TOKEN: 'mock-token-123',
     RATE_LIMIT_STATE: {
       idFromName: jest.fn().mockReturnValue('mock-id'),
-      get: jest.fn().mockReturnValue(mockDurableObjectStub),
-    },
+      get: jest.fn().mockReturnValue(currentRateLimiterStub),
+      newUniqueId: jest.fn().mockReturnValue('mock-unique-id'),
+      idFromString: jest.fn().mockReturnValue('mock-string-id'),
+      jurisdiction: undefined,
+    } as any,
   };
+}
+
+// Helper to reset rate limiter state between individual tests (within a file)
+export function resetRateLimiterState() {
+  if (currentRateLimiterStub) {
+    currentRateLimiterStub.resetState();
+  }
+}
+
+// Helper to create completely fresh instance (for cross-file isolation)
+export function createFreshRateLimiterInstance() {
+  currentRateLimiterStub = new MockDurableObjectStub();
+  return currentRateLimiterStub;
+}
+
+// Helper to destroy current instance (for complete cleanup)
+export function destroyRateLimiterInstance() {
+  currentRateLimiterStub = null;
 }
 
 // Redis mock responses for different scenarios
@@ -442,15 +630,29 @@ export const TestUtils = {
   },
 };
 
-// Global test cleanup
-beforeEach(() => {
-  jest.clearAllMocks();
-  // Reset mock environment state
-  (global.fetch as jest.MockedFunction<typeof fetch>).mockClear();
-});
+// Global test cleanup with cross-file isolation (to be called in test files)
+export const setupGlobalTestCleanup = () => {
+  // Per-file setup: Create fresh instance for complete cross-file isolation
+  beforeAll(() => {
+    createFreshRateLimiterInstance();
+  });
 
-afterEach(() => {
-  jest.restoreAllMocks();
-});
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Reset mock environment state
+    (global.fetch as jest.MockedFunction<typeof fetch>).mockClear();
+    // Reset rate limiter state for test isolation (within file)
+    resetRateLimiterState();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  // Per-file cleanup: Destroy instance to prevent cross-file contamination
+  afterAll(() => {
+    destroyRateLimiterInstance();
+  });
+};
 
 console.log('Worker testing environment setup complete');
