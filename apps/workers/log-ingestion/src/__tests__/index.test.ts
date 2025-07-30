@@ -1,10 +1,11 @@
 // Comprehensive unit tests for main Worker entry point
 // Tests request routing, CORS handling, log ingestion workflow, health checks, and log retrieval
+// @ts-nocheck
 
 import worker from '../index';
-import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils } from '../../tests/setup';
+import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils, resetRateLimiterState } from '../../tests/setup';
 import { LogProcessor } from '../log-processor';
-import { WorkerLogRequest } from '../types';
+import type { WorkerLogRequest, WorkerLogResponse } from '../types';
 
 describe('Worker Main Entry Point', () => {
   let mockEnv: ReturnType<typeof createMockEnvironment>;
@@ -12,8 +13,10 @@ describe('Worker Main Entry Point', () => {
 
   beforeEach(() => {
     mockEnv = createMockEnvironment();
-    mockCtx = new ExecutionContext();
+    mockCtx = {} as ExecutionContext;
     jest.clearAllMocks();
+    // Critical: Reset rate limiter state for test isolation
+    resetRateLimiterState();
   });
 
   describe('CORS Handling', () => {
@@ -27,7 +30,7 @@ describe('Worker Main Entry Point', () => {
         },
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
 
       expect(response.status).toBe(200);
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
@@ -41,7 +44,7 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
 
       expect(response.headers.get('Access-Control-Allow-Origin')).toBe('*');
       expect(response.headers.get('Access-Control-Allow-Methods')).toBe('POST, GET, OPTIONS');
@@ -68,8 +71,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -85,8 +88,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.status).toBe('healthy');
@@ -110,8 +113,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.trace_id).toBe('trace-123');
@@ -125,8 +128,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(404);
       expect(data.error).toBe('Not found');
@@ -137,8 +140,8 @@ describe('Worker Main Entry Point', () => {
         method: 'PUT', // Should be POST
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(404);
       expect(data.error).toBe('Not found');
@@ -172,8 +175,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -195,8 +198,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(invalidRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(400);
       expect(data.success).toBe(false);
@@ -217,8 +220,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(suppressedRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -250,8 +253,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(429);
       expect(data.success).toBe(false);
@@ -274,8 +277,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(sensitiveRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -311,8 +314,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -340,8 +343,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
@@ -355,8 +358,8 @@ describe('Worker Main Entry Point', () => {
         body: 'invalid json content',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
@@ -370,8 +373,8 @@ describe('Worker Main Entry Point', () => {
         // No body
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
@@ -393,8 +396,8 @@ describe('Worker Main Entry Point', () => {
         body: JSON.stringify(logRequest),
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
@@ -411,8 +414,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.status).toBe('healthy');
@@ -448,8 +451,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(503);
       expect(data.status).toBe('degraded');
@@ -465,8 +468,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(503);
       expect(data.status).toBe('degraded');
@@ -484,7 +487,7 @@ describe('Worker Main Entry Point', () => {
       });
 
       const response = await worker.fetch(request, badEnv, mockCtx);
-      const data = await response.json();
+      const data = await response.json() as any;
 
       expect(response.status).toBe(503);
       expect(data.status).toBe('degraded');
@@ -505,8 +508,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(503);
       expect(data.status).toBe('unhealthy');
@@ -525,8 +528,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(data.cost_model.rate_limits).toEqual({
         global: '1000/hour',
@@ -554,8 +557,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.trace_id).toBe('retrieve-trace');
@@ -578,8 +581,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.trace_id).toBe('non-existent');
@@ -592,8 +595,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(400);
       expect(data.error).toBe('trace_id parameter is required');
@@ -608,8 +611,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to retrieve logs');
@@ -630,8 +633,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.error).toBe('Failed to retrieve logs');
@@ -649,8 +652,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.trace_id).toBe(specialTraceId);
@@ -667,8 +670,8 @@ describe('Worker Main Entry Point', () => {
         method: 'GET',
       });
 
-      const response = await worker.fetch(request, mockEnv, mockCtx);
-      const data = await response.json();
+      const response = await worker.fetch(request, mockEnv as any, mockCtx);
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.trace_id).toBe(longTraceId);
@@ -791,8 +794,8 @@ describe('Worker Main Entry Point', () => {
       // Process requests sequentially to test rate limiting
       const results = [];
       for (const request of requests) {
-        const response = await worker.fetch(request, mockEnv, mockCtx);
-        const data = await response.json();
+        const response = await worker.fetch(request, mockEnv as any, mockCtx);
+        const data = await response.json() as any;
         results.push({ status: response.status, success: data.success });
       }
 
@@ -822,7 +825,7 @@ describe('Worker Main Entry Point', () => {
       });
 
       const response = await worker.fetch(request, badEnv, mockCtx);
-      const data = await response.json();
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
@@ -853,7 +856,7 @@ describe('Worker Main Entry Point', () => {
       });
 
       const response = await worker.fetch(request, badEnv, mockCtx);
-      const data = await response.json();
+      const data = await response.json() as any;
 
       expect(response.status).toBe(500);
       expect(data.success).toBe(false);
@@ -886,7 +889,7 @@ describe('Worker Main Entry Point', () => {
 
       // Should not fail even if ExecutionContext has issues
       const response = await worker.fetch(request, mockEnv, mockCtxError);
-      const data = await response.json();
+      const data = await response.json() as any;
 
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);

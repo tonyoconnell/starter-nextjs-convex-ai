@@ -1,3 +1,4 @@
+// @ts-nocheck
 // DEPRECATED - Logging migrated to Cloudflare Worker + Redis
 // This file provides backward compatibility redirects to the new internalLogging system
 

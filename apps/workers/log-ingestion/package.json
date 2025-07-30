@@ -10,6 +10,9 @@
     "build": "esbuild src/index.ts --bundle --format=esm --target=es2022 --outfile=dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:coverage:watch": "jest --coverage --watch",
+    "test:coverage:watch:all": "jest --coverage --watchAll",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts"

@@ -32,8 +32,12 @@ export default {
     '<rootDir>/tests/**/*.test.ts',
   ],
   
-  // Setup files
+  // Setup files - setup.ts handles cross-file isolation
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
+  
+  // Optional: Force test files to run in isolation (slower but guarantees isolation)
+  // Uncomment if cross-file contamination persists despite setup.ts changes
+  // maxWorkers: 1,
   
   // Coverage configuration targeting 85% for Worker logic
   coverageDirectory: '<rootDir>/coverage',

@@ -1,8 +1,8 @@
 {
-  "lastUpdated": "2025-07-26T14:50:00.000Z",
+  "lastUpdated": "2025-07-30T00:00:00.000Z",
   "version": "1.0.0",
   "summary": {
-    "totalApps": 2,
+    "totalApps": 3,
     "testingSessions": {
       "web": {
         "timestamp": "2025-07-26T14:49:00.000Z",
@@ -53,20 +53,45 @@
           "Unicode text handling differences",
           "Some line/paragraph counting algorithm inconsistencies"
         ]
+      },
+      "workers": {
+        "timestamp": "2025-07-30T00:00:00.000Z",
+        "testSuites": {
+          "passed": 3,
+          "failed": 5,
+          "total": 8
+        },
+        "tests": {
+          "passed": 171,
+          "failed": 33,
+          "total": 204
+        },
+        "coverage": {
+          "statements": "99.21%",
+          "branches": "100%",
+          "functions": "100%",
+          "lines": "99.2%"
+        },
+        "status": "EXCELLENT_COVERAGE_WITH_FAILURES",
+        "issues": [
+          "33 test failures despite excellent coverage",
+          "Need to analyze and fix failing test cases",
+          "High coverage indicates good test infrastructure"
+        ]
       }
     },
     "aggregated": {
       "testSuites": {
-        "passed": 4,
-        "failed": 4,
-        "total": 8,
-        "successRate": "50%"
+        "passed": 7,
+        "failed": 9,
+        "total": 16,
+        "successRate": "43.8%"
       },
       "tests": {
-        "passed": 278,
-        "failed": 235,
-        "total": 513,
-        "successRate": "54.2%"
+        "passed": 449,
+        "failed": 268,
+        "total": 717,
+        "successRate": "62.6%"
       }
     }
   },
@@ -111,25 +136,47 @@
             "core": "Minimal coverage (13.23%)"
           }
         }
+      },
+      "workers": {
+        "description": "Cloudflare Workers for log ingestion and processing",
+        "testingFramework": "Jest + TypeScript",
+        "primaryChallenges": [
+          "33 failing tests with excellent coverage",
+          "Rate limiting implementation testing",
+          "Redis client mocking and integration"
+        ],
+        "keyMetrics": {
+          "coverageHighlights": {
+            "highest": "rate-limiter.ts: 100% coverage",
+            "lowest": "log-processor.ts: 97.82% coverage (line 164)"
+          },
+          "testDistribution": {
+            "rate-limiter": "Complete test coverage",
+            "redis-client": "100% coverage", 
+            "log-processor": "Near-complete coverage"
+          }
+        }
       }
     },
     "technicalStatus": {
       "infrastructure": {
-        "jestConfiguration": "✅ Working (both apps)",
+        "jestConfiguration": "✅ Working (all apps)",
         "coverageReporting": "✅ Functional",
         "watchMode": "✅ Available all apps",
         "ciIntegration": "⚠️ Some failures"
       },
       "testPatterns": {
         "unitTests": "✅ Established",
-        "integrationTests": "✅ Convex backend",
+        "integrationTests": "✅ Convex backend + Workers",
         "componentTests": "⚠️ Web app challenges",
+        "workerTests": "⚠️ High coverage but failing tests",
         "e2eTests": "❓ Not measured in this session"
       }
     }
   },
   "recommendations": {
     "immediate": [
+      "Fix 33 failing tests in workers log-ingestion despite excellent coverage",
       "Fix Convex hook mocking in web app tests",
       "Resolve text processing edge cases in convex tests",
       "Address React component rendering issues"
@@ -140,21 +187,24 @@
       "Standardize mocking patterns across apps"
     ],
     "longTerm": [
-      "Achieve >90% coverage across both apps",
+      "Achieve >90% coverage across all apps",
       "Establish comprehensive integration test suite",
-      "Implement automated regression testing"
+      "Implement automated regression testing",
+      "Maintain excellent coverage achieved in workers"
     ]
   },
   "commands": {
     "runTests": {
       "web": "cd apps/web && bun run test:coverage:watch:all",
       "convex": "cd apps/convex && bun run test:coverage:watch:all",
+      "workers": "cd apps/workers/log-ingestion && bun test",
       "rootWeb": "bun run test:web:coverage:watch:all",
       "rootConvex": "bun run test:convex:coverage:watch:all"
     },
     "viewCoverage": {
       "web": "open apps/web/coverage/lcov-report/index.html",
-      "convex": "open apps/convex/coverage/lcov-report/index.html"
+      "convex": "open apps/convex/coverage/lcov-report/index.html",
+      "workers": "open apps/workers/log-ingestion/coverage/lcov-report/index.html"
     }
   }
 }

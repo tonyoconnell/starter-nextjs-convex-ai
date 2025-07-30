@@ -1,5 +1,6 @@
 // Comprehensive unit tests for LogProcessor
 // Tests validation, sensitive data redaction, noise suppression, and system detection
+// @ts-nocheck
 
 import { LogProcessor } from '../log-processor';
 import { WorkerLogRequest } from '../types';

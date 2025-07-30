@@ -2,7 +2,7 @@
 // Tests compatibility between old Convex-based logging and new Worker-based system
 
 import worker from '../src/index';
-import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils } from './setup';
+import { createMockEnvironment, setupRedisMock, RedisMockResponses, TestUtils, setupGlobalTestCleanup } from './setup';
 import { WorkerLogRequest } from '../src/types';
 import fetch from 'node-fetch';
 
@@ -14,10 +14,13 @@ describe('Migration Tests: Backward Compatibility with Old Logging Calls', () =>
   let mockEnv: ReturnType<typeof createMockEnvironment>;
   let mockCtx: ExecutionContext;
 
+  // Use global test cleanup for cross-file isolation
+  setupGlobalTestCleanup();
+
   beforeEach(() => {
     mockEnv = createMockEnvironment();
     mockCtx = new ExecutionContext();
-    jest.clearAllMocks();
+    // Note: setupGlobalTestCleanup() handles jest.clearAllMocks() and resetRateLimiterState()
   });
 
   describe('Convex Bridge Compatibility', () => {

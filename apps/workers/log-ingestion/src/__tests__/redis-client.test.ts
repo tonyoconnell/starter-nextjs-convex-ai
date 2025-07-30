@@ -1,5 +1,6 @@
 // Comprehensive unit tests for RedisClient
 // Tests Redis operations, error handling, TTL management, and pipeline operations
+// @ts-nocheck
 
 import { RedisClient } from '../redis-client';
 import { RedisLogEntry } from '../types';

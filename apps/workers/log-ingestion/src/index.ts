@@ -3,7 +3,7 @@
 import { RedisClient } from './redis-client';
 import { RateLimiterDO, checkRateLimit } from './rate-limiter';
 import { LogProcessor } from './log-processor';
-import { WorkerLogRequest, WorkerLogResponse, Environment } from './types';
+import type { WorkerLogRequest, WorkerLogResponse, Environment } from './types';
 
 // Export the Durable Object class
 export { RateLimiterDO };
@@ -50,8 +50,6 @@ export default {
     }
 
     if (url.pathname === '/log' && request.method === 'POST') {
-      // Log incoming requests to server console
-      console.log(`[LOG INGESTION] ${new Date().toISOString()}`);
       return handleLogIngestion(request, env, corsHeaders);
     }
     
@@ -78,8 +76,6 @@ async function handleLogIngestion(
   try {
     const requestData: WorkerLogRequest = await request.json();
     
-    // Log the actual message to server console
-    console.log(`[BROWSER LOG] ${requestData.level?.toUpperCase()}: ${requestData.message}`);
     
     // Validate request
     const validation = LogProcessor.validateRequest(requestData);
@@ -163,9 +159,25 @@ async function handleHealthCheck(
   corsHeaders: Record<string, string>
 ): Promise<Response> {
   try {
-    // Check Redis connectivity
-    const redis = new RedisClient(env.UPSTASH_REDIS_REST_URL, env.UPSTASH_REDIS_REST_TOKEN);
-    const redisHealthy = await redis.healthCheck();
+    // Check Redis configuration and connectivity
+    let redisHealthy = false;
+    let redisConfigured = false;
+    
+    try {
+      // Check if Redis is configured
+      if (!env.UPSTASH_REDIS_REST_URL || env.UPSTASH_REDIS_REST_URL.trim() === '' ||
+          !env.UPSTASH_REDIS_REST_TOKEN || env.UPSTASH_REDIS_REST_TOKEN.trim() === '') {
+        redisConfigured = false;
+        redisHealthy = false;
+      } else {
+        redisConfigured = true;
+        const redis = new RedisClient(env.UPSTASH_REDIS_REST_URL, env.UPSTASH_REDIS_REST_TOKEN);
+        redisHealthy = await redis.healthCheck();
+      }
+    } catch (error) {
+      // Redis configuration or connection error
+      redisHealthy = false;
+    }
     
     // Get rate limiter status
     const rateLimiterId = env.RATE_LIMIT_STATE.idFromName('global');
@@ -183,11 +195,11 @@ async function handleHealthCheck(
       components: {
         redis: {
           status: redisHealthy ? 'healthy' : 'unhealthy',
-          url: env.UPSTASH_REDIS_REST_URL ? 'configured' : 'missing',
+          url: redisConfigured ? 'configured' : 'missing',
         },
         rate_limiter: {
           status: 'healthy',
-          ...rateLimiterStatus,
+          ...(rateLimiterStatus as any),
         },
         log_processor: processorStatus,
       },
