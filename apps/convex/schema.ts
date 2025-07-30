@@ -53,72 +53,9 @@ export default defineSchema({
     .index('by_token', ['token'])
     .index('by_user_id', ['userId']),
 
-  // Log queue for raw log ingestion
-  log_queue: defineTable({
-    level: v.string(),
-    message: v.string(),
-    trace_id: v.string(),
-    user_id: v.string(),
-    system_area: v.string(),
-    timestamp: v.number(),
-    raw_args: v.array(v.string()),
-    stack_trace: v.optional(v.string()),
-    processed: v.optional(v.boolean()),
-  })
-    .index('by_timestamp', ['timestamp'])
-    .index('by_trace_id', ['trace_id'])
-    .index('by_processed', ['processed']),
-
-  // Recent log entries for real-time UI (with TTL)
-  recent_log_entries: defineTable({
-    level: v.string(),
-    message: v.string(),
-    trace_id: v.string(),
-    user_id: v.string(),
-    system_area: v.string(),
-    timestamp: v.number(),
-    raw_args: v.array(v.string()),
-    stack_trace: v.optional(v.string()),
-    expires_at: v.number(), // TTL field - entries expire after 1 hour
-  })
-    .index('by_timestamp', ['timestamp'])
-    .index('by_trace_id', ['trace_id'])
-    .index('by_expires_at', ['expires_at']),
-
-  // Multi-system rate limiting state
-  rate_limit_state: defineTable({
-    // Browser system limits
-    browser_current: v.number(),
-    browser_limit: v.number(),
-    browser_reset_time: v.number(),
-    // Worker system limits
-    worker_current: v.number(),
-    worker_limit: v.number(),
-    worker_reset_time: v.number(),
-    // Backend system limits
-    backend_current: v.number(),
-    backend_limit: v.number(),
-    backend_reset_time: v.number(),
-    // Global limits
-    global_current: v.number(),
-    global_limit: v.number(),
-    global_reset_time: v.number(),
-    global_budget: v.number(),
-    // Monthly tracking
-    monthly_writes_browser: v.number(),
-    monthly_writes_worker: v.number(),
-    monthly_writes_backend: v.number(),
-    monthly_reset_time: v.number(),
-  }),
-
-  // Message fingerprints for duplicate detection
-  message_fingerprints: defineTable({
-    fingerprint: v.string(),
-    timestamp: v.number(),
-    expires_at: v.number(),
-  })
-    .index('by_fingerprint', ['fingerprint'])
-    .index('by_expires_at', ['expires_at']),
+  // Note: Logging tables removed - now handled by Cloudflare Worker + Redis
+  // Old tables (log_queue, recent_log_entries, rate_limit_state, message_fingerprints)
+  // have been migrated to Redis-based storage for better cost efficiency
 
   // Chat sessions for conversation tracking
   chat_sessions: defineTable({

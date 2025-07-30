@@ -39,6 +39,7 @@ Before starting, ensure you have:
 **Phase 4: Deployment** ⏱️ ~45 minutes
 
 - [ ] [Configure Cloudflare Pages](#step-7-cloudflare-pages-deployment)
+- [ ] [Set up Log Ingestion Worker](#step-7b-log-ingestion-worker-setup)
 - [ ] [Set up GitHub Actions CI/CD](#step-8-cicd-pipeline-setup)
 
 **Phase 5: Verification** ⏱️ ~15 minutes
@@ -322,6 +323,39 @@ Before starting, ensure you have:
 ✅ **Success Check**: Your application loads at the Cloudflare Pages URL and basic functionality works.
 
 **📖 Detailed Guide**: [Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)
+
+### Step 7b: Log Ingestion Worker Setup
+
+**Goal**: Deploy cost-effective logging infrastructure using Cloudflare Workers + Redis.
+
+**Benefits**: 
+- 🔹 ~80% cost reduction ($2/month vs $10/month)
+- 🔹 High-frequency logging without database conflicts
+- 🔹 Automatic log correlation across systems
+
+**Quick Setup** (5 minutes):
+```bash
+# 1. Configure all environment variables
+node scripts/sync-env.js --dry-run    # Review changes
+node scripts/sync-env.js              # Apply configuration
+
+# 2. Deploy worker with validation
+./scripts/deploy-worker.sh            # Automated deployment
+```
+
+**Prerequisites**:
+- Upstash Redis account (free tier: 10K commands/day)
+- Your environment variables already configured in `.env.source-of-truth.local`
+
+**Manual Setup** (if automated fails):
+1. Create Upstash Redis database at [upstash.com](https://upstash.com)
+2. Update `.env.source-of-truth.local` with Redis credentials
+3. Run sync: `node scripts/sync-env.js`
+4. Deploy: `./scripts/deploy-worker.sh`
+
+✅ **Success Check**: `curl https://your-worker.workers.dev/health` returns healthy status.
+
+**📖 Detailed Guide**: [Worker Deployment Setup](./technical-guides/worker-deployment-setup.md)
 
 ### Step 8: CI/CD Pipeline Setup
 
