@@ -25,6 +25,23 @@
     },
     "clean": {
       "cache": false
+    },
+    "worker:build": {
+      "outputs": ["dist/**"]
+    },
+    "worker:test": {
+      "dependsOn": ["worker:build"],
+      "outputs": ["coverage/**"]
+    },
+    "worker:lint": {
+      "dependsOn": ["worker:build"]
+    },
+    "worker:typecheck": {
+      "dependsOn": ["worker:build"]
+    },
+    "worker:deploy": {
+      "dependsOn": ["worker:build"],
+      "cache": false
     }
   }
 }

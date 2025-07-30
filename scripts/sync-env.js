@@ -27,14 +27,32 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const SOURCE_FILE = path.join(ROOT_DIR, '.env.source-of-truth.local');
 const WEB_ENV_FILE = path.join(ROOT_DIR, 'apps/web/.env.local');
 const CONVEX_ENV_FILE = path.join(ROOT_DIR, 'apps/convex/.env.local');
+const WORKER_ENV_FILE = path.join(ROOT_DIR, 'apps/workers/log-ingestion/.dev.vars');
 const BACKUP_FILE = path.join(ROOT_DIR, '.env.backup.local');
 const CONVEX_DIR = path.join(ROOT_DIR, 'apps/convex');
+const WORKER_DIR = path.join(ROOT_DIR, 'apps/workers/log-ingestion');
 
 // Parse command line arguments
 const args = process.argv.slice(2);
+const deploymentArg = args.find(arg => arg.startsWith('--deployment='))?.split('=')[1];
+
+// Require explicit deployment parameter
+if (!deploymentArg) {
+    console.error('🚨 ERROR: Deployment parameter is required');
+    console.error('');
+    console.error('Usage:');
+    console.error('  bun run sync-env --deployment=dev      # For development environment');
+    console.error('  bun run sync-env --deployment=production # For production environment (blocked by safety)');
+    console.error('');
+    console.error('Options:');
+    console.error('  --dry-run     Show what would be changed without applying');
+    console.error('  --verbose     Show detailed output');
+    process.exit(1);
+}
+
 const options = {
   dryRun: args.includes('--dry-run'),
-  deployment: args.find(arg => arg.startsWith('--deployment='))?.split('=')[1] || 'dev',
+  deployment: deploymentArg,
   verbose: args.includes('--verbose')
 };
 
@@ -60,15 +78,34 @@ function parseSourceFile() {
         if (line.startsWith('|') && line.includes('|')) {
             const parts = line.split('|').map(part => part.trim()).filter(part => part);
             
-            if (parts.length >= 5 && parts[0] !== 'NEXTJS') { // Skip header row
-                const [nextjs, convex, group, key, value] = parts;
+            if (parts.length >= 4 && parts[0] !== 'TARGET') { // Skip header row
+                const targets = parts[0].split(',').map(t => t.trim().toUpperCase());
+                const group = parts[1].trim();
+                const key = parts[2].trim();
+                
+                // Handle both old format (4 columns) and new format (5 columns)
+                let value;
+                if (parts.length === 5) {
+                    // New format with DEV_VALUE and PROD_VALUE
+                    const devValue = parts[3].trim();
+                    const prodValue = parts[4].trim();
+                    
+                    // Select value based on deployment
+                    value = options.deployment === 'production' ? prodValue : devValue;
+                } else {
+                    // Old format with single VALUE column (backward compatibility)
+                    value = parts[3].trim();
+                }
                 
                 envVars.push({
-                    key: key.trim(),
-                    value: value.trim(),
-                    group: group.trim(),
-                    nextjs: nextjs.toLowerCase() === 'true',
-                    convex: convex.toLowerCase() === 'true'
+                    key: key,
+                    value: value,
+                    group: group,
+                    targets: targets,
+                    // Backward compatibility
+                    nextjs: targets.includes('NEXTJS'),
+                    convex: targets.includes('CONVEX'),
+                    logWorker: targets.includes('LOG_WORKER')
                 });
             }
         }
@@ -188,6 +225,54 @@ function generateConvexEnv(envVars) {
 }
 
 /**
+ * Generates Worker .dev.vars file for local development
+ */
+function generateWorkerEnv(envVars) {
+    console.log('🔧 Generating Worker development environment configuration...');
+    
+    const workerVars = envVars.filter(envVar => envVar.logWorker);
+    
+    if (workerVars.length === 0) {
+        console.log('ℹ️  No Worker-specific variables found, skipping Worker env generation');
+        return 0;
+    }
+    
+    const groups = groupVariables(workerVars);
+    
+    let content = '';
+    content += '# =============================================================================\n';
+    content += '# Cloudflare Worker Development Environment Configuration\n';
+    content += '# =============================================================================\n';
+    content += '# Auto-generated from .env.source-of-truth.local - DO NOT EDIT MANUALLY\n';
+    content += '# Run \'npm run sync-env\' or \'bun run sync-env\' to regenerate this file\n';
+    content += '#\n';
+    content += '# This file contains environment variables for local Worker development.\n';
+    content += '# For production deployment, use: wrangler secret put VARIABLE_NAME\n';
+    content += '# =============================================================================\n\n';
+    
+    Object.keys(groups).sort().forEach(groupName => {
+        content += `# ${groupName}\n`;
+        content += `# ${'-'.repeat(groupName.length + 2)}\n`;
+        
+        groups[groupName].forEach(envVar => {
+            content += `${envVar.key}=${envVar.value}\n`;
+        });
+        
+        content += '\n';
+    });
+    
+    // Ensure the worker directory exists
+    const workerDir = path.dirname(WORKER_ENV_FILE);
+    if (!fs.existsSync(workerDir)) {
+        fs.mkdirSync(workerDir, { recursive: true });
+    }
+    
+    fs.writeFileSync(WORKER_ENV_FILE, content);
+    console.log(`✅ Worker environment file generated: ${WORKER_ENV_FILE}`);
+    return workerVars.length;
+}
+
+/**
  * Validates environment variables for common issues
  */
 function validateEnvironmentVariables(envVars) {
@@ -281,6 +366,28 @@ function execConvexCommand(command, cmdOptions = {}) {
 }
 
 /**
+ * Executes a Wrangler command safely
+ */
+function execWranglerCommand(command, cmdOptions = {}) {
+    try {
+        const result = execSync(command, {
+            cwd: WORKER_DIR,
+            encoding: 'utf8',
+            stdio: cmdOptions.silent ? 'pipe' : 'inherit',
+            ...cmdOptions
+        });
+        return result;
+    } catch (error) {
+        if (!cmdOptions.allowFailure) {
+            console.error(`❌ Wrangler command failed: ${command}`);
+            console.error(error.message);
+            process.exit(1);
+        }
+        return null;
+    }
+}
+
+/**
  * Backs up current Convex environment variables
  */
 function backupConvexEnvironment(deployment) {
@@ -295,6 +402,8 @@ function backupConvexEnvironment(deployment) {
         }
         
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const timestampedBackupFile = path.join(ROOT_DIR, `.env.backup.${timestamp}.local`);
+        
         const backupContent = [
             '# =============================================================================',
             '# Convex Environment Backup',
@@ -308,11 +417,16 @@ function backupConvexEnvironment(deployment) {
             ''
         ].join('\n');
         
+        // Save timestamped backup
+        fs.writeFileSync(timestampedBackupFile, backupContent);
+        // Also save to generic backup file for easy access
         fs.writeFileSync(BACKUP_FILE, backupContent);
-        console.log(`✅ Environment backup saved to: ${BACKUP_FILE}`);
         
-        // Clean up old backups (keep last 5)
-        cleanupOldBackups();
+        console.log(`✅ Environment backup saved to: ${timestampedBackupFile}`);
+        console.log(`   (Also available as: ${BACKUP_FILE})`);
+        
+        // Show existing backups for developer awareness
+        showExistingBackups();
         
         return true;
     } catch (error) {
@@ -322,11 +436,11 @@ function backupConvexEnvironment(deployment) {
 }
 
 /**
- * Cleans up old backup files
+ * Shows existing backup files for developer awareness
  */
-function cleanupOldBackups() {
+function showExistingBackups() {
     try {
-        const backupPattern = /^\.env\.backup/;
+        const backupPattern = /^\.env\.backup\..*\.local$/;
         const files = fs.readdirSync(ROOT_DIR)
             .filter(file => backupPattern.test(file))
             .map(file => ({
@@ -336,17 +450,23 @@ function cleanupOldBackups() {
             }))
             .sort((a, b) => b.stat.mtime - a.stat.mtime);
         
-        // Keep only the 5 most recent backups
-        files.slice(5).forEach(file => {
-            fs.unlinkSync(file.path);
-            if (options.verbose) {
-                console.log(`🗑️  Cleaned up old backup: ${file.name}`);
+        if (files.length > 1) { // More than just the current one
+            console.log(`📚 You have ${files.length} backup files:`);
+            files.slice(0, 3).forEach((file, index) => { // Show first 3
+                const age = new Date() - file.stat.mtime;
+                const ageStr = age < 60000 ? 'just now' : 
+                              age < 3600000 ? `${Math.floor(age/60000)}m ago` :
+                              age < 86400000 ? `${Math.floor(age/3600000)}h ago` :
+                              `${Math.floor(age/86400000)}d ago`;
+                console.log(`   ${index === 0 ? '📄' : '📃'} ${file.name} (${ageStr})`);
+            });
+            if (files.length > 3) {
+                console.log(`   ... and ${files.length - 3} more`);
             }
-        });
-    } catch (error) {
-        if (options.verbose) {
-            console.warn('⚠️  Failed to cleanup old backups:', error.message);
+            console.log(`💡 To clean up old backups: rm .env.backup.*.local`);
         }
+    } catch (error) {
+        // Silently ignore backup listing errors
     }
 }
 
@@ -584,6 +704,91 @@ function syncConvexDeploymentEnv(envVars, deployment) {
 }
 
 /**
+ * Gets current Worker secrets (limited - wrangler doesn't expose secret values)
+ */
+function getCurrentWorkerSecrets() {
+    try {
+        const secretList = execWranglerCommand('wrangler secret list', { silent: true, allowFailure: true });
+        if (!secretList) return [];
+        
+        // Parse the secret names (values are not exposed)
+        const secrets = [];
+        secretList.split('\n').forEach(line => {
+            const match = line.match(/^([A-Z_][A-Z0-9_]*)/);
+            if (match) {
+                secrets.push(match[1]);
+            }
+        });
+        
+        return secrets;
+    } catch (error) {
+        console.warn('⚠️  Failed to get current Worker secrets:', error.message);
+        return [];
+    }
+}
+
+/**
+ * Syncs Worker secrets with wrangler secret put commands
+ */
+function syncWorkerSecrets(envVars, deployment) {
+    console.log('🔗 Syncing Worker secrets...');
+    
+    // Validate deployment target
+    validateDeployment(deployment);
+    
+    const workerVars = envVars.filter(envVar => envVar.logWorker);
+    
+    if (workerVars.length === 0) {
+        console.log('ℹ️  No Worker secrets to sync');
+        return 0;
+    }
+    
+    console.log(`📋 Worker Secrets to Sync (${workerVars.length}):`);
+    workerVars.forEach(envVar => {
+        const valuePreview = envVar.value.length > 50 
+            ? envVar.value.substring(0, 47) + '...' 
+            : envVar.value;
+        console.log(`   • ${envVar.key} = ${valuePreview}`);
+    });
+    
+    // Get current secrets
+    const currentSecrets = getCurrentWorkerSecrets();
+    console.log(`ℹ️  Current Worker has ${currentSecrets.length} secrets configured`);
+    
+    // Dry run mode - just show what would happen
+    if (options.dryRun) {
+        console.log('\n🔍 DRY RUN MODE - No secrets will be updated');
+        console.log('   Run without --dry-run to apply these changes');
+        return 0;
+    }
+    
+    let successCount = 0;
+    let failureCount = 0;
+    
+    // Set each secret
+    workerVars.forEach(envVar => {
+        try {
+            console.log(`🔐 Setting Worker secret: ${envVar.key}`);
+            // Use echo to pipe the value to avoid exposing it in process list
+            execWranglerCommand(`echo "${envVar.value}" | wrangler secret put ${envVar.key}`, { silent: !options.verbose });
+            successCount++;
+        } catch (error) {
+            console.error(`❌ Failed to set Worker secret ${envVar.key}:`, error.message);
+            failureCount++;
+        }
+    });
+    
+    // Summary
+    console.log(`\n📊 Worker Secrets Sync Results:`);
+    console.log(`   ✅ Successful operations: ${successCount}`);
+    if (failureCount > 0) {
+        console.log(`   ❌ Failed operations: ${failureCount}`);
+    }
+    
+    return failureCount;
+}
+
+/**
  * Main execution function
  */
 function main() {
@@ -607,10 +812,15 @@ function main() {
         // Generate local configuration files
         const nextjsCount = generateNextjsEnv(envVars);
         const convexCount = generateConvexEnv(envVars);
+        const workerCount = generateWorkerEnv(envVars);
         
         // Sync Convex deployment environment
         console.log('\n' + '='.repeat(60));
         const deploymentResult = syncConvexDeploymentEnv(envVars, options.deployment);
+        
+        // Sync Worker secrets
+        console.log('\n' + '='.repeat(60));
+        const workerResult = syncWorkerSecrets(envVars, options.deployment);
         
         // Summary
         console.log('\n' + '='.repeat(60));
@@ -620,12 +830,17 @@ function main() {
         console.log(`   • Total variables processed: ${envVars.length}`);
         console.log(`   • Next.js variables: ${nextjsCount}`);
         console.log(`   • Convex local variables: ${convexCount}`);
+        console.log(`   • Worker local variables: ${workerCount}`);
         console.log(`   • Convex deployment sync: ${deploymentResult === 0 ? 'Success' : 'Failed'}`);
+        console.log(`   • Worker secrets sync: ${workerResult === 0 ? 'Success' : 'Failed'}`);
         console.log('');
         console.log('📁 Files generated:');
         console.log(`   • ${WEB_ENV_FILE}`);
         if (convexCount > 0) {
             console.log(`   • ${CONVEX_ENV_FILE}`);
+        }
+        if (workerCount > 0) {
+            console.log(`   • ${WORKER_ENV_FILE}`);
         }
         console.log(`   • ${BACKUP_FILE} (backup)`);
         console.log('');
@@ -636,8 +851,9 @@ function main() {
         console.log('   • Keep .env.source-of-truth.local secure and update as needed');
         console.log('   • Production deployments require manual management');
         
-        // Exit with appropriate code
-        process.exit(deploymentResult);
+        // Exit with appropriate code (success only if both Convex and Worker succeeded)
+        const finalResult = Math.max(deploymentResult, workerResult);
+        process.exit(finalResult);
         
     } catch (error) {
         console.error('❌ Environment sync failed:', error.message);
@@ -653,4 +869,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     main();
 }
 
-export { generateConvexEnv, generateNextjsEnv, parseSourceFile, validateEnvironmentVariables };
+export { generateConvexEnv, generateNextjsEnv, generateWorkerEnv, parseSourceFile, validateEnvironmentVariables };

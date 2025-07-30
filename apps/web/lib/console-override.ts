@@ -161,8 +161,8 @@ export function initializeConsoleOverride() {
       // Redact sensitive data before sending to Convex
       const redactedArgs = redactSensitiveData(args);
 
-      // Send redacted data to Convex (async, non-blocking)
-      sendToConvex(level, redactedArgs).catch(err => {
+      // Send redacted data to Worker (async, non-blocking)
+      sendToWorker(level, redactedArgs).catch(err => {
         // Fail silently to avoid console loops
         originalConsole.error('Console override error:', err);
       });
@@ -181,8 +181,8 @@ function getAdaptiveLimit(): number {
   return BASE_LIMIT; // Now uses centralized rate limiting
 }
 
-async function sendToConvex(level: string, args: unknown[]) {
-  // Client-side pre-filtering for obvious issues, but rely on centralized rate limiting for protection
+async function sendToWorker(level: string, args: unknown[]) {
+  // Client-side pre-filtering for obvious issues, but rely on Worker rate limiting for protection
   const now = Date.now();
 
   // Basic client-side duplicate prevention (lightweight check)
@@ -212,47 +212,53 @@ async function sendToConvex(level: string, args: unknown[]) {
   }
 
   const payload = {
-    level,
-    args: args.map(arg =>
-      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-    ),
     trace_id: currentTraceId,
+    message: args.map(arg =>
+      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+    ).join(' '),
+    level: level as 'log' | 'info' | 'warn' | 'error',
+    system: 'browser' as const,
     user_id: currentUserId,
-    system_area: 'browser',
-    timestamp: Date.now(),
-    stack_trace: new Error().stack,
+    stack: new Error().stack,
+    context: {
+      timestamp: Date.now(),
+      url: typeof window !== 'undefined' ? window.location.href : undefined,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+    },
   };
 
   try {
-    // Import Convex client and API dynamically to avoid issues during server-side rendering
-    const { ConvexHttpClient } = await import('convex/browser');
-    const { api } = await import('convex-backend');
+    // Get Worker URL from environment
+    const workerUrl = process.env.NEXT_PUBLIC_LOG_WORKER_URL || 'https://log-ingestion.your-worker-domain.workers.dev';
+    
+    const response = await fetch(`${workerUrl}/log`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Origin': typeof window !== 'undefined' ? window.location.origin : 'unknown',
+      },
+      body: JSON.stringify(payload),
+    });
 
-    // Get Convex URL from environment
-    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    if (!convexUrl) {
-      originalConsole.error('NEXT_PUBLIC_CONVEX_URL not configured');
-      return;
-    }
-
-    const client = new ConvexHttpClient(convexUrl);
-
-    // Call the processLogs action (now with centralized rate limiting)
-    const result = await client.action(api.loggingAction.processLogs, payload);
+    const result = await response.json();
     
     // Handle rate limiting responses
-    if (!result.success && result.error?.includes('Rate limited')) {
-      originalConsole.warn('Centralized rate limit exceeded:', result.error);
+    if (!result.success && response.status === 429) {
+      originalConsole.warn('Worker rate limit exceeded:', result.error);
       
       // Update local tracking to reflect server-side limits
-      if (result.rateLimitInfo) {
-        originalConsole.log('Rate limit info:', result.rateLimitInfo);
+      if (result.remaining_quota !== undefined) {
+        originalConsole.log('Remaining quota:', result.remaining_quota);
       }
       return; // Don't retry rate-limited requests
     }
+
+    if (!result.success) {
+      originalConsole.warn('Worker logging failed:', result.error);
+    }
   } catch (error) {
     // Log to original console only
-    originalConsole.error('Failed to send log to Convex:', error);
+    originalConsole.error('Failed to send log to Worker:', error);
   }
 }
 
@@ -290,7 +296,7 @@ export const ConsoleLogger = {
     traceId: currentTraceId,
     userId: currentUserId,
     rateLimiting: {
-      note: 'Now using centralized rate limiting in Convex',
+      note: 'Now using Worker-based rate limiting with Redis backend',
       currentLimit: getAdaptiveLimit(),
       baseLimit: BASE_LIMIT,
       timeUntilReset: Math.max(0, rateLimitResetTime - Date.now()),

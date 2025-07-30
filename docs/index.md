@@ -15,6 +15,7 @@ This is a Next.js template for building AI-first applications using the BMAD (Br
 ## Quick Links
 
 - **[Getting Started](../README.md)** - Setup and installation
+- **[Development Server Startup Guide](./development-server-startup-guide.md)** - Complete server startup instructions
 - **[Development Guide](./development-guide.md)** - Port management and development workflow
 - **[CLAUDE.md](../CLAUDE.md)** - Claude Code specific instructions
 - **[BMAD Method](./methodology/bmad-context-engineering.md)** - Development methodology
@@ -76,7 +77,9 @@ Following BMAD methodology, these documents form the foundation:
 
 - **[TypeScript Configuration Best Practices](./technical-guides/typescript-configuration-best-practices.md)** - Battle-tested TypeScript config patterns for monorepos, focusing on consistency and environment parity
 - **[CI/Environment Debugging Methodology](./technical-guides/ci-debugging-methodology.md)** - Systematic approach to debugging CI failures, environment differences, and build configuration issues
-- **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Convex logging strategies under $10/month
+- **[Worker Deployment Setup](./technical-guides/worker-deployment-setup.md)** - Cloudflare Workers + Redis logging infrastructure deployment
+- **[Log Ingestion Worker Setup KDD](./technical-guides/log-ingestion-worker-setup-kdd.md)** - Knowledge and lessons learned from centralized logging implementation
+- **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Legacy Convex logging strategies (superseded by Worker system)
 - **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
 - **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
 - **[Authentication Architecture](./technical-guides/authentication-architecture.md)** - Complete authentication system architecture and security patterns
