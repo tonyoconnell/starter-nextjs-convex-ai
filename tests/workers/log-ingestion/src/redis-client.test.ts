@@ -2,9 +2,9 @@
 // Tests Redis operations, error handling, TTL management, and pipeline operations
 // @ts-nocheck
 
-import { RedisClient } from '../redis-client';
-import { RedisLogEntry } from '../types';
-import { setupRedisMock, RedisMockResponses } from '../../tests/setup';
+import { RedisClient } from '../../../../apps/workers/log-ingestion/src/redis-client';
+import { RedisLogEntry } from '../../../../apps/workers/log-ingestion/src/types';
+import { setupRedisMock, RedisMockResponses } from '../integration/setup';
 
 describe('RedisClient', () => {
   let redisClient: RedisClient;
@@ -23,13 +23,19 @@ describe('RedisClient', () => {
     });
 
     it('should remove trailing slash from base URL', () => {
-      const clientWithSlash = new RedisClient('https://mock-redis.upstash.io/', mockToken);
+      const clientWithSlash = new RedisClient(
+        'https://mock-redis.upstash.io/',
+        mockToken
+      );
       expect(clientWithSlash).toBeInstanceOf(RedisClient);
       // We can't directly test the private property, but we can test behavior
     });
 
     it('should handle base URL without trailing slash', () => {
-      const clientWithoutSlash = new RedisClient('https://mock-redis.upstash.io', mockToken);
+      const clientWithoutSlash = new RedisClient(
+        'https://mock-redis.upstash.io',
+        mockToken
+      );
       expect(clientWithoutSlash).toBeInstanceOf(RedisClient);
     });
   });
@@ -42,12 +48,12 @@ describe('RedisClient', () => {
 
       // Access private method through any casting for testing
       const result = await (redisClient as any).request(['PING']);
-      
+
       expect(result).toBe('PONG');
       expect(global.fetch).toHaveBeenCalledWith(mockBaseUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${mockToken}`,
+          Authorization: `Bearer ${mockToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(['PING']),
@@ -59,8 +65,9 @@ describe('RedisClient', () => {
         INVALID: RedisMockResponses.ERROR,
       });
 
-      await expect((redisClient as any).request(['INVALID']))
-        .rejects.toThrow('Redis request failed');
+      await expect((redisClient as any).request(['INVALID'])).rejects.toThrow(
+        'Redis request failed'
+      );
     });
 
     it('should handle network errors', async () => {
@@ -68,30 +75,35 @@ describe('RedisClient', () => {
         PING: 'NETWORK_ERROR',
       });
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow('Network error');
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+        'Network error'
+      );
     });
 
     it('should handle HTTP error responses', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response('Server Error', {
-        status: 500,
-        statusText: 'Internal Server Error'
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('Server Error', {
+          status: 500,
+          statusText: 'Internal Server Error',
+        })
+      );
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow('Redis request failed: 500 Internal Server Error');
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+        'Redis request failed: 500 Internal Server Error'
+      );
     });
 
     it('should handle malformed JSON responses', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response('invalid json', {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('invalid json', {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+      );
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow();
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow();
     });
   });
 
@@ -119,7 +131,7 @@ describe('RedisClient', () => {
         expect.objectContaining({
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${mockToken}`,
+            Authorization: `Bearer ${mockToken}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify([
@@ -132,16 +144,22 @@ describe('RedisClient', () => {
 
     it('should handle pipeline errors during store operation', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([
-        { result: 1 }, // LPUSH success
-        { error: 'ERR expire failed' } // EXPIRE error
-      ]), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(
+          JSON.stringify([
+            { result: 1 }, // LPUSH success
+            { error: 'ERR expire failed' }, // EXPIRE error
+          ]),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }
+        )
+      );
 
-      await expect(redisClient.storeLogEntry(mockLogEntry))
-        .rejects.toThrow('Redis pipeline command 1 failed: ERR expire failed');
+      await expect(redisClient.storeLogEntry(mockLogEntry)).rejects.toThrow(
+        'Redis pipeline command 1 failed: ERR expire failed'
+      );
     });
 
     it('should serialize complex log entries correctly', async () => {
@@ -152,7 +170,8 @@ describe('RedisClient', () => {
         level: 'error',
         message: 'Complex error with unicode: 🚀 ñáéíóú',
         timestamp: Date.now(),
-        stack: 'Error: Something went wrong\n  at function1()\n  at function2()',
+        stack:
+          'Error: Something went wrong\n  at function1()\n  at function2()',
         context: {
           nested: {
             data: {
@@ -214,7 +233,7 @@ describe('RedisClient', () => {
       expect(global.fetch).toHaveBeenCalledWith(mockBaseUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${mockToken}`,
+          Authorization: `Bearer ${mockToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(['LRANGE', 'logs:trace-123', '0', '-1']),
@@ -243,8 +262,7 @@ describe('RedisClient', () => {
       });
 
       // Should throw error when trying to parse invalid JSON
-      await expect(redisClient.getLogsByTraceId('trace-123'))
-        .rejects.toThrow();
+      await expect(redisClient.getLogsByTraceId('trace-123')).rejects.toThrow();
     });
 
     it('should handle Redis errors during retrieval', async () => {
@@ -252,8 +270,9 @@ describe('RedisClient', () => {
         LRANGE: RedisMockResponses.ERROR,
       });
 
-      await expect(redisClient.getLogsByTraceId('trace-123'))
-        .rejects.toThrow('Redis request failed');
+      await expect(redisClient.getLogsByTraceId('trace-123')).rejects.toThrow(
+        'Redis request failed'
+      );
     });
   });
 
@@ -269,7 +288,7 @@ describe('RedisClient', () => {
       expect(global.fetch).toHaveBeenCalledWith(mockBaseUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${mockToken}`,
+          Authorization: `Bearer ${mockToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(['LLEN', 'logs:trace-123']),
@@ -291,8 +310,9 @@ describe('RedisClient', () => {
         LLEN: RedisMockResponses.ERROR,
       });
 
-      await expect(redisClient.getTraceCount('trace-123'))
-        .rejects.toThrow('Redis request failed');
+      await expect(redisClient.getTraceCount('trace-123')).rejects.toThrow(
+        'Redis request failed'
+      );
     });
   });
 
@@ -315,29 +335,31 @@ describe('RedisClient', () => {
       const results = await redisClient.pipeline(commands);
 
       expect(results).toEqual([1, 1, 'value']);
-      expect(global.fetch).toHaveBeenCalledWith(
-        `${mockBaseUrl}/pipeline`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${mockToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(commands),
-        }
-      );
+      expect(global.fetch).toHaveBeenCalledWith(`${mockBaseUrl}/pipeline`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${mockToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commands),
+      });
     });
 
     it('should handle mixed success/error results in pipeline', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify([
-        { result: 1 }, // Success
-        { error: 'ERR command failed' }, // Error
-        { result: 'value' }, // Success
-      ]), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(
+          JSON.stringify([
+            { result: 1 }, // Success
+            { error: 'ERR command failed' }, // Error
+            { result: 'value' }, // Success
+          ]),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }
+        )
+      );
 
       const commands = [
         ['SET', 'key1', 'value1'],
@@ -345,21 +367,25 @@ describe('RedisClient', () => {
         ['GET', 'key2'],
       ];
 
-      await expect(redisClient.pipeline(commands))
-        .rejects.toThrow('Redis pipeline command 1 failed: ERR command failed');
+      await expect(redisClient.pipeline(commands)).rejects.toThrow(
+        'Redis pipeline command 1 failed: ERR command failed'
+      );
     });
 
     it('should handle HTTP errors in pipeline requests', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response('Server Error', {
-        status: 500,
-        statusText: 'Internal Server Error'
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('Server Error', {
+          status: 500,
+          statusText: 'Internal Server Error',
+        })
+      );
 
       const commands = [['PING']];
 
-      await expect(redisClient.pipeline(commands))
-        .rejects.toThrow('Redis pipeline failed: 500 Internal Server Error');
+      await expect(redisClient.pipeline(commands)).rejects.toThrow(
+        'Redis pipeline failed: 500 Internal Server Error'
+      );
     });
 
     it('should handle empty pipeline commands', async () => {
@@ -385,7 +411,7 @@ describe('RedisClient', () => {
       expect(global.fetch).toHaveBeenCalledWith(mockBaseUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${mockToken}`,
+          Authorization: `Bearer ${mockToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(['PING']),
@@ -435,7 +461,9 @@ describe('RedisClient', () => {
   describe('getActiveTraces', () => {
     it('should return list of active trace IDs', async () => {
       setupRedisMock({
-        KEYS: { result: ['logs:trace-123', 'logs:trace-456', 'logs:trace-789'] },
+        KEYS: {
+          result: ['logs:trace-123', 'logs:trace-456', 'logs:trace-789'],
+        },
       });
 
       const activeTraces = await redisClient.getActiveTraces();
@@ -444,7 +472,7 @@ describe('RedisClient', () => {
       expect(global.fetch).toHaveBeenCalledWith(mockBaseUrl, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${mockToken}`,
+          Authorization: `Bearer ${mockToken}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(['KEYS', 'logs:*']),
@@ -476,8 +504,9 @@ describe('RedisClient', () => {
         KEYS: RedisMockResponses.ERROR,
       });
 
-      await expect(redisClient.getActiveTraces())
-        .rejects.toThrow('Redis request failed');
+      await expect(redisClient.getActiveTraces()).rejects.toThrow(
+        'Redis request failed'
+      );
     });
   });
 
@@ -503,7 +532,8 @@ describe('RedisClient', () => {
       await redisClient.storeLogEntry(logEntry);
 
       // Retrieve logs by trace ID
-      const retrievedLogs = await redisClient.getLogsByTraceId('integration-trace');
+      const retrievedLogs =
+        await redisClient.getLogsByTraceId('integration-trace');
       expect(retrievedLogs).toHaveLength(1);
       expect(retrievedLogs[0]).toEqual(logEntry);
 
@@ -513,22 +543,27 @@ describe('RedisClient', () => {
     });
 
     it('should handle high-volume log storage simulation', async () => {
-      const logEntries: RedisLogEntry[] = Array.from({ length: 100 }, (_, i) => ({
-        id: `bulk-log-${i}`,
-        trace_id: 'bulk-trace',
-        system: 'browser',
-        level: 'info',
-        message: `Bulk test message ${i}`,
-        timestamp: Date.now() + i,
-      }));
+      const logEntries: RedisLogEntry[] = Array.from(
+        { length: 100 },
+        (_, i) => ({
+          id: `bulk-log-${i}`,
+          trace_id: 'bulk-trace',
+          system: 'browser',
+          level: 'info',
+          message: `Bulk test message ${i}`,
+          timestamp: Date.now() + i,
+        })
+      );
 
       setupRedisMock({
         PIPELINE: RedisMockResponses.PIPELINE_SUCCESS,
       });
 
       // Store all entries (would be done individually in real scenario)
-      const storePromises = logEntries.map(entry => redisClient.storeLogEntry(entry));
-      
+      const storePromises = logEntries.map(entry =>
+        redisClient.storeLogEntry(entry)
+      );
+
       await expect(Promise.all(storePromises)).resolves.not.toThrow();
 
       // Verify all pipeline calls were made
@@ -571,7 +606,7 @@ describe('RedisClient', () => {
       ];
 
       const results = await Promise.all(operations);
-      
+
       // Verify operations completed successfully
       expect(results[2]).toHaveLength(2); // getLogsByTraceId result
       expect(results[3]).toBe(2); // getTraceCount result
@@ -581,25 +616,30 @@ describe('RedisClient', () => {
   describe('Error Recovery and Edge Cases', () => {
     it('should handle authentication errors', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response('Unauthorized', {
-        status: 401,
-        statusText: 'Unauthorized'
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response('Unauthorized', {
+          status: 401,
+          statusText: 'Unauthorized',
+        })
+      );
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow('Redis request failed: 401 Unauthorized');
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+        'Redis request failed: 401 Unauthorized'
+      );
     });
 
     it('should handle timeout scenarios', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockImplementationOnce(() => 
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Request timeout')), 100)
-        )
+      mockFetch.mockImplementationOnce(
+        () =>
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout')), 100)
+          )
       );
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow('Request timeout');
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+        'Request timeout'
+      );
     });
 
     it('should handle very large payloads', async () => {
@@ -619,8 +659,9 @@ describe('RedisClient', () => {
         PIPELINE: RedisMockResponses.PIPELINE_SUCCESS,
       });
 
-      await expect(redisClient.storeLogEntry(largeLogEntry))
-        .resolves.not.toThrow();
+      await expect(
+        redisClient.storeLogEntry(largeLogEntry)
+      ).resolves.not.toThrow();
 
       // Verify the large payload was properly serialized
       const expectedPayload = JSON.stringify(largeLogEntry);
@@ -629,15 +670,21 @@ describe('RedisClient', () => {
 
     it('should handle Redis server maintenance mode', async () => {
       const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-      mockFetch.mockResolvedValueOnce(new Response(JSON.stringify({
-        error: 'ERR server is in maintenance mode'
-      }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      }));
+      mockFetch.mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: 'ERR server is in maintenance mode',
+          }),
+          {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }
+        )
+      );
 
-      await expect((redisClient as any).request(['PING']))
-        .rejects.toThrow('Redis error: ERR server is in maintenance mode');
+      await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+        'Redis error: ERR server is in maintenance mode'
+      );
     });
   });
 });
