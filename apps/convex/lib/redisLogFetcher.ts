@@ -43,9 +43,9 @@ export async function fetchLogsFromRedis(
   systemFilter?: string[]
 ): Promise<RedisLogEntry[]> {
   // Get Worker endpoint from environment
-  const workerEndpoint = process.env.LOG_INGESTION_WORKER_URL;
+  const workerEndpoint = process.env.LOG_WORKER_URL;
   if (!workerEndpoint) {
-    throw new ConvexError('Log ingestion worker URL not configured');
+    throw new ConvexError('Log worker URL not configured');
   }
 
   // Construct fetch URL
