@@ -20,11 +20,15 @@ Location: (Optional - your organization)
 
 4. Click **"Create"**
 
-### 2. Enable Google+ API
+### 2. Enable Required APIs
 
 1. In the Google Cloud Console, navigate to **"APIs & Services"** → **"Library"**
-2. Search for **"Google+ API"**
-3. Click on **"Google+ API"** and then **"Enable"**
+2. Search for and enable these APIs:
+   - **"Google Identity Toolkit API"** - For authentication
+   - **"People API"** - For user profile information
+3. Click on each API and then **"Enable"**
+
+**Note**: The Google+ API has been deprecated. We now use Google Identity APIs for OAuth authentication.
 
 ### 3. Configure OAuth Consent Screen
 
@@ -39,9 +43,11 @@ Developer contact information: your-email@example.com
 ```
 
 4. Add scopes (click **"Add or Remove Scopes"**):
-   - `../auth/userinfo.email`
-   - `../auth/userinfo.profile` 
+   - `https://www.googleapis.com/auth/userinfo.email`
+   - `https://www.googleapis.com/auth/userinfo.profile` 
    - `openid`
+
+   **Note**: Use full scope URLs for clarity and future compatibility.
 
 5. Add test users (for development):
    - Add your development email addresses
@@ -85,6 +91,8 @@ After creating the client:
 
 ## Environment Configuration
 
+**IMPORTANT**: This project uses a centralized environment management system with `.env.source-of-truth.local` files.
+
 ### Update Environment Source File
 
 Edit your `.env.source-of-truth.local` file:
@@ -100,12 +108,18 @@ Edit your `.env.source-of-truth.local` file:
 After updating the source file:
 
 ```bash
-# Sync environment variables
+# Sync environment variables to all required files
 bun run sync-env
 
 # Restart development servers to pick up new variables
 bun dev
 ```
+
+**What this does**:
+- Updates `apps/web/.env.local` with Next.js variables
+- Updates `apps/convex/.env.local` with Convex variables  
+- Maintains consistency across all environments
+- Supports both development ports (3000 and 3100)
 
 ## Development Workflow
 
@@ -303,9 +317,9 @@ To request additional user information:
 1. Go to Google Cloud Console → APIs & Services → OAuth consent screen
 2. Click "Edit App"
 3. In "Scopes" section, add additional scopes:
-   - `../auth/user.birthday.read` - User's birthday
-   - `../auth/user.gender.read` - User's gender
-   - `../auth/user.phonenumbers.read` - User's phone numbers
+   - `https://www.googleapis.com/auth/user.birthday.read` - User's birthday
+   - `https://www.googleapis.com/auth/user.gender.read` - User's gender  
+   - `https://www.googleapis.com/auth/user.phonenumbers.read` - User's phone numbers
 
 **Note**: Additional scopes require app verification for production use.
 
@@ -328,8 +342,8 @@ For custom authentication domains:
 ## Related Documentation
 
 - **[GitHub OAuth Setup](./github-oauth-setup.md)** - Similar setup for GitHub authentication
-- **[Environment Management](./environment-management.md)** - Environment variable strategy
-- **[Authentication Architecture](./authentication-architecture.md)** - Complete authentication system
+- **[Environment Sync Workflow](./environment-sync-workflow.md)** - Environment variable management
+- **[New Repository Setup Guide](../new-repository-setup-guide.md)** - Complete setup process
 - **[Development Guide](../development-guide.md)** - Port management and development workflow
 
 ## External Resources
