@@ -1,100 +1,139 @@
 {
-  "lastUpdated": "2025-07-30T00:00:00.000Z",
-  "version": "1.0.0",
-  "summary": {
+  "lastUpdated": "2025-07-31T00:00:00.000Z",
+  "version": "2.0.0",
+  "visualReportLink": "https://claude.ai/chat/6f1cb39c-7f63-4093-876a-33d27f6f3838",
+  "reportDescription": "Interactive visual dashboard showing test metrics trends, coverage analysis, and failure patterns across all apps",
+  "currentMetrics": {
+    "timestamp": "2025-07-31T00:00:00.000Z",
     "totalApps": 3,
     "testingSessions": {
       "web": {
-        "timestamp": "2025-07-26T14:49:00.000Z",
+        "timestamp": "2025-07-31T00:00:00.000Z",
         "testSuites": {
-          "passed": 1,
-          "failed": 1,
-          "total": 2
+          "passed": 34,
+          "failed": 2,
+          "total": 36
         },
         "tests": {
-          "passed": 1,
-          "failed": 196,
-          "total": 197
+          "passed": 329,
+          "failed": 15,
+          "skipped": 24,
+          "total": 368
         },
         "coverage": {
-          "statements": "72.57%",
-          "branches": "70.08%",
-          "functions": "80.88%",
-          "lines": "72.64%"
+          "statements": "Not specified",
+          "branches": "Not specified",
+          "functions": "Not specified",
+          "lines": "Not specified"
         },
-        "status": "FAILING",
+        "status": "MOSTLY_PASSING",
         "issues": [
-          "useMutation hook compatibility issues with test environment",
-          "React component rendering errors in admin components",
-          "Authentication context mocking challenges"
+          "2 test suites failing with 15 failing tests",
+          "24 tests skipped - may indicate incomplete test coverage",
+          "Coverage metrics not displayed in current run"
         ]
       },
       "convex": {
-        "timestamp": "2025-07-26T14:50:00.000Z",
+        "timestamp": "2025-07-31T00:00:00.000Z",
         "testSuites": {
-          "passed": 3,
-          "failed": 3,
+          "passed": 2,
+          "failed": 4,
           "total": 6
         },
         "tests": {
-          "passed": 277,
-          "failed": 39,
+          "passed": 167,
+          "failed": 149,
           "total": 316
         },
         "coverage": {
-          "statements": "25.5%",
-          "branches": "27.54%",
-          "functions": "20.67%",
-          "lines": "25.32%"
+          "statements": "0%",
+          "branches": "0%",
+          "functions": "0%",
+          "lines": "0%"
         },
-        "status": "PASSING_WITH_FAILURES",
+        "status": "FAILING",
         "issues": [
-          "Text processing character counting edge cases",
-          "Unicode text handling differences",
-          "Some line/paragraph counting algorithm inconsistencies"
+          "Worker process failed to exit gracefully - tests leaking due to improper teardown",
+          "Zero coverage reported - possible configuration issues",
+          "149 test failures across 4 failed test suites"
         ]
       },
       "workers": {
         "timestamp": "2025-07-31T00:00:00.000Z",
         "testSuites": {
-          "passed": 8,
-          "failed": 0,
+          "passed": 7,
+          "failed": 1,
           "total": 8
         },
         "tests": {
-          "passed": 87,
-          "failed": 0,
-          "total": 87
+          "passed": 201,
+          "failed": 3,
+          "total": 204
         },
         "coverage": {
-          "statements": "92.7%",
-          "branches": "84.44%",
+          "statements": "94.79%",
+          "branches": "88.88%",
           "functions": "100%",
-          "lines": "92.55%"
+          "lines": "94.68%"
         },
-        "status": "EXCELLENT_ALL_PASSING",
+        "status": "MOSTLY_PASSING",
         "issues": [
-          "All tests passing after centralized migration",
-          "Coverage excludes rate-limiter.ts due to TypeScript interface issues",
+          "1 test suite failing with 3 failed tests",
+          "Excellent coverage maintained at 94.79% statements",
           "Applied pragmatic @ts-nocheck approach successfully"
         ]
       }
     },
     "aggregated": {
       "testSuites": {
-        "passed": 7,
-        "failed": 9,
-        "total": 16,
-        "successRate": "43.8%"
+        "passed": 43,
+        "failed": 7,
+        "total": 50,
+        "successRate": "86.0%"
       },
       "tests": {
-        "passed": 449,
-        "failed": 268,
-        "total": 717,
-        "successRate": "62.6%"
+        "passed": 697,
+        "failed": 167,
+        "skipped": 24,
+        "total": 888,
+        "successRate": "78.5%"
       }
     }
   },
+  "historicalMetrics": [
+    {
+      "timestamp": "2025-07-30T00:00:00.000Z",
+      "version": "1.0.0",
+      "totalApps": 3,
+      "testingSessions": {
+        "web": {
+          "timestamp": "2025-07-26T14:49:00.000Z",
+          "testSuites": { "passed": 1, "failed": 1, "total": 2 },
+          "tests": { "passed": 1, "failed": 196, "total": 197 },
+          "coverage": { "statements": "72.57%", "branches": "70.08%", "functions": "80.88%", "lines": "72.64%" },
+          "status": "FAILING"
+        },
+        "convex": {
+          "timestamp": "2025-07-26T14:50:00.000Z",
+          "testSuites": { "passed": 3, "failed": 3, "total": 6 },
+          "tests": { "passed": 277, "failed": 39, "total": 316 },
+          "coverage": { "statements": "25.5%", "branches": "27.54%", "functions": "20.67%", "lines": "25.32%" },
+          "status": "PASSING_WITH_FAILURES"
+        },
+        "workers": {
+          "timestamp": "2025-07-31T00:00:00.000Z",
+          "testSuites": { "passed": 8, "failed": 0, "total": 8 },
+          "tests": { "passed": 87, "failed": 0, "total": 87 },
+          "coverage": { "statements": "92.7%", "branches": "84.44%", "functions": "100%", "lines": "92.55%" },
+          "status": "EXCELLENT_ALL_PASSING"
+        }
+      },
+      "aggregated": {
+        "testSuites": { "passed": 7, "failed": 9, "total": 16, "successRate": "43.8%" },
+        "tests": { "passed": 449, "failed": 268, "total": 717, "successRate": "62.6%" }
+      }
+    }
+  ],
   "breakdown": {
     "byApp": {
       "web": {

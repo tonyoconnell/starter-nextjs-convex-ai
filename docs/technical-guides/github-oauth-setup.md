@@ -42,85 +42,65 @@ After creating the app:
 
 ## Environment Configuration
 
-### For Human Development (.env.local)
+**IMPORTANT**: This project uses a centralized environment management system with `.env.source-of-truth.local` files.
+
+### Update Environment Source File
+
+Edit your `.env.source-of-truth.local` file and add your GitHub OAuth credentials:
 
 ```bash
-# Copy .env.local.example to .env.local
-cp .env.local.example .env.local
-
-# Edit .env.local with your credentials:
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-GITHUB_CLIENT_ID=your_actual_client_id
-GITHUB_CLIENT_SECRET=your_actual_client_secret
-OAUTH_SECRET=generate_random_secret_here
-PORT=3000
+# Find the GitHub OAuth section and update:
+| false  | true   | GitHub OAuth      | GITHUB_CLIENT_ID          | your_actual_client_id_here     |
+| false  | true   | GitHub OAuth      | GITHUB_CLIENT_SECRET      | your_actual_client_secret_here |
+| false  | true   | Authentication    | OAUTH_SECRET              | generate_random_secret_here    |
 ```
 
-### For AI Development (.env.ai)
+### Sync Environment Variables
+
+After updating the source file:
 
 ```bash
-# Copy .env.ai.example to .env.ai  
-cp .env.ai.example .env.ai
+# Sync environment variables to all required files
+bun run sync-env
 
-# Edit .env.ai with your credentials:
-NEXT_PUBLIC_APP_URL=http://localhost:3100
-GITHUB_CLIENT_ID=your_actual_client_id  # Same as human
-GITHUB_CLIENT_SECRET=your_actual_client_secret  # Same as human
-OAUTH_SECRET=generate_random_secret_here  # Same as human
-PORT=3100
+# Restart development servers to pick up new variables
+bun dev
 ```
 
-### For Production
-
-Set environment variables in your deployment platform:
-
-```bash
-NEXT_PUBLIC_APP_URL=https://your-production-domain.com
-GITHUB_CLIENT_ID=your_actual_client_id
-GITHUB_CLIENT_SECRET=your_actual_client_secret
-OAUTH_SECRET=your_secure_production_secret
-```
+**What this does**:
+- Updates `apps/web/.env.local` with Next.js variables
+- Updates `apps/convex/.env.local` with Convex variables  
+- Maintains consistency across all environments
+- Supports both development ports (3000 and 3100)
 
 ## Development Workflow
 
-### Option 1: Human Development
+### Human Development (Port 3000)
 
 ```bash
-# Load human environment
-cp .env.local.example .env.local
-# Edit .env.local with your GitHub OAuth credentials
+# Ensure environment is configured
+cat apps/web/.env.local | grep GITHUB
 
-# Start human development server
+# Start development server
 PORT=3000 bun dev
 
 # Access at: http://localhost:3000
 # GitHub OAuth will redirect to: http://localhost:3000/auth/github/callback
 ```
 
-### Option 2: AI Development
+### AI Development (Port 3100)  
 
 ```bash
-# Load AI environment
-cp .env.ai.example .env.ai
-# Edit .env.ai with your GitHub OAuth credentials
-
 # Start AI development server
 PORT=3100 bun dev
 
-# Access at: http://localhost:3100
+# Access at: http://localhost:3100  
 # GitHub OAuth will redirect to: http://localhost:3100/auth/github/callback
 ```
 
-### Option 3: Multi-Environment Development
+### Multi-Environment Development
 
-```bash
-# Start both environments simultaneously
-PORT=3000 bun dev &  # Human development
-PORT=3100 bun dev &  # AI development
-
-# Both will work with the same GitHub OAuth app
-# as long as both redirect URIs are configured
-```
+Both environments can run simultaneously since both redirect URIs are configured in your GitHub OAuth app and the centralized environment system handles port-specific configuration automatically.
 
 ## Verification Steps
 
@@ -219,8 +199,11 @@ Check that your GitHub OAuth app includes:
 
 1. **Check environment variables**:
    ```bash
-   echo $NEXT_PUBLIC_APP_URL
-   echo $PORT
+   # Verify variables are set
+   cat apps/web/.env.local | grep GITHUB
+   
+   # Check source file
+   cat .env.source-of-truth.local | grep "GitHub OAuth"
    ```
 
 2. **Verify OAuth app configuration**:
@@ -236,6 +219,11 @@ Check that your GitHub OAuth app includes:
 
 ## Related Documentation
 
-- [Port Management Examples](../examples/configuration/port-management-examples.md)
-- [Development Guide](../development-guide.md)
-- [GitHub OAuth Documentation](https://docs.github.com/en/developers/apps/building-oauth-apps)
+- **[Google OAuth Setup](./google-oauth-setup.md)** - Similar setup for Google authentication
+- **[Environment Sync Workflow](./environment-sync-workflow.md)** - Environment variable management
+- **[New Repository Setup Guide](../new-repository-setup-guide.md)** - Complete setup process
+- **[Development Guide](../development-guide.md)** - Development workflow and port management
+
+## External Resources
+
+- **[GitHub OAuth Documentation](https://docs.github.com/en/developers/apps/building-oauth-apps)** - Official GitHub OAuth guide

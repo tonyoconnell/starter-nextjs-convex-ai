@@ -54,19 +54,75 @@ Before starting, ensure you have:
 
 **Goal**: Set up the centralized environment variable management system.
 
-1. **Clone your repository**:
+1. **Create your new project**:
 
+   **Option A: Using degit (Recommended - Clean start)**
+   ```bash
+   # Install degit if not already installed
+   npm install -g degit
+   
+   # Create new project without git history
+   degit appydave-templates/starter-nextjs-convex-ai my-new-project
+   cd my-new-project
+   
+   # Initialize fresh git repository
+   git init
+   git add .
+   git commit -m "feat: initial project setup from template"
+   
+   # Connect to your new GitHub repository
+   git remote add origin https://github.com/your-username/your-new-repo.git
+   git push -u origin main
+   
+   bun install
+   ```
+
+   **Option B: Traditional git clone**
    ```bash
    git clone https://github.com/your-username/your-repo-name.git
    cd your-repo-name
    bun install
    ```
 
-2. **Create environment source file**:
+2. **Set up required configuration files**:
 
    ```bash
+   # Create environment source file
    cp .env.source-of-truth.example .env.source-of-truth.local
    ```
+
+   **⚠️ Manual File Setup Required**:
+   
+   The following files are gitignored and need manual setup:
+   
+   ```bash
+   # Required for development
+   cp .env.source-of-truth.example .env.source-of-truth.local
+   
+   # Worker environment (if using log ingestion)
+   cp apps/workers/log-ingestion/.dev.vars.example apps/workers/log-ingestion/.dev.vars
+   
+   # Optional: Claude Code configuration (if using Claude)
+   # Note: .claude/settings.local.json - will be created when first using Claude Code
+   ```
+
+   **Hidden Files Verification**:
+   ```bash
+   # Verify critical hidden files are present
+   ls -la | grep -E "\.(git|husky|prettier)"
+   ls -la .github/
+   ls -la apps/web/.eslintrc.json
+   ```
+
+   **Post-Degit Setup Checklist**:
+   
+   After using degit, verify these components are working:
+   - [ ] Git repository initialized (`git status` works)
+   - [ ] GitHub Actions workflows present (`.github/workflows/`)
+   - [ ] Husky git hooks configured (`.husky/` directory)
+   - [ ] ESLint configurations present (`.eslintrc.json` files)
+   - [ ] Environment examples exist (`.env.source-of-truth.example`)
+   - [ ] Package manager lockfile appropriate for your setup
 
 3. **Understand the table format**:
    The `.env.source-of-truth.local` file uses a human-readable table:
@@ -336,8 +392,8 @@ Before starting, ensure you have:
 **Quick Setup** (5 minutes):
 ```bash
 # 1. Configure all environment variables
-node scripts/sync-env.js --dry-run    # Review changes
-node scripts/sync-env.js              # Apply configuration
+bun run sync-env --dry-run    # Review changes
+bun run sync-env              # Apply configuration
 
 # 2. Deploy worker with validation
 ./scripts/deploy-worker.sh            # Automated deployment
@@ -350,7 +406,7 @@ node scripts/sync-env.js              # Apply configuration
 **Manual Setup** (if automated fails):
 1. Create Upstash Redis database at [upstash.com](https://upstash.com)
 2. Update `.env.source-of-truth.local` with Redis credentials
-3. Run sync: `node scripts/sync-env.js`
+3. Run sync: `bun run sync-env`
 4. Deploy: `./scripts/deploy-worker.sh`
 
 ✅ **Success Check**: `curl https://your-worker.workers.dev/health` returns healthy status.
