@@ -9,7 +9,6 @@
     "deploy:production": "wrangler deploy --env production",
     "build": "esbuild src/index.ts --bundle --format=esm --target=es2022 --outfile=dist/index.js",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src/**/*.ts",
     "format": "prettier --write src/**/*.ts"
   },
   "dependencies": {
