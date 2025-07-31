@@ -6,6 +6,7 @@ import TraceSearchForm from './components/TraceSearchForm';
 import TimelineViewer from './components/TimelineViewer';
 import CorrelationPanel from './components/CorrelationPanel';
 import ExportControls from './components/ExportControls';
+import RecentTraces from './components/RecentTraces';
 import { fetchLogsForTrace, exportDebugSession } from './lib/debug-api';
 import type { DebugSession } from './lib/debug-api';
 
@@ -14,6 +15,10 @@ export default function DebugPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [systemFilter, setSystemFilter] = useState<string[]>([]);
+
+  const handleTraceSelect = (traceId: string) => {
+    handleTraceSearch(traceId, systemFilter);
+  };
 
   const handleTraceSearch = async (traceId: string, systemFilters: string[]) => {
     setLoading(true);
@@ -78,24 +83,62 @@ export default function DebugPage() {
         )}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Trace Search</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <TraceSearchForm 
-            onSearch={handleTraceSearch}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Trace Search</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TraceSearchForm 
+                onSearch={handleTraceSearch}
+                loading={loading}
+              />
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div>
+          <RecentTraces 
+            onSelectTrace={handleTraceSelect}
             loading={loading}
           />
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {error && (
         <Card className="border-destructive">
           <CardContent className="pt-6">
-            <div className="flex items-center space-x-2 text-destructive">
-              <span className="text-sm font-medium">Error:</span>
-              <span className="text-sm">{error}</span>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2 text-destructive">
+                <span className="text-sm font-medium">Debug Error:</span>
+                <span className="text-sm">{error}</span>
+              </div>
+              
+              {error.includes('Log ingestion worker URL not configured') && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-sm text-amber-800 font-medium mb-2">⚙️ Configuration Required</p>
+                  <div className="text-xs text-amber-700 space-y-1">
+                    <p>The debug interface requires the log ingestion worker to be configured.</p>
+                    <p className="font-mono bg-amber-100 px-2 py-1 rounded">
+                      Add LOG_INGESTION_WORKER_URL to your environment variables
+                    </p>
+                    <p>Example: <code>LOG_INGESTION_WORKER_URL=https://your-worker.workers.dev</code></p>
+                  </div>
+                </div>
+              )}
+              
+              {error.includes('Failed to fetch logs') && !error.includes('worker URL') && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800 font-medium mb-2">💡 Troubleshooting Tips</p>
+                  <div className="text-xs text-blue-700 space-y-1">
+                    <p>• Check if the trace ID exists and has logs</p>
+                    <p>• Verify the log ingestion worker is running</p>
+                    <p>• Try generating some logs first (console.log, console.error, etc.)</p>
+                    <p>• Use the "Debug Now" button for your current browser session</p>
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

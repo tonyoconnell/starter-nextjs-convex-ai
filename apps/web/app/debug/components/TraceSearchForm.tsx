@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@starter/ui/button';
 import { Input } from '@starter/ui/input';
 import { Label } from '@starter/ui/label';
 import { Checkbox } from '@starter/ui/checkbox';
 import { Card } from '@starter/ui/card';
+import { Badge } from '@starter/ui/badge';
+import { Clock, Copy } from 'lucide-react';
 
 interface TraceSearchFormProps {
   onSearch: (traceId: string, systemFilters: string[]) => void;
@@ -22,6 +24,46 @@ const SYSTEM_OPTIONS = [
 export default function TraceSearchForm({ onSearch, loading }: TraceSearchFormProps) {
   const [traceId, setTraceId] = useState('');
   const [systemFilters, setSystemFilters] = useState<string[]>([]);
+  const [currentBrowserTrace, setCurrentBrowserTrace] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Get current browser trace ID on component mount
+  useEffect(() => {
+    try {
+      // Access the global ConsoleLogger if available
+      const consoleLogger = (window as unknown as { ConsoleLogger?: { getTraceId: () => string } }).ConsoleLogger;
+      if (consoleLogger && typeof consoleLogger.getTraceId === 'function') {
+        const traceId = consoleLogger.getTraceId();
+        setCurrentBrowserTrace(traceId);
+      }
+    } catch (error) {
+      // Silently fail if ConsoleLogger is not available
+    }
+  }, []);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    } catch {
+      // Silent failure for clipboard - not critical
+    }
+  };
+
+  const useCurrentTrace = () => {
+    if (currentBrowserTrace) {
+      setTraceId(currentBrowserTrace);
+    }
+  };
+
+  const debugCurrentSession = () => {
+    if (currentBrowserTrace) {
+      onSearch(currentBrowserTrace, systemFilters);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +85,54 @@ export default function TraceSearchForm({ onSearch, loading }: TraceSearchFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-4">
+      {/* Current Browser Session */}
+      {currentBrowserTrace && (
+        <Card className="p-4 bg-blue-50 border-blue-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <div>
+                <p className="text-sm font-medium text-blue-900">Current Browser Session</p>
+                <p className="text-xs text-blue-600 font-mono">{currentBrowserTrace}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => copyToClipboard(currentBrowserTrace)}
+                className="h-8"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                {copied ? 'Copied!' : 'Copy'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={useCurrentTrace}
+                className="h-8"
+              >
+                Use This ID
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={debugCurrentSession}
+                disabled={loading}
+                className="h-8"
+              >
+                Debug Now
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="traceId">Trace ID</Label>
@@ -140,5 +229,6 @@ export default function TraceSearchForm({ onSearch, loading }: TraceSearchFormPr
         </div>
       )}
     </form>
+    </div>
   );
 }
