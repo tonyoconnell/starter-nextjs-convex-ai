@@ -30,7 +30,7 @@ const SENSITIVE_PATTERNS = [
   },
   // Add API keys and other common sensitive patterns
   {
-    pattern: /api[_\-]?key["']\s*:\s*["']([^"']+)["']/gi,
+    pattern: /api[_-]?key["']\s*:\s*["']([^"']+)["']/gi,
     replacement: 'api_key": "[REDACTED]"',
   },
   {
@@ -59,99 +59,121 @@ const SUPPRESSED_PATTERNS = [
   // Common browser noise
   'Received an error',
   'Non-Error promise rejection',
-  
+
   // Worker-specific noise
   'Script will terminate',
   'Worker script error',
 ];
 
 export class LogProcessor {
-  
-  static validateRequest(request: WorkerLogRequest): { valid: boolean; error?: string } {
+  static validateRequest(request: WorkerLogRequest): {
+    valid: boolean;
+    error?: string;
+  } {
     if (!request.trace_id) {
       return { valid: false, error: 'trace_id is required' };
     }
-    
+
     if (!request.message) {
       return { valid: false, error: 'message is required' };
     }
-    
+
     if (!['log', 'info', 'warn', 'error'].includes(request.level)) {
-      return { valid: false, error: 'level must be one of: log, info, warn, error' };
+      return {
+        valid: false,
+        error: 'level must be one of: log, info, warn, error',
+      };
     }
-    
-    if (request.system && !['browser', 'convex', 'worker', 'manual'].includes(request.system)) {
-      return { valid: false, error: 'system must be one of: browser, convex, worker, manual' };
+
+    if (
+      request.system &&
+      !['browser', 'convex', 'worker', 'manual'].includes(request.system)
+    ) {
+      return {
+        valid: false,
+        error: 'system must be one of: browser, convex, worker, manual',
+      };
     }
-    
+
     return { valid: true };
   }
 
   static shouldSuppressMessage(message: string): boolean {
     const lowerMessage = message.toLowerCase();
-    
-    return SUPPRESSED_PATTERNS.some(pattern => 
+
+    return SUPPRESSED_PATTERNS.some(pattern =>
       lowerMessage.includes(pattern.toLowerCase())
     );
   }
 
   static redactSensitiveData(text: string): string {
     let redactedText = text;
-    
+
     SENSITIVE_PATTERNS.forEach(({ pattern, replacement }) => {
       redactedText = redactedText.replace(pattern, replacement);
     });
-    
+
     return redactedText;
   }
 
-  static detectSystemFromHeaders(headers: Headers): 'browser' | 'convex' | 'worker' | 'manual' {
+  static detectSystemFromHeaders(
+    headers: Headers
+  ): 'browser' | 'convex' | 'worker' | 'manual' {
     const origin = headers.get('origin') || '';
     const userAgent = headers.get('user-agent') || '';
     const referer = headers.get('referer') || '';
-    
+
     // Check for browser indicators
-    if (origin.includes('localhost') || origin.includes('127.0.0.1') || 
-        referer.includes('localhost') || referer.includes('127.0.0.1')) {
+    if (
+      origin.includes('localhost') ||
+      origin.includes('127.0.0.1') ||
+      referer.includes('localhost') ||
+      referer.includes('127.0.0.1')
+    ) {
       return 'browser';
     }
-    
+
     // Check for Cloudflare Worker indicators
-    if (userAgent.toLowerCase().includes('worker') || 
-        userAgent.toLowerCase().includes('cloudflare')) {
+    if (
+      userAgent.toLowerCase().includes('worker') ||
+      userAgent.toLowerCase().includes('cloudflare')
+    ) {
       return 'worker';
     }
-    
+
     // Check for Convex indicators
-    if (userAgent.toLowerCase().includes('convex') || 
-        origin.includes('convex')) {
+    if (
+      userAgent.toLowerCase().includes('convex') ||
+      origin.includes('convex')
+    ) {
       return 'convex';
     }
-    
+
     // Default fallback
     return 'manual';
   }
 
   static processLogRequest(
-    request: WorkerLogRequest, 
+    request: WorkerLogRequest,
     headers: Headers
   ): { processedEntry: RedisLogEntry; shouldProcess: boolean } {
-    
     // Check if message should be suppressed
     if (this.shouldSuppressMessage(request.message)) {
-      return { 
-        processedEntry: {} as RedisLogEntry, 
-        shouldProcess: false 
+      return {
+        processedEntry: {} as RedisLogEntry,
+        shouldProcess: false,
       };
     }
-    
+
     // Auto-detect system if not provided
     const system = request.system || this.detectSystemFromHeaders(headers);
-    
+
     // Redact sensitive data
     const redactedMessage = this.redactSensitiveData(request.message);
-    const redactedStack = request.stack ? this.redactSensitiveData(request.stack) : undefined;
-    
+    const redactedStack = request.stack
+      ? this.redactSensitiveData(request.stack)
+      : undefined;
+
     // Process context data
     let redactedContext: Record<string, any> | undefined;
     if (request.context) {
@@ -161,14 +183,16 @@ export class LogProcessor {
         try {
           redactedContext = JSON.parse(redactedContextStr);
         } catch {
-          redactedContext = { error: 'Failed to parse context after redaction' };
+          redactedContext = {
+            error: 'Failed to parse context after redaction',
+          };
         }
       } catch {
         // Handle circular references or other JSON.stringify errors
         redactedContext = { error: 'Failed to parse context after redaction' };
       }
     }
-    
+
     const processedEntry: RedisLogEntry = {
       id: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       trace_id: request.trace_id,
@@ -180,7 +204,7 @@ export class LogProcessor {
       timestamp: Date.now(),
       context: redactedContext,
     };
-    
+
     return { processedEntry, shouldProcess: true };
   }
 
