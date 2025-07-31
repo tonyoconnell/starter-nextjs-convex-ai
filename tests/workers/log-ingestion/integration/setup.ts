@@ -40,7 +40,9 @@ global.Request = class MockRequest {
   }
 
   async text() {
-    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+    return typeof this.body === 'string'
+      ? this.body
+      : JSON.stringify(this.body);
   }
 } as any;
 
@@ -50,7 +52,7 @@ global.Headers = class MockHeaders {
 
   constructor(init?: HeadersInit) {
     this.headers = new Map();
-    
+
     if (init) {
       if (init instanceof Headers) {
         init.forEach((value, key) => {
@@ -110,7 +112,9 @@ global.Response = class MockResponse {
   }
 
   async text() {
-    return typeof this.body === 'string' ? this.body : JSON.stringify(this.body);
+    return typeof this.body === 'string'
+      ? this.body
+      : JSON.stringify(this.body);
   }
 
   static json(body: any, init?: ResponseInit) {
@@ -130,20 +134,17 @@ class MockURLSearchParams {
 
   constructor(search?: string) {
     this.params = new Map();
-    
+
     if (search) {
       // Remove leading '?' if present
       const cleanSearch = search.startsWith('?') ? search.slice(1) : search;
-      
+
       // Parse query parameters
       if (cleanSearch) {
         cleanSearch.split('&').forEach(pair => {
           const [key, value = ''] = pair.split('=');
           if (key) {
-            this.params.set(
-              decodeURIComponent(key), 
-              decodeURIComponent(value)
-            );
+            this.params.set(decodeURIComponent(key), decodeURIComponent(value));
           }
         });
       }
@@ -207,14 +208,14 @@ global.URL = class MockURL {
       const baseUrl = base.endsWith('/') ? base.slice(0, -1) : base;
       fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
     }
-    
+
     // Simple but robust URL parsing
     this.href = fullUrl;
-    
+
     // Extract protocol
     const protocolMatch = fullUrl.match(/^(https?:)/);
     this.protocol = protocolMatch ? protocolMatch[1] : 'http:';
-    
+
     // Extract hostname and port
     const hostMatch = fullUrl.match(/https?:\/\/([^\/\?#]+)/);
     if (hostMatch) {
@@ -231,17 +232,17 @@ global.URL = class MockURL {
       this.hostname = 'localhost';
       this.port = '3000';
     }
-    
+
     this.origin = `${this.protocol}//${this.hostname}${this.port !== '80' && this.port !== '443' ? ':' + this.port : ''}`;
-    
+
     // Extract pathname
     const pathMatch = fullUrl.match(/https?:\/\/[^\/]+(\/?[^?#]*)/);
     this.pathname = pathMatch ? pathMatch[1] || '/' : '/';
-    
+
     // Extract search
     const searchMatch = fullUrl.match(/\?([^#]*)/);
     this.search = searchMatch ? `?${searchMatch[1]}` : '';
-    
+
     // Extract hash
     const hashMatch = fullUrl.match(/#(.*)$/);
     this.hash = hashMatch ? `#${hashMatch[1]}` : '';
@@ -259,7 +260,7 @@ global.ExecutionContext = class MockExecutionContext {
   waitUntil(promise: Promise<any>) {
     return promise;
   }
-  
+
   passThroughOnException() {
     // No-op for testing
   }
@@ -269,7 +270,7 @@ global.ExecutionContext = class MockExecutionContext {
 export class MockDurableObjectState {
   private storageMap: Map<string, any> = new Map();
   public storage: any;
-  
+
   constructor() {
     this.storage = {
       get: jest.fn().mockImplementation((key: string) => {
@@ -308,131 +309,152 @@ export class MockDurableObjectStub {
     global_limit: 1000,
     system_quotas: { browser: 400, convex: 300, worker: 300 },
     per_trace_limit: 100,
-    window_ms: 3600000
+    window_ms: 3600000,
   };
-  
+
   private state = {
     global_current: 0,
     system_current: { browser: 0, convex: 0, worker: 0 },
     trace_counts: {} as Record<string, number>,
-    window_start: Date.now()
+    window_start: Date.now(),
   };
-  
+
   constructor() {
     this.resetState();
   }
-  
+
   async fetch(url: string, init?: RequestInit): Promise<Response> {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname;
-    
+
     if (pathname === '/status' && init?.method !== 'POST') {
-      return new Response(JSON.stringify({
-        config: this.config,
-        current_state: { ...this.state },
-        window_remaining_ms: Math.max(0, this.config.window_ms - (Date.now() - this.state.window_start))
-      }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          config: this.config,
+          current_state: { ...this.state },
+          window_remaining_ms: Math.max(
+            0,
+            this.config.window_ms - (Date.now() - this.state.window_start)
+          ),
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     if (pathname === '/check' && init?.method === 'POST') {
       return this.handleRateLimitCheck(init);
     }
-    
+
     if (pathname === '/reset' && init?.method === 'POST') {
       this.resetState();
-      return new Response(JSON.stringify({ success: true, message: 'Rate limits reset' }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({ success: true, message: 'Rate limits reset' }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     return new Response(JSON.stringify({ error: 'Not found' }), {
       status: 404,
-      headers: { 'content-type': 'application/json' }
+      headers: { 'content-type': 'application/json' },
     });
   }
-  
+
   private async handleRateLimitCheck(init: RequestInit): Promise<Response> {
     const body = JSON.parse(init.body as string);
     const { system, trace_id } = body;
-    
+
     // Check if window has expired
     const now = Date.now();
     if (now - this.state.window_start >= this.config.window_ms) {
       this.resetState(now);
     }
-    
+
     // Check global limit
     if (this.state.global_current >= this.config.global_limit) {
-      return new Response(JSON.stringify({
-        allowed: false,
-        reason: 'Global rate limit exceeded',
-        remaining_quota: 0,
-      }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          allowed: false,
+          reason: 'Global rate limit exceeded',
+          remaining_quota: 0,
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     // Check system limit
     const systemCurrent = this.state.system_current[system] || 0;
     const systemLimit = this.config.system_quotas[system];
-    
+
     if (systemCurrent >= systemLimit) {
-      return new Response(JSON.stringify({
-        allowed: false,
-        reason: `${system} system rate limit exceeded`,
-        remaining_quota: systemLimit - systemCurrent,
-      }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          allowed: false,
+          reason: `${system} system rate limit exceeded`,
+          remaining_quota: systemLimit - systemCurrent,
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     // Check per-trace limit
     const traceCurrent = this.state.trace_counts[trace_id] || 0;
     if (traceCurrent >= this.config.per_trace_limit) {
-      return new Response(JSON.stringify({
-        allowed: false,
-        reason: `Per-trace rate limit exceeded for ${trace_id}`,
-        remaining_quota: this.config.per_trace_limit - traceCurrent,
-      }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify({
+          allowed: false,
+          reason: `Per-trace rate limit exceeded for ${trace_id}`,
+          remaining_quota: this.config.per_trace_limit - traceCurrent,
+        }),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     // Allow the request and update counters
     this.state.global_current++;
     this.state.system_current[system] = systemCurrent + 1;
     this.state.trace_counts[trace_id] = traceCurrent + 1;
-    
-    return new Response(JSON.stringify({
-      allowed: true,
-      remaining_quota: systemLimit - (systemCurrent + 1),
-    }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' }
-    });
+
+    return new Response(
+      JSON.stringify({
+        allowed: true,
+        remaining_quota: systemLimit - (systemCurrent + 1),
+      }),
+      {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }
+    );
   }
-  
+
   resetState(windowStart?: number) {
     this.state = {
       global_current: 0,
       system_current: { browser: 0, convex: 0, worker: 0 },
       trace_counts: {},
-      window_start: windowStart || Date.now()
+      window_start: windowStart || Date.now(),
     };
   }
-  
+
   // For testing - set custom state
   setState(newState: Partial<typeof this.state>) {
     this.state = { ...this.state, ...newState };
   }
-  
+
   // For testing - get current state
   getState() {
     return { ...this.state };
@@ -487,7 +509,7 @@ export function createMockEnvironment(): MockEnvironment {
   if (!currentRateLimiterStub) {
     currentRateLimiterStub = new MockDurableObjectStub();
   }
-  
+
   return {
     UPSTASH_REDIS_REST_URL: 'https://mock-redis.upstash.io',
     UPSTASH_REDIS_REST_TOKEN: 'mock-token-123',
@@ -528,17 +550,17 @@ export const RedisMockResponses = {
   LRANGE: { result: ['{"id":"test-1","message":"test"}'] },
   LLEN: { result: 1 },
   KEYS: { result: ['logs:trace-123', 'logs:trace-456'] },
-  
+
   // Pipeline responses
   PIPELINE_SUCCESS: [
     { result: 1 }, // LPUSH
-    { result: 1 }  // EXPIRE
+    { result: 1 }, // EXPIRE
   ],
-  
+
   // Error responses
   ERROR: { error: 'ERR mock redis error' },
   NETWORK_ERROR: 'NETWORK_ERROR', // Special marker for network errors
-  
+
   // Health check responses
   HEALTHY: { result: 'PONG' },
   UNHEALTHY: { error: 'Connection refused' },
@@ -547,10 +569,10 @@ export const RedisMockResponses = {
 // Setup Redis mock responses helper
 export function setupRedisMock(scenarios: Record<string, any>) {
   const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
-  
+
   mockFetch.mockImplementation(async (url: string, init?: RequestInit) => {
     const urlString = url.toString();
-    
+
     // Parse Redis command from request body
     let command = '';
     if (init?.body) {
@@ -561,32 +583,37 @@ export function setupRedisMock(scenarios: Record<string, any>) {
         command = '';
       }
     }
-    
+
     // Check for pipeline requests
     if (urlString.includes('/pipeline')) {
-      return new Response(JSON.stringify(scenarios.PIPELINE || RedisMockResponses.PIPELINE_SUCCESS), {
-        status: 200,
-        headers: { 'content-type': 'application/json' }
-      });
+      return new Response(
+        JSON.stringify(
+          scenarios.PIPELINE || RedisMockResponses.PIPELINE_SUCCESS
+        ),
+        {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }
+      );
     }
-    
+
     // Handle specific Redis commands
     const responseData = scenarios[command] || RedisMockResponses[command];
-    
+
     if (responseData === 'NETWORK_ERROR') {
       throw new Error('Network error');
     }
-    
+
     if (responseData?.error) {
       return new Response(JSON.stringify(responseData), {
         status: 500,
-        headers: { 'content-type': 'application/json' }
+        headers: { 'content-type': 'application/json' },
       });
     }
-    
+
     return new Response(JSON.stringify(responseData || { result: null }), {
       status: 200,
-      headers: { 'content-type': 'application/json' }
+      headers: { 'content-type': 'application/json' },
     });
   });
 }
@@ -602,25 +629,26 @@ export const TestUtils = {
     timestamp: Date.now(),
     ...overrides,
   }),
-  
+
   // Create mock headers
-  mockHeaders: (overrides = {}) => new Headers({
-    'content-type': 'application/json',
-    'origin': 'https://localhost:3000',
-    'user-agent': 'Mozilla/5.0 (Test Browser)',
-    ...overrides,
-  }),
-  
+  mockHeaders: (overrides = {}) =>
+    new Headers({
+      'content-type': 'application/json',
+      origin: 'https://localhost:3000',
+      'user-agent': 'Mozilla/5.0 (Test Browser)',
+      ...overrides,
+    }),
+
   // Wait for async operations
   wait: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
-  
+
   // Assert response structure
   assertSuccessResponse: (response: any) => {
     expect(response).toHaveProperty('success', true);
     expect(response).toHaveProperty('trace_id');
     expect(typeof response.trace_id).toBe('string');
   },
-  
+
   assertErrorResponse: (response: any, expectedError?: string) => {
     expect(response).toHaveProperty('success', false);
     expect(response).toHaveProperty('error');

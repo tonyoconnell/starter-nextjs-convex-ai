@@ -2,8 +2,14 @@
 // Tests Durable Object state management, rate limiting enforcement, and window reset logic
 // @ts-nocheck
 
-import { RateLimiterDO, checkRateLimit } from '../rate-limiter';
-import { MockDurableObjectState, MockDurableObjectStub } from '../../tests/setup';
+import {
+  RateLimiterDO,
+  checkRateLimit,
+} from '../../../../apps/workers/log-ingestion/src/rate-limiter';
+import {
+  MockDurableObjectState,
+  MockDurableObjectStub,
+} from '../integration/setup';
 
 describe('RateLimiterDO', () => {
   let rateLimiter: RateLimiterDO;
@@ -99,11 +105,11 @@ describe('RateLimiterDO', () => {
     it('should deny requests when global limit exceeded', async () => {
       // PRAGMATIC FIX: Distribute requests across systems to avoid hitting individual system limits first
       // Global limit (1000) can only be reached by using multiple systems, not single system (browser=400)
-      
+
       const systemRequests = [
-        { system: 'browser', count: 350 },  // Under browser limit (400)
-        { system: 'convex', count: 300 },   // At convex limit (300)
-        { system: 'worker', count: 300 }    // At worker limit (300) - Total: 950
+        { system: 'browser', count: 350 }, // Under browser limit (400)
+        { system: 'convex', count: 300 }, // At convex limit (300)
+        { system: 'worker', count: 300 }, // At worker limit (300) - Total: 950
       ];
 
       // Fill up to near global limit using mixed systems
@@ -112,9 +118,9 @@ describe('RateLimiterDO', () => {
           const request = new Request('http://localhost/check', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ 
-              system, 
-              trace_id: `${system}-trace-${Math.floor(i / 10)}` // Multiple traces per system
+            body: JSON.stringify({
+              system,
+              trace_id: `${system}-trace-${Math.floor(i / 10)}`, // Multiple traces per system
             }),
           });
           await rateLimiter.fetch(request);
@@ -126,9 +132,9 @@ describe('RateLimiterDO', () => {
         const request = new Request('http://localhost/check', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ 
-            system: 'browser', 
-            trace_id: `browser-final-${i}` 
+          body: JSON.stringify({
+            system: 'browser',
+            trace_id: `browser-final-${i}`,
           }),
         });
         await rateLimiter.fetch(request);
@@ -138,7 +144,10 @@ describe('RateLimiterDO', () => {
       const request = new Request('http://localhost/check', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ system: 'convex', trace_id: 'test-global-limit' }),
+        body: JSON.stringify({
+          system: 'convex',
+          trace_id: 'test-global-limit',
+        }),
       });
 
       const response = await rateLimiter.fetch(request);
@@ -156,7 +165,10 @@ describe('RateLimiterDO', () => {
         const request = new Request('http://localhost/check', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ system: 'browser', trace_id: `trace-${i % 10}` }),
+          body: JSON.stringify({
+            system: 'browser',
+            trace_id: `trace-${i % 10}`,
+          }),
         });
         await rateLimiter.fetch(request);
       }
@@ -183,7 +195,10 @@ describe('RateLimiterDO', () => {
         const request = new Request('http://localhost/check', {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ system: 'browser', trace_id: `browser-trace-${i}` }),
+          body: JSON.stringify({
+            system: 'browser',
+            trace_id: `browser-trace-${i}`,
+          }),
         });
         await rateLimiter.fetch(request);
       }
@@ -192,7 +207,10 @@ describe('RateLimiterDO', () => {
       const browserRequest = new Request('http://localhost/check', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ system: 'browser', trace_id: 'new-browser-trace' }),
+        body: JSON.stringify({
+          system: 'browser',
+          trace_id: 'new-browser-trace',
+        }),
       });
 
       const browserResponse = await rateLimiter.fetch(browserRequest);
@@ -269,7 +287,9 @@ describe('RateLimiterDO', () => {
       const trace1Data = await trace1Response.json();
 
       expect(trace1Data.allowed).toBe(false);
-      expect(trace1Data.reason).toBe(`Per-trace rate limit exceeded for ${trace1}`);
+      expect(trace1Data.reason).toBe(
+        `Per-trace rate limit exceeded for ${trace1}`
+      );
 
       // But trace-2 should still be allowed
       const trace2Request = new Request('http://localhost/check', {
@@ -326,14 +346,16 @@ describe('RateLimiterDO', () => {
         }
 
         // Verify some usage
-        const statusRequest1 = new Request('http://localhost/status', { method: 'GET' });
+        const statusRequest1 = new Request('http://localhost/status', {
+          method: 'GET',
+        });
         const statusResponse1 = await rateLimiter.fetch(statusRequest1);
         const statusData1 = await statusResponse1.json();
 
         expect(statusData1.current_state.global_current).toBe(10);
 
         // Advance time past window expiry (1 hour + 1 second)
-        currentTime += (60 * 60 * 1000) + 1000;
+        currentTime += 60 * 60 * 1000 + 1000;
 
         // Make another request - should reset the window
         const newRequest = new Request('http://localhost/check', {
@@ -349,15 +371,18 @@ describe('RateLimiterDO', () => {
         expect(newData.remaining_quota).toBe(399); // Should be reset to full quota - 1
 
         // Verify window was reset
-        const statusRequest2 = new Request('http://localhost/status', { method: 'GET' });
+        const statusRequest2 = new Request('http://localhost/status', {
+          method: 'GET',
+        });
         const statusResponse2 = await rateLimiter.fetch(statusRequest2);
         const statusData2 = await statusResponse2.json();
 
         expect(statusData2.current_state.global_current).toBe(1); // Only the new request
         expect(statusData2.current_state.system_current.browser).toBe(1);
         expect(statusData2.current_state.trace_counts['new-trace']).toBe(1);
-        expect(statusData2.current_state.trace_counts).not.toHaveProperty('trace-0'); // Old trace data cleared
-
+        expect(statusData2.current_state.trace_counts).not.toHaveProperty(
+          'trace-0'
+        ); // Old trace data cleared
       } finally {
         Date.now = originalNow;
       }
@@ -402,14 +427,18 @@ describe('RateLimiterDO', () => {
       }
 
       // Verify state has usage
-      const statusRequest1 = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest1 = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse1 = await rateLimiter.fetch(statusRequest1);
       const statusData1 = await statusResponse1.json();
 
       expect(statusData1.current_state.global_current).toBe(50);
 
       // Reset
-      const resetRequest = new Request('http://localhost/reset', { method: 'POST' });
+      const resetRequest = new Request('http://localhost/reset', {
+        method: 'POST',
+      });
       const resetResponse = await rateLimiter.fetch(resetRequest);
       const resetData = await resetResponse.json();
 
@@ -417,7 +446,9 @@ describe('RateLimiterDO', () => {
       expect(resetData.message).toBe('Rate limits reset');
 
       // Verify state was reset
-      const statusRequest2 = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest2 = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse2 = await rateLimiter.fetch(statusRequest2);
       const statusData2 = await statusResponse2.json();
 
@@ -425,13 +456,17 @@ describe('RateLimiterDO', () => {
       expect(statusData2.current_state.system_current.browser).toBe(0);
       expect(statusData2.current_state.system_current.convex).toBe(0);
       expect(statusData2.current_state.system_current.worker).toBe(0);
-      expect(Object.keys(statusData2.current_state.trace_counts)).toHaveLength(0);
+      expect(Object.keys(statusData2.current_state.trace_counts)).toHaveLength(
+        0
+      );
     });
   });
 
   describe('handleStatus', () => {
     it('should return comprehensive status information', async () => {
-      const statusRequest = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse = await rateLimiter.fetch(statusRequest);
       const statusData = await statusResponse.json();
 
@@ -459,7 +494,9 @@ describe('RateLimiterDO', () => {
 
       // Verify window remaining time
       expect(statusData.window_remaining_ms).toBeGreaterThan(0);
-      expect(statusData.window_remaining_ms).toBeLessThanOrEqual(60 * 60 * 1000);
+      expect(statusData.window_remaining_ms).toBeLessThanOrEqual(
+        60 * 60 * 1000
+      );
     });
 
     it('should show updated status after requests', async () => {
@@ -475,7 +512,9 @@ describe('RateLimiterDO', () => {
         await rateLimiter.fetch(request);
       }
 
-      const statusRequest = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse = await rateLimiter.fetch(statusRequest);
       const statusData = await statusResponse.json();
 
@@ -483,7 +522,9 @@ describe('RateLimiterDO', () => {
       expect(statusData.current_state.system_current.browser).toBe(5);
       expect(statusData.current_state.system_current.convex).toBe(5);
       expect(statusData.current_state.system_current.worker).toBe(5);
-      expect(Object.keys(statusData.current_state.trace_counts)).toHaveLength(15);
+      expect(Object.keys(statusData.current_state.trace_counts)).toHaveLength(
+        15
+      );
     });
   });
 
@@ -495,22 +536,28 @@ describe('RateLimiterDO', () => {
       const request = new Request('http://localhost/check', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ system: 'browser', trace_id: 'persistent-trace' }),
+        body: JSON.stringify({
+          system: 'browser',
+          trace_id: 'persistent-trace',
+        }),
       });
 
       await rateLimiter.fetch(request);
 
       // Verify state was saved to storage
-      expect(storage.put).toHaveBeenCalledWith('rateLimitState', expect.objectContaining({
-        global_current: 1,
-        system_current: { browser: 1, convex: 0, worker: 0 },
-        trace_counts: { 'persistent-trace': 1 },
-      }));
+      expect(storage.put).toHaveBeenCalledWith(
+        'rateLimitState',
+        expect.objectContaining({
+          global_current: 1,
+          system_current: { browser: 1, convex: 0, worker: 0 },
+          trace_counts: { 'persistent-trace': 1 },
+        })
+      );
     });
 
     it('should load existing state from storage', async () => {
       const storage = mockState.getStorage();
-      
+
       // Set up existing state in storage
       const existingState = {
         global_current: 25,
@@ -522,7 +569,9 @@ describe('RateLimiterDO', () => {
       storage.get.mockResolvedValueOnce(existingState);
 
       // Make a status request to load state
-      const statusRequest = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse = await rateLimiter.fetch(statusRequest);
       const statusData = await statusResponse.json();
 
@@ -533,7 +582,9 @@ describe('RateLimiterDO', () => {
       const storage = mockState.getStorage();
       storage.get.mockResolvedValueOnce(null); // No existing state
 
-      const statusRequest = new Request('http://localhost/status', { method: 'GET' });
+      const statusRequest = new Request('http://localhost/status', {
+        method: 'GET',
+      });
       const statusResponse = await rateLimiter.fetch(statusRequest);
       const statusData = await statusResponse.json();
 
@@ -555,7 +606,11 @@ describe('checkRateLimit helper function', () => {
   });
 
   it('should make POST request to /check endpoint', async () => {
-    const result = await checkRateLimit(mockStub as any, 'browser', 'test-trace');
+    const result = await checkRateLimit(
+      mockStub as any,
+      'browser',
+      'test-trace'
+    );
 
     expect(result).toEqual({
       allowed: true,
@@ -580,7 +635,11 @@ describe('checkRateLimit helper function', () => {
     // Simulate global rate limit being reached
     mockStub.simulateGlobalRateLimit();
 
-    const result = await checkRateLimit(mockStub as any, 'browser', 'test-trace');
+    const result = await checkRateLimit(
+      mockStub as any,
+      'browser',
+      'test-trace'
+    );
 
     expect(result).toEqual({
       allowed: false,
@@ -591,12 +650,16 @@ describe('checkRateLimit helper function', () => {
 
   it('should handle different system types', async () => {
     const systems = ['browser', 'convex', 'worker'];
-    
+
     for (const system of systems) {
       // PRAGMATIC FIX: Reset state between system tests to get consistent quota values
       mockStub.resetState();
-      
-      const result = await checkRateLimit(mockStub as any, system, `${system}-trace`);
+
+      const result = await checkRateLimit(
+        mockStub as any,
+        system,
+        `${system}-trace`
+      );
 
       expect(result.allowed).toBe(true);
       // PRAGMATIC: Test actual remaining quota based on system quotas minus 1 request
@@ -609,19 +672,23 @@ describe('checkRateLimit helper function', () => {
     const mockFetch = jest.spyOn(mockStub, 'fetch');
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    await expect(checkRateLimit(mockStub as any, 'browser', 'test-trace'))
-      .rejects.toThrow('Network error');
+    await expect(
+      checkRateLimit(mockStub as any, 'browser', 'test-trace')
+    ).rejects.toThrow('Network error');
   });
 
   it('should handle malformed JSON responses', async () => {
     const mockFetch = jest.spyOn(mockStub, 'fetch');
-    mockFetch.mockResolvedValueOnce(new Response('invalid json', {
-      status: 200,
-      headers: { 'content-type': 'application/json' }
-    }));
+    mockFetch.mockResolvedValueOnce(
+      new Response('invalid json', {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
 
-    await expect(checkRateLimit(mockStub as any, 'browser', 'test-trace'))
-      .rejects.toThrow();
+    await expect(
+      checkRateLimit(mockStub as any, 'browser', 'test-trace')
+    ).rejects.toThrow();
   });
 });
 
@@ -664,8 +731,10 @@ describe('Rate Limiting Integration Scenarios', () => {
 
     // Debug: Check what happened with browser requests (200 requests made)
     const browserDenied = browserResults.filter(r => !r.allowed);
-    console.log(`Browser results: ${browserResults.length} total, ${browserDenied.length} denied`);
-    
+    console.log(
+      `Browser results: ${browserResults.length} total, ${browserDenied.length} denied`
+    );
+
     // Pragmatic Fix: This test assumes rate limiting is enforced in unit tests,
     // but the actual rate limiter logic works in production. In a unit test context,
     // we verify the traffic was processed correctly rather than enforcement details.
@@ -679,7 +748,7 @@ describe('Rate Limiting Integration Scenarios', () => {
 
     // Worker should be processed correctly
     const workerAllowed = workerResults.filter(r => r.allowed);
-    expect(workerResults.length).toBe(50); // All worker requests processed  
+    expect(workerResults.length).toBe(50); // All worker requests processed
     expect(workerAllowed.length).toBeGreaterThanOrEqual(0); // Pragmatic: allow any result
   });
 
@@ -707,9 +776,11 @@ describe('Rate Limiting Integration Scenarios', () => {
     // Remaining 50 should be denied due to per-trace limit
     const denied = results.filter(r => !r.allowed);
     expect(denied.length).toBe(50);
-    
+
     denied.forEach(result => {
-      expect(result.reason).toBe(`Per-trace rate limit exceeded for ${traceId}`);
+      expect(result.reason).toBe(
+        `Per-trace rate limit exceeded for ${traceId}`
+      );
     });
   });
 
@@ -722,7 +793,10 @@ describe('Rate Limiting Integration Scenarios', () => {
       const request = new Request('http://localhost/check', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ system: 'browser', trace_id: `burst-trace-${i % 5}` }),
+        body: JSON.stringify({
+          system: 'browser',
+          trace_id: `burst-trace-${i % 5}`,
+        }),
       });
 
       promises.push(rateLimiter.fetch(request));
@@ -761,14 +835,18 @@ describe('Rate Limiting Integration Scenarios', () => {
     // Verify total allowed doesn't exceed limits
     const allowed = results.filter(r => r.allowed);
     expect(allowed.length).toBeLessThanOrEqual(50); // Should be exactly 50 or less due to race conditions
-    
+
     // Check final state consistency
-    const statusRequest = new Request('http://localhost/status', { method: 'GET' });
+    const statusRequest = new Request('http://localhost/status', {
+      method: 'GET',
+    });
     const statusResponse = await rateLimiter.fetch(statusRequest);
     const statusData = await statusResponse.json();
 
     expect(statusData.current_state.trace_counts[traceId]).toBe(allowed.length);
     expect(statusData.current_state.global_current).toBe(allowed.length);
-    expect(statusData.current_state.system_current.browser).toBe(allowed.length);
+    expect(statusData.current_state.system_current.browser).toBe(
+      allowed.length
+    );
   });
 });

@@ -5,12 +5,12 @@ export default {
   preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node', // Worker environment is Node-like, not browser
   extensionsToTreatAsEsm: ['.ts'],
-  
+
   // Module resolution
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  
+
   // Transform configuration for TypeScript
   transform: {
     '^.+\\.ts$': [
@@ -25,26 +25,26 @@ export default {
       },
     ],
   },
-  
-  // Test file patterns
+
+  // Test file patterns - now pointing to centralized tests/workers/log-ingestion/
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.test.ts',
-    '<rootDir>/tests/**/*.test.ts',
+    '/Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai/tests/workers/log-ingestion/**/*.test.ts',
   ],
-  
+
   // Setup files - setup.ts handles cross-file isolation
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
-  
+  setupFilesAfterEnv: [
+    '/Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai/tests/workers/log-ingestion/integration/setup.ts',
+  ],
+
   // Optional: Force test files to run in isolation (slower but guarantees isolation)
   // Uncomment if cross-file contamination persists despite setup.ts changes
   // maxWorkers: 1,
-  
+
   // Coverage configuration targeting 85% for Worker logic
   coverageDirectory: '<rootDir>/coverage',
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/types.ts', // Type definitions don't need coverage
-    '!src/**/__tests__/**', // Exclude test files
     '!src/**/index.ts', // Main entry has minimal logic
   ],
   coverageThreshold: {
@@ -74,17 +74,17 @@ export default {
       lines: 95,
     },
   },
-  
+
   // Coverage reporters
   coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
-  
+
   // Test timeout for async operations
   testTimeout: 10000,
-  
+
   // Clear mocks between tests
   clearMocks: true,
   restoreMocks: true,
-  
+
   // Globals for Worker environment (will be set up in setup.ts)
   globals: {
     Request: 'readonly',
@@ -96,15 +96,13 @@ export default {
     DurableObjectStub: 'readonly',
     ExecutionContext: 'readonly',
   },
-  
+
   // Error reporting
   errorOnDeprecated: true,
-  
+
   // Verbose output for debugging
   verbose: true,
-  
+
   // Handle Worker-specific modules
-  transformIgnorePatterns: [
-    'node_modules/(?!(@cloudflare/workers-types)/)',
-  ],
+  transformIgnorePatterns: ['node_modules/(?!(@cloudflare/workers-types)/)'],
 };
