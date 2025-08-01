@@ -196,7 +196,7 @@ export class RedisClient {
             const key = `logs:${traceId}`;
             // Get the most recent log entry and total count
             const [firstEntry, logCount] = await Promise.all([
-              this.request(['LINDEX', key, 0]), // Most recent (LPUSH adds to front)
+              this.request(['LINDEX', key, '0']), // Most recent (LPUSH adds to front)
               this.request(['LLEN', key])
             ]);
 
@@ -207,7 +207,7 @@ export class RedisClient {
             const parsed: RedisLogEntry = JSON.parse(firstEntry);
             
             // Get a sample of logs to determine systems and errors
-            const sampleLogs = await this.request(['LRANGE', key, 0, Math.min(9, logCount - 1)]);
+            const sampleLogs = await this.request(['LRANGE', key, '0', Math.min(9, logCount - 1).toString()]);
             const parsedLogs: RedisLogEntry[] = sampleLogs.map((log: string) => JSON.parse(log));
             
             const systems = [...new Set(parsedLogs.map(log => log.system))];
