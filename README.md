@@ -93,7 +93,7 @@ cd apps/web && bun dev:claude
 
 **To get a new repository running in the cloud with everything configured:**
 
-🎯 **[New Repository Setup Guide](./docs/new-repository-setup-guide.md)** ⏱️ 2-3 hours
+🎯 **[New Repository Setup Guide](./docs/template-usage/new-repository-setup-guide.md)** ⏱️ 2-3 hours
 
 This dedicated guide takes you from zero to a fully deployed AI application with:
 
@@ -105,7 +105,7 @@ This dedicated guide takes you from zero to a fully deployed AI application with
 
 **Quick Reference**:
 
-- **[Setup Verification Checklist](./docs/setup-verification-checklist.md)** - Systematic verification process
+- **[Setup Verification Checklist](./docs/template-usage/setup-verification-checklist.md)** - Systematic verification process
 - **[Development Guide](./docs/development-guide.md)** - Daily development workflow
 - **[Scripts & Commands](./docs/technical-guides/scripts-and-commands-reference.md)** - All available commands
 

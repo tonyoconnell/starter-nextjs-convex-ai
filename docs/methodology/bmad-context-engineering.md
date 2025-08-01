@@ -12,6 +12,7 @@ Traditional AI-assisted development suffers from two critical issues:
 2. **Context Loss**: As development progresses, AI loses track of previous decisions and architectural choices
 
 BMAD solves both problems through:
+
 - **Agentic Planning**: Specialized AI agents collaborate to create comprehensive specifications
 - **Context-Engineered Development**: Every development task includes full context, preventing drift
 
@@ -20,6 +21,7 @@ BMAD solves both problems through:
 "Where the BMad agile flow is different is you can choose to have more upfront planning and architecture specification to ensure the system is built in a sustainable way, not a vibe coded spaghetti mess."
 
 The method elevates casual AI coding to professional software engineering by:
+
 - Maintaining architectural integrity across sessions
 - Preserving decision history in documented form
 - Ensuring each AI agent has the complete context needed for their specific role
@@ -31,16 +33,19 @@ The method elevates casual AI coding to professional software engineering by:
 The journey begins in a web-based AI interface (Claude, Gemini, ChatGPT) where specialized planning agents collaborate with you:
 
 #### The Analyst Agent
+
 - **Role**: Investigates and challenges assumptions
 - **Output**: Market research, feasibility analysis
 - **Key Feature**: Uses advanced elicitation techniques to uncover hidden requirements
 
-#### The Product Manager Agent  
+#### The Product Manager Agent
+
 - **Role**: Transforms ideas into structured requirements
 - **Output**: Comprehensive PRD with epics and user stories
 - **Key Feature**: Creates stories with enough detail for autonomous implementation
 
 #### The Architect Agent
+
 - **Role**: Designs technical solutions
 - **Output**: Architecture documents with technology decisions
 - **Key Feature**: Evaluates trade-offs and provides implementation guidance
@@ -50,6 +55,7 @@ The journey begins in a web-based AI interface (Claude, Gemini, ChatGPT) where s
 "Once you have your PRD, Architecture, optional UX and Briefs - it's time to switch over to the IDE to shard your docs, and start implementing the actual code!"
 
 This transition is critical because:
+
 - Planning documents become the source of truth
 - Context is preserved in markdown files
 - The development phase can reference complete specifications
@@ -59,6 +65,7 @@ This transition is critical because:
 Development follows a structured agent workflow:
 
 #### The Scrum Master Agent
+
 - **Primary Function**: Transform plans into executable stories
 - **Key Innovation**: Creates self-contained story files with ALL necessary context
 - **Process**:
@@ -68,6 +75,7 @@ Development follows a structured agent workflow:
   4. Validates completeness with built-in checklists
 
 #### The Developer Agent
+
 - **Primary Function**: Implement one story at a time
 - **Key Innovation**: Never needs to ask for clarification
 - **Process**:
@@ -77,6 +85,7 @@ Development follows a structured agent workflow:
   4. Updates story status upon completion
 
 #### The QA Agent
+
 - **Primary Function**: Ensure quality standards
 - **Key Innovation**: Tests with full context awareness
 - **Process**:
@@ -87,12 +96,15 @@ Development follows a structured agent workflow:
 ## Context Engineering Techniques
 
 ### 1. Document-Driven Development
+
 - All decisions captured in markdown
 - Version controlled alongside code
 - Agents reference documents, not memory
 
 ### 2. Story File Architecture
+
 Each story file contains:
+
 - Complete feature requirements
 - Relevant architectural context
 - Technical implementation details
@@ -100,11 +112,13 @@ Each story file contains:
 - Acceptance conditions
 
 ### 3. Agent Specialization
+
 - Each agent has deep domain expertise
 - Agents communicate through artifacts, not conversation
 - Role boundaries prevent context confusion
 
 ### 4. Progressive Enhancement
+
 - Start with high-level planning
 - Progressively add detail through agent collaboration
 - Each phase builds on previous artifacts
@@ -114,11 +128,13 @@ Each story file contains:
 ### Getting Started
 
 1. **Clone the BMAD repository**:
+
    ```bash
    git clone https://github.com/bmadcode/BMAD-METHOD.git
    ```
 
 2. **Copy agent files to your project**:
+
    ```bash
    cp -r BMAD-METHOD/bmad-agent your-project/
    ```
@@ -126,11 +142,12 @@ Each story file contains:
 3. **Configure your IDE**:
    - Set up custom agent modes
    - Point to PRD and Architecture in `/docs`
-   - Stories will be generated in `/docs/stories`
+   - Stories will be generated in `/docs/template-development/stories`
 
 ### Web Agent Setup
 
 For planning phases, use the BMAD Orchestrator:
+
 - Upload `web-bmad-orchestrator-agent.md` as instructions
 - Attach knowledge files from `web-build-sample`
 - Use `/help` to see available commands
@@ -139,6 +156,7 @@ For planning phases, use the BMAD Orchestrator:
 ### IDE Agent Configuration
 
 For development phases:
+
 - **Cursor**: Use custom agent mode with `.ide.md` files
 - **Claude Code**: Type `/agent-name` to activate agents
 - **Windsurf**: Optimized for <6K character limits
@@ -146,16 +164,19 @@ For development phases:
 ## Advanced Features
 
 ### The Orchestrator
+
 - Master agent that can become any specialized role
 - Maintains context across persona switches
 - Ideal for smaller teams or solo developers
 
 ### Expansion Packs
+
 - Domain-specific agents (game dev, DevOps, etc.)
 - Custom templates for your industry
 - Community-contributed enhancements
 
 ### Multi-Session Continuity
+
 - "Continue BMAD planning" picks up where you left off
 - Session state preserved in documents
 - No context loss between work sessions
@@ -163,14 +184,17 @@ For development phases:
 ## Benefits Over Traditional Approaches
 
 ### Versus Task-Based Systems
+
 - **Traditional**: Generate task list → Execute blindly
 - **BMAD**: Deep planning → Contextual execution → Sustainable architecture
 
 ### Versus Pure Vibe Coding
+
 - **Traditional**: Quick prototype → Technical debt → Refactor nightmare
 - **BMAD**: Thoughtful design → Clean implementation → Maintainable system
 
 ### Versus Manual Documentation
+
 - **Traditional**: Docs drift from code → Become outdated
 - **BMAD**: Docs drive development → Stay synchronized
 

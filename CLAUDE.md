@@ -189,7 +189,7 @@ This project follows the BMAD (Before, Model, After, Document) method with integ
 
 The project uses sharded documentation for AI agent consumption:
 
-- **[docs/prd/](docs/prd/)** - Sharded Product Requirements (Epic 1-7)
+- **[docs/template-development/prd/](docs/template-development/prd/)** - Sharded Product Requirements (Epic 1-7)
 - **[docs/architecture/](docs/architecture/)** - Sharded Architecture components
 - **[docs/methodology/](docs/methodology/)** - BMAD methodology guides
 

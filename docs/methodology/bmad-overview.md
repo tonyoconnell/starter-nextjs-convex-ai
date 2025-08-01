@@ -131,7 +131,7 @@ Each agent supports specific commands prefixed with `*`:
 @sm *create                  # Create next user story
 @po *validate-story-draft    # Validate story quality before development
 @po *execute-checklist       # Run quality validation
-@po *shard-doc docs/prd.md   # Split document for AI consumption
+@po *shard-doc docs/template-development/prd.md   # Split document for AI consumption
 @qa *generate-uat            # Generate user-focused UAT plan
 @qa *review                  # Review implementation against acceptance criteria
 @kdd *update-documentation   # Update documentation with learnings
@@ -202,14 +202,14 @@ BMAD includes comprehensive templates for:
 Large documents are automatically split into digestible chunks for AI consumption:
 
 ```bash
-@po *shard-doc docs/prd.md docs/prd/
+@po *shard-doc docs/template-development/prd.md docs/template-development/prd/
 ```
 
 Creates:
 
-- `docs/prd/index.md` - Overview and navigation
-- `docs/prd/epic-1.md` - Individual epic details
-- `docs/prd/epic-2.md` - Sequential epic breakdown
+- `docs/template-development/prd/index.md` - Overview and navigation
+- `docs/template-development/prd/epic-1.md` - Individual epic details
+- `docs/template-development/prd/epic-2.md` - Sequential epic breakdown
 
 ### Quality Assurance
 
@@ -281,7 +281,7 @@ Your project brief is already complete. Next steps:
 ### 3. Begin Development
 
 ```bash
-@po *shard-doc docs/prd.md docs/prd/    # Prepare for development
+@po *shard-doc docs/template-development/prd.md docs/template-development/prd/    # Prepare for development
 @sm *create                             # Create first user story
 @dev                                    # Begin implementation
 ```
