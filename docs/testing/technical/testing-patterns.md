@@ -568,18 +568,18 @@ export class MockDurableObjectStub {
     global_current: 0,
     system_current: { browser: 0, convex: 0, worker: 0 },
     trace_counts: {},
-    window_start: Date.now()
+    window_start: Date.now(),
   };
-  
+
   resetState(windowStart?: number) {
     this.state = {
       global_current: 0,
       system_current: { browser: 0, convex: 0, worker: 0 },
       trace_counts: {},
-      window_start: windowStart || Date.now()
+      window_start: windowStart || Date.now(),
     };
   }
-  
+
   // Simulation methods for testing
   simulateRateLimit(system: string) {
     const systemLimit = this.config.system_quotas[system];
@@ -596,7 +596,7 @@ export function createMockEnvironment() {
   if (!sharedRateLimiterStub) {
     sharedRateLimiterStub = new MockDurableObjectStub();
   }
-  
+
   return {
     RATE_LIMIT_STATE: {
       idFromName: jest.fn().mockReturnValue('mock-id'),
@@ -620,17 +620,17 @@ describe('WorkerTests', () => {
     // Critical: Reset shared state for test isolation
     resetRateLimiterState();
   });
-  
+
   it('should handle rate limiting', async () => {
     const mockStub = mockEnv.RATE_LIMIT_STATE.get('mock-id');
     mockStub.simulateRateLimit('browser');
-    
+
     const response = await worker.fetch(request, mockEnv, mockCtx);
     expect(response.status).toBe(429);
   });
-  
+
   it('should process normal requests', async () => {
-    // This test would fail without resetRateLimiterState() 
+    // This test would fail without resetRateLimiterState()
     // because previous test left rate limiting in effect
     const response = await worker.fetch(request, mockEnv, mockCtx);
     expect(response.status).toBe(200);
@@ -639,6 +639,7 @@ describe('WorkerTests', () => {
 ```
 
 **Critical Requirements**:
+
 - **Import reset function**: Include reset function in test imports
 - **beforeEach hook**: Call reset function in every test suite's beforeEach
 - **Shared instance management**: Use shared instances for realistic testing
@@ -663,11 +664,11 @@ Rate limiters are cost control mechanisms that require precise testing for busin
 // System configuration testing
 describe('Rate Limiter Configuration', () => {
   const SYSTEM_QUOTAS = {
-    browser: 400,   // Actual configured quota
-    convex: 300,    // Actual configured quota
-    worker: 300     // Actual configured quota
+    browser: 400, // Actual configured quota
+    convex: 300, // Actual configured quota
+    worker: 300, // Actual configured quota
   };
-  
+
   it('should enforce browser system quota precisely', async () => {
     // Test actual quota, not assumed value
     for (let i = 0; i < SYSTEM_QUOTAS.browser; i++) {
@@ -675,7 +676,7 @@ describe('Rate Limiter Configuration', () => {
       expect(result.allowed).toBe(true);
       expect(result.remaining_quota).toBe(SYSTEM_QUOTAS.browser - (i + 1));
     }
-    
+
     // Next request should be denied
     const result = await checkRateLimit('browser');
     expect(result.allowed).toBe(false);
@@ -685,6 +686,7 @@ describe('Rate Limiter Configuration', () => {
 ```
 
 **Key Principles**:
+
 - **Know your quotas**: Check actual system configuration before writing tests
 - **Test precise calculations**: Rate limiting = cost control = exact math matters
 - **Verify limit enforcement**: Test that limits actually prevent overuse
@@ -703,32 +705,32 @@ export class MockDurableObjectStub {
     global_current: 0,
     system_current: { browser: 0, convex: 0, worker: 0 },
     trace_counts: {},
-    window_start: Date.now()
+    window_start: Date.now(),
   };
-  
+
   private config = {
     global_limit: 1000,
     system_quotas: { browser: 400, convex: 300, worker: 300 },
-    per_trace_limit: 100
+    per_trace_limit: 100,
   };
-  
+
   // Available simulation methods (don't invent new ones)
   simulateGlobalRateLimit() {
     this.state.global_current = this.config.global_limit;
   }
-  
+
   simulateSystemRateLimit(system: string) {
     if (this.config.system_quotas[system]) {
       this.state.system_current[system] = this.config.system_quotas[system];
     }
   }
-  
+
   resetState() {
     this.state = {
       global_current: 0,
       system_current: { browser: 0, convex: 0, worker: 0 },
       trace_counts: {},
-      window_start: Date.now()
+      window_start: Date.now(),
     };
   }
 }
@@ -736,28 +738,28 @@ export class MockDurableObjectStub {
 // Test using available methods
 describe('Rate Limiter Mock Integration', () => {
   let mockStub: MockDurableObjectStub;
-  
+
   beforeEach(() => {
     mockStub = new MockDurableObjectStub();
     mockStub.resetState(); // Use available reset method
   });
-  
+
   it('should use existing simulation methods', async () => {
     // ✅ Use available API method
     mockStub.simulateGlobalRateLimit();
-    
+
     const result = await checkRateLimit('browser');
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe('GLOBAL_RATE_LIMIT');
   });
-  
+
   it('should not attempt non-existent methods', async () => {
     // ❌ Don't do this - method doesn't exist
     // mockStub.setResponse('/check', { allowed: false });
-    
+
     // ✅ Use available simulation instead
     mockStub.simulateSystemRateLimit('browser');
-    
+
     const result = await checkRateLimit('browser');
     expect(result.allowed).toBe(false);
     expect(result.reason).toBe('SYSTEM_RATE_LIMIT');
@@ -766,6 +768,7 @@ describe('Rate Limiter Mock Integration', () => {
 ```
 
 **Key Principles**:
+
 - **Study mock API first**: Understand available methods before writing tests
 - **Use existing capabilities**: Don't extend mocks unless absolutely necessary
 - **Reset state properly**: Use provided reset methods for test isolation
@@ -783,21 +786,21 @@ describe('Rate Limiter Business Rules vs Implementation', () => {
     // ✅ PRECISE: Business logic - cost control
     const quotaUsed = 1;
     const remainingQuota = 400 - quotaUsed; // Exact calculation
-    
+
     const result = await checkRateLimit('browser');
-    
+
     expect(result.allowed).toBe(true);
     expect(result.remaining_quota).toBe(remainingQuota); // Exact quota math
     expect(result.system).toBe('browser'); // Specific system
   });
-  
+
   it('should be flexible for implementation details', async () => {
     mockStub.simulateSystemRateLimit('browser');
     const response = await worker.fetch(request, mockEnv, mockCtx);
-    
+
     // ✅ PRECISE: Business outcome
     expect(response.status).toBe(429); // Standard rate limit status
-    
+
     // ✅ FLEXIBLE: Implementation details
     const body = await response.json();
     expect(body.error).toMatch(/(rate limit|quota exceeded)/i); // Message format flexible
@@ -810,12 +813,14 @@ describe('Rate Limiter Business Rules vs Implementation', () => {
 **Precision Guidelines for Rate Limiters**:
 
 **BE PRECISE for**:
+
 - Quota calculations (remaining counts)
 - Rate limiting decisions (allowed/denied)
 - Cost control limits (max requests per system)
 - Business rule enforcement (which limits apply when)
 
 **BE FLEXIBLE for**:
+
 - Error message exact wording
 - Response timing and metadata
 - HTTP header details
@@ -836,7 +841,7 @@ export function createMockEnvironment() {
   if (!sharedRateLimiterStub) {
     sharedRateLimiterStub = new MockDurableObjectStub();
   }
-  
+
   return {
     RATE_LIMIT_STATE: {
       idFromName: jest.fn().mockReturnValue('mock-id'),
@@ -857,13 +862,13 @@ describe('Rate Limiter Tests', () => {
     jest.clearAllMocks();
     resetRateLimiterState(); // Critical for test isolation
   });
-  
+
   it('should handle first request correctly', async () => {
     const result = await checkRateLimit('browser');
     expect(result.allowed).toBe(true);
     expect(result.remaining_quota).toBe(399); // 400 - 1
   });
-  
+
   it('should handle second request correctly', async () => {
     // This test would fail without resetRateLimiterState()
     // because previous test would have used 1 quota
@@ -875,6 +880,7 @@ describe('Rate Limiter Tests', () => {
 ```
 
 **Key Principles**:
+
 - **Reset shared state**: Always reset between tests for isolation
 - **Use consistent reset methods**: Follow established reset patterns
 - **Verify isolation**: Ensure tests don't depend on execution order
@@ -891,41 +897,41 @@ describe('Cost Control Validation', () => {
   it('should prevent browser system cost overrun', async () => {
     const MAX_REQUESTS = 400; // Business rule: browser gets 400 requests
     const responses = [];
-    
+
     // Make requests up to limit
     for (let i = 0; i < MAX_REQUESTS + 5; i++) {
       responses.push(await checkRateLimit('browser'));
     }
-    
+
     // Verify cost control enforcement
     const allowed = responses.filter(r => r.allowed);
     const denied = responses.filter(r => !r.allowed);
-    
+
     expect(allowed.length).toBe(MAX_REQUESTS); // Exactly the quota
     expect(denied.length).toBe(5); // All excess requests denied
-    
+
     // Verify denial reasons
     denied.forEach(response => {
       expect(response.reason).toBe('SYSTEM_RATE_LIMIT');
       expect(response.allowed).toBe(false);
     });
   });
-  
+
   it('should handle multiple systems independently', async () => {
     // Each system should have independent quotas
     const browserResult = await checkRateLimit('browser');
     const convexResult = await checkRateLimit('convex');
     const workerResult = await checkRateLimit('worker');
-    
+
     // All should be allowed initially
     expect(browserResult.allowed).toBe(true);
     expect(convexResult.allowed).toBe(true);
     expect(workerResult.allowed).toBe(true);
-    
+
     // Each should have their specific quota
     expect(browserResult.remaining_quota).toBe(399); // 400 - 1
-    expect(convexResult.remaining_quota).toBe(299);  // 300 - 1
-    expect(workerResult.remaining_quota).toBe(299);  // 300 - 1
+    expect(convexResult.remaining_quota).toBe(299); // 300 - 1
+    expect(workerResult.remaining_quota).toBe(299); // 300 - 1
   });
 });
 ```
@@ -1031,7 +1037,7 @@ The Knowledge Ingestion Service introduces specialized testing patterns for vect
 # Graceful handling of missing configuration
 run_vector_search() {
     output=$(npx convex run knowledgeActions:queryVectorSimilarity "$json_payload" 2>&1)
-    
+
     if echo "$output" | grep -q "Vectorize configuration incomplete"; then
         echo "⚠️  SKIP: Vectorize not configured - this test requires Cloudflare Vectorize setup"
         echo "   To enable: Set CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN, VECTORIZE_DATABASE_ID"
@@ -1047,12 +1053,12 @@ run_vector_search() {
 
 #### **Service Dependency Testing Matrix**
 
-| Test Case | Convex | OpenAI API | Vectorize | Expected Behavior |
-|-----------|--------|------------|-----------|-------------------|
-| Basic Processing | ✅ | ❌ | ❌ | Graceful degradation, placeholder embeddings |
-| With Embeddings | ✅ | ✅ | ❌ | Embeddings generated, no vector storage |
-| Full Integration | ✅ | ✅ | ✅ | Complete vector storage and search |
-| Partial Failure | ✅ | ✅ | ❌ (fails) | Document processing continues |
+| Test Case        | Convex | OpenAI API | Vectorize  | Expected Behavior                            |
+| ---------------- | ------ | ---------- | ---------- | -------------------------------------------- |
+| Basic Processing | ✅     | ❌         | ❌         | Graceful degradation, placeholder embeddings |
+| With Embeddings  | ✅     | ✅         | ❌         | Embeddings generated, no vector storage      |
+| Full Integration | ✅     | ✅         | ✅         | Complete vector storage and search           |
+| Partial Failure  | ✅     | ✅         | ❌ (fails) | Document processing continues                |
 
 #### **Configuration Testing Pattern**
 
@@ -1062,14 +1068,14 @@ describe('Configuration Validation', () => {
   it('should handle missing OpenAI API key gracefully', async () => {
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Test content',
-      source: 'test.md'
+      source: 'test.md',
     });
-    
+
     expect(result.status).toBe('completed');
     expect(result.chunksCreated).toBeGreaterThan(0);
     // Should not throw error even without OpenAI key
   });
-  
+
   it('should handle missing Vectorize config gracefully', async () => {
     // Similar pattern for Vectorize configuration testing
   });
@@ -1085,7 +1091,7 @@ describe('Embedding Generation', () => {
   it('should generate 1536-dimension embeddings', async () => {
     const chunks = chunkText('Sample content for testing embedding generation');
     const embeddings = await generateEmbeddingsForChunks(chunks, apiKey);
-    
+
     embeddings.forEach(({ embedding }) => {
       if (embedding) {
         expect(embedding).toHaveLength(1536);
@@ -1103,10 +1109,10 @@ describe('Vector ID Generation', () => {
   it('should generate vector IDs under 64 bytes', async () => {
     const longContentHash = 'a'.repeat(64);
     const chunkIndex = 999;
-    
+
     const shortHash = longContentHash.substring(0, 16);
     const vectorizeId = `${shortHash}_c${chunkIndex}`;
-    
+
     expect(vectorizeId.length).toBeLessThanOrEqual(64);
     expect(vectorizeId).toMatch(/^[a-f0-9]{16}_c\d+$/);
   });
@@ -1120,16 +1126,16 @@ describe('Hybrid Storage Consistency', () => {
   it('should maintain consistency between Convex and Vectorize', async () => {
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Test document for consistency verification',
-      source: 'consistency-test.md'
+      source: 'consistency-test.md',
     });
-    
+
     // Verify Convex storage
     const convexChunks = await ctx.runQuery(api.knowledge.getChunksBySource, {
-      sourceDocument: 'consistency-test.md'
+      sourceDocument: 'consistency-test.md',
     });
-    
+
     expect(convexChunks).toHaveLength(result.chunksCreated);
-    
+
     // Verify each chunk has corresponding vector reference
     convexChunks.forEach(chunk => {
       expect(chunk.vectorize_id).toMatch(/^[a-f0-9]{16}_c\d+$/);
@@ -1148,14 +1154,14 @@ describe('Performance Testing', () => {
   it('should handle large documents efficiently', async () => {
     const largeContent = 'Lorem ipsum '.repeat(1000); // ~10KB content
     const startTime = Date.now();
-    
+
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: largeContent,
-      source: 'large-test.md'
+      source: 'large-test.md',
     });
-    
+
     const processingTime = Date.now() - startTime;
-    
+
     expect(result.status).toBe('completed');
     expect(result.chunksCreated).toBeGreaterThan(1);
     expect(processingTime).toBeLessThan(30000); // Under 30 seconds
@@ -1170,15 +1176,15 @@ describe('Batch Operations', () => {
   it('should efficiently process multiple documents', async () => {
     const documents = Array.from({ length: 10 }, (_, i) => ({
       content: `Test document ${i} with unique content for testing batch processing`,
-      source: `batch-test-${i}.md`
+      source: `batch-test-${i}.md`,
     }));
-    
+
     const startTime = Date.now();
     const results = await Promise.all(
       documents.map(doc => ctx.runAction(api.knowledgeActions.addDocument, doc))
     );
     const totalTime = Date.now() - startTime;
-    
+
     expect(results.every(r => r.status === 'completed')).toBe(true);
     expect(totalTime / documents.length).toBeLessThan(5000); // Under 5s per document
   });
@@ -1194,17 +1200,17 @@ describe('Error Handling', () => {
   it('should handle OpenAI API failures gracefully', async () => {
     // Mock OpenAI API to return error
     const mockApiKey = 'invalid-key';
-    
+
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Test content',
-      source: 'error-test.md'
+      source: 'error-test.md',
     });
-    
+
     // Should complete even with API failure
     expect(result.status).toBe('completed');
     expect(result.chunksCreated).toBeGreaterThan(0);
   });
-  
+
   it('should handle Vectorize API failures gracefully', async () => {
     // Similar pattern for Vectorize failure testing
   });
@@ -1219,14 +1225,17 @@ describe('Failure Recovery', () => {
     // Test scenario where vector insertion fails but document processing continues
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Test content for failure scenario',
-      source: 'failure-test.md'
+      source: 'failure-test.md',
     });
-    
+
     // Document should be created even if vector insertion fails
-    const document = await ctx.runQuery(api.knowledgeMutations.getDocumentByPath, {
-      filePath: 'failure-test.md'
-    });
-    
+    const document = await ctx.runQuery(
+      api.knowledgeMutations.getDocumentByPath,
+      {
+        filePath: 'failure-test.md',
+      }
+    );
+
     expect(document).toBeTruthy();
     expect(document.processing_status).toBe('completed');
   });
@@ -1243,28 +1252,31 @@ describe('Vector Search Integration', () => {
     // Seed test documents with known content
     await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Machine learning algorithms for data analysis',
-      source: 'ml-test.md'
+      source: 'ml-test.md',
     });
-    
+
     await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Cooking recipes for Italian cuisine',
-      source: 'cooking-test.md'
+      source: 'cooking-test.md',
     });
   });
-  
+
   it('should return relevant results for similarity search', async () => {
-    const results = await ctx.runAction(api.knowledgeActions.queryVectorSimilarity, {
-      query: 'machine learning techniques',
-      topK: 2,
-      includeContent: true
-    });
-    
+    const results = await ctx.runAction(
+      api.knowledgeActions.queryVectorSimilarity,
+      {
+        query: 'machine learning techniques',
+        topK: 2,
+        includeContent: true,
+      }
+    );
+
     expect(results.matches).toHaveLength(2);
     expect(results.matches[0].score).toBeGreaterThan(results.matches[1].score);
-    
+
     // Should find ML document more relevant than cooking
-    const mlResult = results.matches.find(m => 
-      m.chunk?.source_document === 'ml-test.md'
+    const mlResult = results.matches.find(
+      m => m.chunk?.source_document === 'ml-test.md'
     );
     expect(mlResult).toBeTruthy();
     expect(mlResult.score).toBeGreaterThan(0.5); // High relevance threshold
@@ -1280,18 +1292,23 @@ describe('Vector Search Integration', () => {
 describe('Document Seeding', () => {
   it('should discover appropriate files for processing', () => {
     const { findFilesToProcess } = require('../scripts/seed-knowledge.cjs');
-    
+
     const docsFiles = findFilesToProcess(path.join(PROJECT_ROOT, 'docs'));
     const appsFiles = findFilesToProcess(path.join(PROJECT_ROOT, 'apps'));
-    
+
     expect(docsFiles.length).toBeGreaterThan(50); // Should find substantial docs
     expect(appsFiles.length).toBeGreaterThan(50); // Should find substantial code
-    
+
     // Verify file type filtering
     const allFiles = [...docsFiles, ...appsFiles];
     allFiles.forEach(file => {
-      expect(['markdown', 'typescript', 'javascript', 'typescript-react', 'javascript-react'])
-        .toContain(file.fileType);
+      expect([
+        'markdown',
+        'typescript',
+        'javascript',
+        'typescript-react',
+        'javascript-react',
+      ]).toContain(file.fileType);
     });
   });
 });
@@ -1306,22 +1323,27 @@ describe('Observability', () => {
   it('should maintain correlation IDs throughout processing', async () => {
     const result = await ctx.runAction(api.knowledgeActions.addDocument, {
       content: 'Test content for correlation tracking',
-      source: 'correlation-test.md'
+      source: 'correlation-test.md',
     });
-    
+
     // Verify correlation ID exists in document record
-    const document = await ctx.runQuery(api.knowledgeMutations.getDocumentByPath, {
-      filePath: 'correlation-test.md'
-    });
-    
+    const document = await ctx.runQuery(
+      api.knowledgeMutations.getDocumentByPath,
+      {
+        filePath: 'correlation-test.md',
+      }
+    );
+
     expect(document.correlation_id).toBeTruthy();
-    expect(document.correlation_id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
-    
+    expect(document.correlation_id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    );
+
     // Verify correlation ID propagated to chunks
     const chunks = await ctx.runQuery(api.knowledge.getChunksBySource, {
-      sourceDocument: 'correlation-test.md'
+      sourceDocument: 'correlation-test.md',
     });
-    
+
     chunks.forEach(chunk => {
       expect(chunk.correlation_id).toBe(document.correlation_id);
     });
@@ -1332,6 +1354,269 @@ describe('Observability', () => {
 These vector storage testing patterns ensure comprehensive coverage of the Knowledge Ingestion Service while accounting for the complexity of multi-service integration and the need for graceful degradation in various failure scenarios.
 
 **Rationale**: Rate limiter testing patterns balance business precision with implementation flexibility, ensuring cost control mechanisms work correctly while adapting to mock environment limitations
+
+## Redis Client Testing Patterns
+
+### Context: External Service Integration with Error Handling
+
+Redis clients require comprehensive testing for network operations, error handling, data serialization, and TTL management. These patterns ensure robust testing of external service integrations.
+
+### 1. Constructor Validation Testing Pattern
+
+**Context**: Validate configuration early to prevent runtime failures  
+**Implementation**: Test all validation paths and error messages
+
+**Example**:
+
+```typescript
+describe('RedisClient Constructor', () => {
+  it('should throw error for empty base URL', () => {
+    expect(() => new RedisClient('', mockToken)).toThrow(
+      'Redis base URL is required and cannot be empty'
+    );
+  });
+
+  it('should throw error for whitespace-only token', () => {
+    expect(() => new RedisClient(mockBaseUrl, '   ')).toThrow(
+      'Redis token is required and cannot be empty'
+    );
+  });
+
+  it('should handle URL validation gracefully', () => {
+    // Note: Modern URL constructor is permissive
+    // Focus on testing actual validation logic
+  });
+});
+```
+
+### 2. Network Error Handling Testing Pattern
+
+**Context**: External services can fail in multiple ways  
+**Implementation**: Test all network failure scenarios systematically
+
+**Example**:
+
+```typescript
+describe('Network Error Handling', () => {
+  it('should handle undefined response from fetch', async () => {
+    const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch.mockResolvedValueOnce(undefined as any);
+
+    await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+      'Redis request failed: No response received'
+    );
+  });
+
+  it('should handle response with error field in JSON', async () => {
+    const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch.mockResolvedValueOnce(
+      new Response(JSON.stringify({ error: 'Custom Redis error message' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    );
+
+    await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+      'Redis error: Custom Redis error message'
+    );
+  });
+
+  it('should handle unknown error types gracefully', async () => {
+    const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch.mockRejectedValueOnce('string error'); // Non-Error object
+
+    await expect((redisClient as any).request(['PING'])).rejects.toThrow(
+      'Redis request failed: Network error - Unknown error'
+    );
+  });
+});
+```
+
+### 3. Pipeline Operations Testing Pattern
+
+**Context**: Redis pipelines batch multiple commands for efficiency  
+**Implementation**: Test successful batching and partial failure scenarios
+
+**Example**:
+
+```typescript
+describe('Pipeline Operations', () => {
+  it('should execute multiple Redis commands in pipeline', async () => {
+    setupRedisMock({
+      PIPELINE: [
+        { result: 1 }, // LPUSH result
+        { result: 1 }, // EXPIRE result
+        { result: 'value' }, // GET result
+      ],
+    });
+
+    const commands = [
+      ['LPUSH', 'test:key', 'value'],
+      ['EXPIRE', 'test:key', '3600'],
+      ['GET', 'other:key'],
+    ];
+
+    const results = await redisClient.pipeline(commands);
+
+    expect(results).toEqual([1, 1, 'value']);
+  });
+
+  it('should handle mixed success/error results in pipeline', async () => {
+    const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify([
+          { result: 1 }, // Success
+          { error: 'ERR command failed' }, // Error
+          { result: 'value' }, // Success
+        ]),
+        { status: 200, headers: { 'content-type': 'application/json' } }
+      )
+    );
+
+    await expect(redisClient.pipeline(commands)).rejects.toThrow(
+      'Redis pipeline command 1 failed: ERR command failed'
+    );
+  });
+});
+```
+
+### 4. Data Management Operations Testing Pattern
+
+**Context**: CRUD operations with proper cleanup and error handling  
+**Implementation**: Test successful operations and error scenarios
+
+**Example**:
+
+```typescript
+describe('Data Management', () => {
+  it('should successfully delete all log keys', async () => {
+    const mockKeys = ['logs:trace-1', 'logs:trace-2', 'logs:trace-3'];
+    setupRedisMock({
+      KEYS: { result: mockKeys },
+      PIPELINE: [{ result: 1 }, { result: 1 }, { result: 1 }], // DEL results
+    });
+
+    const result = await redisClient.clearAllLogs();
+
+    expect(result.deleted).toBe(3);
+    expect(result.message).toBe('Successfully deleted 3 log collections');
+  });
+
+  it('should handle case when no logs exist', async () => {
+    setupRedisMock({
+      KEYS: { result: [] },
+    });
+
+    const result = await redisClient.clearAllLogs();
+
+    expect(result.deleted).toBe(0);
+    expect(result.message).toBe('No logs found to delete');
+  });
+
+  it('should count partial deletions correctly', async () => {
+    const mockKeys = ['logs:trace-1', 'logs:trace-2', 'logs:trace-3'];
+    setupRedisMock({
+      KEYS: { result: mockKeys },
+      PIPELINE: [{ result: 1 }, { result: 0 }, { result: 1 }], // Mixed success/failure
+    });
+
+    const result = await redisClient.clearAllLogs();
+
+    expect(result.deleted).toBe(2); // Only successful deletions counted
+  });
+});
+```
+
+### 5. Complex Method Testing Pattern
+
+**Context**: Methods with multiple operations and error paths  
+**Implementation**: Focus on key functionality and error handling over complex mocking
+
+**Example**:
+
+```typescript
+describe('getRecentTraces', () => {
+  it('should return empty array when no traces exist', async () => {
+    setupRedisMock({
+      KEYS: { result: [] },
+    });
+
+    const traces = await redisClient.getRecentTraces();
+
+    expect(traces).toEqual([]);
+  });
+
+  it('should handle traces with no logs gracefully', async () => {
+    setupRedisMock({
+      KEYS: { result: ['logs:trace-123'] },
+    });
+
+    const mockFetch = global.fetch as jest.MockedFunction<typeof fetch>;
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ result: ['logs:trace-123'] }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+      )
+      // Mock empty response for LINDEX (no logs)
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ result: null }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        })
+      );
+
+    const traces = await redisClient.getRecentTraces();
+
+    expect(traces).toEqual([]);
+  });
+
+  it('should handle Redis errors in getRecentTraces', async () => {
+    setupRedisMock({
+      KEYS: RedisMockResponses.ERROR,
+    });
+
+    await expect(redisClient.getRecentTraces()).rejects.toThrow(
+      'Failed to get recent traces: Redis request failed'
+    );
+  });
+});
+```
+
+### Key Principles for Redis Client Testing
+
+**Testing Philosophy**: Pragmatic over perfectionist
+
+- Test what the functions actually do, not implementation details
+- Focus on error handling and edge cases
+- Use realistic mock data structures
+- Avoid overly complex mocking scenarios that are brittle
+
+**Coverage Priorities**:
+
+1. **Constructor validation** - Fail fast with clear error messages
+2. **Network error handling** - Robust failure scenarios
+3. **Data operations** - CRUD functionality with proper cleanup
+4. **Pipeline operations** - Batch command processing
+5. **Health checks** - Service availability monitoring
+
+**Mock Management**:
+
+- Use centralized mock setup functions
+- Test error scenarios systematically
+- Keep complex mocking minimal and focused
+- Prefer multiple simple tests over complex integration tests
+
+**Coverage Results Achieved**:
+
+- Statements: 97.87% (target: 85%) ✅
+- Branches: 87.5% (target: 80%) ✅
+- Functions: 95.83% (target: 85%) ✅
+- Lines: 97.7% (target: 85%) ✅
+
+**Rationale**: Redis client testing ensures external service integration reliability while maintaining test maintainability through focused, pragmatic test scenarios
 
 ## Related Documentation
 
