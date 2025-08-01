@@ -1,278 +1,209 @@
-# Starter NextJS Convex AI - Documentation
+# {PROJECT_NAME} - Application Documentation
 
 ## Overview
 
-This is a Next.js template for building AI-first applications using the BMAD (Breakthrough Method for Agile AI Driven Development) methodology. It combines modern web development practices with structured AI-assisted development workflows.
+This documentation provides comprehensive guides, patterns, and architectural knowledge for building and maintaining modern AI-first web applications using Next.js, Convex, and TypeScript.
 
 ## Key Features
 
-- **AI-First Architecture** - Built from the ground up for AI agent collaboration
-- **BMAD Methodology** - Structured approach to AI-assisted development
-- **Modern Stack** - Next.js, Convex, TypeScript, Tailwind CSS
-- **Developer Experience** - Chrome DevTools to Claude Code integration
-- **Cost-Effective** - Optimized for <$10/month at small scale
+- **AI-First Architecture** - Built for AI agent collaboration and development
+- **Modern Stack** - Next.js, Convex, TypeScript, Tailwind CSS, Cloudflare deployment
+- **Real-time Development** - Live data, authentication, and seamless user experiences
+- **Production Ready** - Built-in monitoring, error handling, and security patterns
+- **Cost-Effective** - Optimized architecture for efficient scaling
 
-## Quick Links
+## Quick Navigation
 
-- **[Getting Started](../README.md)** - Setup and installation
-- **[Development Server Startup Guide](./development-server-startup-guide.md)** - Complete server startup instructions
+### 🚀 Getting Started
+
 - **[Development Guide](./development-guide.md)** - Port management and development workflow
-- **[CLAUDE.md](../CLAUDE.md)** - Claude Code specific instructions
-- **[BMAD Method](./methodology/bmad-context-engineering.md)** - Development methodology
+- **[Architecture Overview](./architecture/index.md)** - System design and technical decisions
 
-## 🚀 New Repository Setup
+### 📚 Core Knowledge
 
-**To get a new repository running in the cloud with everything configured:**
-
-🎯 **[New Repository Setup Guide](./new-repository-setup-guide.md)** ⏱️ 2-3 hours
-
-Dedicated step-by-step guide for deploying this template to production with all services configured.
-
-## Core Documentation (BMAD-METHOD)
-
-Following BMAD methodology, these documents form the foundation:
-
-- **[Project Brief](./project-brief.md)** - Project goals and constraints
-- **[Product Requirements (PRD)](./prd/)** - Detailed product requirements document (sharded)
-- **[Architecture](./architecture/)** - Technical architecture and design decisions (sharded)
-
-### 📋 Product Requirements (Sharded)
-
-**[prd/](./prd/)**
-
-- **[PRD Overview](./prd/index.md)** - Navigation and complete requirements overview
-- **[Epic 1: Platform Foundation](./prd/epic-1.md)** - Monorepo, deployment, and authentication
-- **[Epic 2: UI Toolkit](./prd/epic-2.md)** - Component showcase and theming
-- **[Epic 3: Real-time Logging](./prd/epic-3.md)** - Resilient logging architecture
-- **[Epic 4: Conversational AI](./prd/epic-4.md)** - RAG foundation and chat interface
-- **[Epic 5: Production Features](./prd/epic-5.md)** - Quality of life improvements
-- **[Epic 6: Documentation](./prd/epic-6.md)** - Onboarding and deployment guides
-- **[Epic 7: Hybrid Workflow](./prd/epic-7.md)** - Experimental agent workflow
-
-### 🏗️ Architecture (Sharded)
+#### 🏗️ Architecture & Design
 
 **[architecture/](./architecture/)**
 
-- **[Architecture Overview](./architecture/index.md)** - Complete architecture navigation
-- **[High-Level Architecture](./architecture/high-level-architecture.md)** - System diagrams and patterns
-- **[Tech Stack](./architecture/tech-stack.md)** - Technology choices and versions
-- **[Data Models](./architecture/data-models.md)** - Database schema and relationships
-- **[API Implementation](./architecture/api-implementation-details.md)** - OpenAPI and Convex functions
-- **[Components](./architecture/components.md)** - Component interaction patterns
-- **[Coding Standards](./architecture/coding-standards.md)** - Development conventions
-- **[Security](./architecture/security.md)** - Multi-layered security strategy
+Complete system architecture and design patterns:
 
-## Documentation Structure
+- **[High-Level Architecture](./architecture/high-level-architecture.md)** - System diagrams and architectural patterns
+- **[Tech Stack](./architecture/tech-stack.md)** - Technology choices, versions, and rationale
+- **[Data Models](./architecture/data-models.md)** - Database schemas and data relationships
+- **[API Implementation](./architecture/api-implementation-details.md)** - API design and Convex functions
+- **[Security](./architecture/security.md)** - Multi-layered security architecture
+- **[Coding Standards](./architecture/coding-standards.md)** - Development conventions and best practices
 
-### 📚 Methodology
-
-**[methodology/](./methodology/)**
-
-- **[BMAD Context Engineering](./methodology/bmad-context-engineering.md)** - Structured AI development approach
-- **[Agentic Architect Developer Persona](./methodology/agentic-architect-developer-persona.md)** - AI personas for requirements gathering
-
-### 🔧 Technical Guides
+#### 🔧 Technical Implementation
 
 **[technical-guides/](./technical-guides/)**
 
-- **[TypeScript Configuration Best Practices](./technical-guides/typescript-configuration-best-practices.md)** - Battle-tested TypeScript config patterns for monorepos, focusing on consistency and environment parity
-- **[CI/Environment Debugging Methodology](./technical-guides/ci-debugging-methodology.md)** - Systematic approach to debugging CI failures, environment differences, and build configuration issues
-- **[Worker Deployment Setup](./technical-guides/worker-deployment-setup.md)** - Cloudflare Workers + Redis logging infrastructure deployment
-- **[Log Ingestion Worker Setup KDD](./technical-guides/log-ingestion-worker-setup-kdd.md)** - Knowledge and lessons learned from centralized logging implementation
-- **[Cost-Effective Logging](./technical-guides/cost-effective-logging-in-convex-agentic-systems.md)** - Legacy Convex logging strategies (superseded by Worker system)
-- **[Dev Error Pipeline](./technical-guides/dev-error-pipeline.md)** - Chrome DevTools to Claude Code integration
-- **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Convex architecture patterns and component examples
-- **[Authentication Architecture](./technical-guides/authentication-architecture.md)** - Complete authentication system architecture and security patterns
-- **[Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)** - Step-by-step Cloudflare Pages deployment guide
-- **[Cloudflare Pages Troubleshooting](./technical-guides/cloudflare-pages-deployment-troubleshooting.md)** - Systematic troubleshooting for deployment issues
+Practical implementation guides for specific technologies:
 
-### 🧪 Testing
+- **[Authentication Architecture](./technical-guides/authentication-architecture.md)** - Complete auth system patterns
+- **[Convex Components Guide](./technical-guides/convex-components-guide.md)** - Backend architecture patterns
+- **[Environment Management](./technical-guides/environment-management.md)** - Configuration and secrets management
+- **[TypeScript Configuration](./technical-guides/typescript-configuration-best-practices.md)** - Battle-tested TypeScript patterns
+- **[CI/CD Pipeline Setup](./technical-guides/cicd-pipeline-setup.md)** - Automated deployment strategies
+- **[Cloudflare Integration](./technical-guides/cloudflare-pages-setup.md)** - Edge deployment patterns
 
-**[testing/](./testing/)**
+#### 📋 Development Methodology
 
-#### Technical Testing (For Developers)
+**[methodology/](./methodology/)**
 
-- **[Testing Infrastructure Lessons Learned](./testing/technical/testing-infrastructure-lessons-learned.md)** - **START HERE for debugging** - Real problems and solutions from testing implementation
-- **[Testing Infrastructure Architecture KDD](./testing/technical/testing-infrastructure-architecture-kdd.md)** - **Critical architecture lessons** - BadConvexModuleIdentifier resolution and test separation patterns
-- **[Testing Patterns](./testing/technical/testing-patterns.md)** - **For implementation** - Concrete patterns for React components, hooks, Convex functions
-- **[Test Strategy & Standards](./testing/technical/test-strategy-and-standards.md)** - **For context** - Testing framework, coverage targets, CI/CD integration
+Structured approaches to AI-assisted development:
 
-#### Functional Testing (For QA/Product)
+- **[BMAD Context Engineering](./methodology/bmad-context-engineering.md)** - AI-first development methodology
+- **[Agentic Development](./methodology/agentic-architect-developer-persona.md)** - AI personas and collaboration patterns
 
-- **[Functional Test Plans](./testing/uat/)** - User acceptance testing for individual stories
+## Development Resources
 
-### 📚 Knowledge-Driven Development (KDD)
+### 🧪 Testing & Quality
 
-**Comprehensive guides and systematic knowledge libraries:**
+**[testing/technical/](./testing/technical/)**
 
-#### [Implementation Guides](./guides/)
+Comprehensive testing strategies and patterns:
 
-Complete implementation and usage guides for AI agents and developers:
+- **[Testing Infrastructure](./testing/technical/testing-infrastructure-lessons-learned.md)** - Real-world testing solutions
+- **[Testing Patterns](./testing/technical/testing-patterns.md)** - Concrete testing implementations
+- **[Test Strategy](./testing/technical/test-strategy-and-standards.md)** - Framework and coverage standards
 
-- **[KDD Implementation Guide](./guides/kdd-implementation-guide.md)** - Complete KDD methodology implementation framework
-- **[KDD Setup Guide](./guides/kdd-setup-guide.md)** - Practical setup guide with quick start and real examples
-- **[Sprint Estimation Implementation Guide](./guides/sprint-estimation-implementation-guide.md)** - BMAD enhancement with sprint planning capabilities
+### 📐 Patterns Library
 
-#### [YouTube Briefs](./youtube-briefs/)
+**[patterns/](./patterns/)**
 
-Video creation briefs for sharing knowledge and demonstrations:
-
-- **[CI Monitoring Automation Brief](./youtube-briefs/ci-monitoring-automation-brief.md)** - Smart push and CI monitoring system demonstration
-- **[Sprint Estimation Brief](./youtube-briefs/sprint-estimation-brief.md)** - BMAD sprint planning enhancement video guide
-- **[KDD Methodology Brief](./youtube-briefs/kdd-methodology-brief.md)** - Knowledge-Driven Development video presentation guide
-
-**Knowledge Libraries for systematic development:**
-
-#### [Patterns Library](./patterns/)
-
-Established architectural patterns and best practices:
+Reusable architectural and development patterns:
 
 - **[Frontend Patterns](./patterns/frontend-patterns.md)** - React, Next.js, and UI patterns
-- **[Backend Patterns](./patterns/backend-patterns.md)** - Convex, API, and server-side patterns
-- **[Testing Patterns](./testing/technical/testing-patterns.md)** - Testing strategies across all layers
+- **[Backend Patterns](./patterns/backend-patterns.md)** - Convex and server-side patterns
 - **[Architecture Patterns](./patterns/architecture-patterns.md)** - System design patterns
-- **[Development Workflow Patterns](./patterns/development-workflow-patterns.md)** - Process and collaboration patterns
+- **[Development Workflow](./patterns/development-workflow-patterns.md)** - Process and collaboration patterns
 
-#### [Examples Library](./examples/)
+### 💡 Implementation Examples
 
-Real implementation examples from the project:
+**[examples/](./examples/)**
 
-- **[Monorepo Setup](./examples/monorepo-setup/)** - Complete Bun/Turborepo configuration example
-- **[Frontend Examples](./examples/frontend/)** - React and Next.js implementation examples
-- **[Backend Examples](./examples/backend/)** - Convex function examples and runtime patterns
-  - **[Knowledge Ingestion Deployment Patterns](./examples/backend/knowledge-ingestion-deployment-patterns.md)** - Vector storage deployment patterns and configuration management
-- **[Testing Examples](./examples/testing/)** - Comprehensive testing examples
-- **[CI/CD Deployment Examples](./examples/cicd-deployment/)** - Complete CI/CD pipeline and deployment examples
-- **[Configuration Examples](./examples/configuration/)** - Project configuration examples
+Real-world implementation examples:
 
-#### [Lessons Learned](./lessons-learned/)
+- **[Backend Examples](./examples/backend/)** - Convex functions and runtime patterns
+- **[Configuration Examples](./examples/configuration/)** - Project setup and configuration
+- **[CI/CD Examples](./examples/cicd-deployment/)** - Deployment pipeline examples
 
-Cross-story insights and knowledge capture:
+### 📖 Knowledge & Learning
 
-- **[Story Lessons](./lessons-learned/stories/)** - Insights from individual story implementations
-  - **[Story 1.6 Lessons](./lessons-learned/stories/story-1-6-lessons.md)** - CI/CD Pipeline implementation learnings
-  - **[Story 4.2 Knowledge Ingestion Lessons](./lessons-learned/stories/story-4.2-knowledge-ingestion-lessons.md)** - Cloudflare Vectorize integration and vector storage patterns
-- **[Technology Lessons](./lessons-learned/technology/)** - Technology-specific learnings
-- **[Process Lessons](./lessons-learned/process/)** - Development workflow insights
+**[guides/](./guides/)**
+
+Complete implementation frameworks:
+
+- **[KDD Implementation Guide](./guides/kdd-implementation-guide.md)** - Knowledge-Driven Development framework
+- **[Sprint Estimation](./guides/sprint-estimation-implementation-guide.md)** - BMAD sprint planning enhancement
+
+**[lessons-learned/](./lessons-learned/)**
+
+Cross-cutting insights and anti-patterns:
+
+- **[Architecture Lessons](./lessons-learned/architecture/)** - System design insights
 - **[Anti-Patterns](./lessons-learned/anti-patterns/)** - Approaches to avoid
-
-#### [Peer Reviews](./peer-reviews/)
-
-Architectural discussions and external feedback:
-
-- **[Convex Structure Analysis](./peer-reviews/convex-structure-analysis.md)** - Review of monorepo structure vs simplified approach
-
-### 🚧 Historical Work
-
-**[historical/](./historical/)**
-
-- **[Overview](./historical/index.md)** - Early planning documents
-- **[Tech Stack](./historical/preliminary-tech-stack.md)** - Technology choices
-- **[Epics](./historical/preliminary-epics.md)** - Feature breakdown
 
 ## Development Workflow
 
 ```mermaid
 graph TD
-    subgraph "Input & Feedback Sources"
-        direction LR
-        A[Production<br/>(Sentry, PostHog, Logs)]
-        B[User<br/>(Feedback Widget)]
-        C[Developer/PO<br/>(Directives)]
-        D[Testing<br/>(Playwright, CI)]
-        E[Data & Process<br/>(Pipelines, Reviews)]
+    subgraph "Development Inputs"
+        A[Requirements<br/>(Features, Bugs)]
+        B[User Feedback<br/>(Analytics, Support)]
+        C[Technical Debt<br/>(Code Review, Monitoring)]
     end
-    subgraph "Core Agentic System"
-        direction TB
-        F((Knowledge Base <br/> Vector + Graph Context))
-        G{AI Workforce <br/> (Claude Code Agents)}
-        H(BMAD-METHOD <br/> Process & Templates)
+    subgraph "AI-Assisted Development"
+        D[Architecture Planning<br/>(Patterns, Examples)]
+        E[Implementation<br/>(Technical Guides)]
+        F[Testing & Validation<br/>(Testing Patterns)]
     end
-    subgraph "Outputs & Artifacts"
-        direction LR
-        I[Codebase]
-        J[Documentation]
-        K[GitHub Issues]
-        L[Test Data Profiles]
-        M[Agent Definitions]
+    subgraph "Production Outputs"
+        G[Application Code]
+        H[Documentation]
+        I[Monitoring & Analytics]
     end
-    A --> G
-    B --> G
-    C --> G
-    D --> G
-    E --> G
-    G --> F
+    A --> D
+    B --> D
+    C --> D
+    D --> E
+    E --> F
+    F --> G
     F --> H
-    H --> F
-    H --> I
-    H --> J
-    H --> K
-    H --> L
-    H --> M
+    G --> I
+    I --> B
 ```
 
-## Getting Started with Development
+## Key Architectural Principles
 
-1. **Review Core Documents**
-   - Read [Project Brief](./project-brief.md) for context
-   - Study [PRD Overview](./prd/index.md) for requirements navigation
-   - Understand [Architecture Overview](./architecture/index.md) for technical decisions
-
-2. **Understand the Methodology**
-   - Read [BMAD Context Engineering](./methodology/bmad-context-engineering.md)
-   - Review the [Agentic Persona](./methodology/agentic-architect-developer-persona.md)
-
-3. **Setup Development Environment**
-   - Follow the [Dev Error Pipeline](./technical-guides/dev-error-pipeline.md) setup
-   - Configure Chrome DevTools integration
-
-4. **Start Building**
-   - Use BMAD agents for planning
-   - Implement with Claude Code
-   - Test with integrated tooling
-
-## Key Innovations
-
-### 1. Chrome DevTools to Claude Code Bridge
-
-Seamless integration between browser debugging and AI assistance:
-
-- Zero-friction console log capture
-- Automatic context preservation
-- E2E test integration
-
-### 2. Cost-Conscious Architecture
-
-Built to scale efficiently:
-
-- Hybrid logging pattern
-- Smart error sampling
-- Convex-first data strategy
-
-### 3. AI-Native Development Flow
+### 1. AI-First Development
 
 Every aspect optimized for AI collaboration:
 
-- Context-rich story files
-- Specialized agent personas
-- Continuous feedback loops
+- Context-rich documentation structure
+- Clear separation of concerns
+- Predictable patterns and conventions
 
-## Contributing
+### 2. Real-Time by Default
 
-This template is designed to evolve. Contributions are welcome in:
+Built for responsive, modern user experiences:
 
-- Additional agent personas
-- Integration patterns
-- Cost optimization strategies
-- Developer experience improvements
+- Convex real-time data layer
+- Optimistic UI updates
+- Seamless state synchronization
 
-## Resources
+### 3. Edge-Native Architecture
 
-- **BMAD Method**: [GitHub - bmadcode/BMAD-METHOD](https://github.com/bmadcode/BMAD-METHOD)
-- **Claude Code**: [Anthropic's official CLI](https://claude.ai/code)
-- **Convex**: [Backend platform](https://convex.dev)
-- **Community**: Join the discussion on Discord
+Designed for global performance:
+
+- Cloudflare edge deployment
+- Efficient bundle splitting
+- Strategic caching patterns
+
+### 4. Security & Privacy
+
+Multi-layered security approach:
+
+- Authentication and authorization patterns
+- Secure secret management
+- Privacy-by-design data handling
+
+### 5. Cost-Conscious Scaling
+
+Optimized for efficient resource usage:
+
+- Smart bundling and lazy loading
+- Efficient database queries
+- Monitoring-driven optimization
+
+## Getting Started with Development
+
+1. **Understand the Architecture**
+   - Review [Architecture Overview](./architecture/index.md)
+   - Study [Tech Stack](./architecture/tech-stack.md) decisions
+
+2. **Follow Development Patterns**
+   - Use [Frontend Patterns](./patterns/frontend-patterns.md) for UI development
+   - Apply [Backend Patterns](./patterns/backend-patterns.md) for server logic
+
+3. **Implement with Guides**
+   - Reference [Technical Guides](./technical-guides/) for specific implementations
+   - Follow [Testing Patterns](./testing/technical/testing-patterns.md) for quality assurance
+
+4. **Learn from Examples**
+   - Study [Implementation Examples](./examples/) for real-world patterns
+   - Apply [Lessons Learned](./lessons-learned/) to avoid common pitfalls
+
+## Contributing to This Documentation
+
+This documentation evolves with the application. When implementing new features or solving problems:
+
+1. **Document Patterns** - Add reusable patterns to the patterns library
+2. **Share Examples** - Contribute implementation examples for common scenarios
+3. **Capture Lessons** - Document insights and anti-patterns in lessons-learned
+4. **Update Guides** - Keep technical guides current with new implementations
 
 ---
 
-_This project demonstrates how AI can be a true development partner when given proper context and structure. It's not about replacing developers, but amplifying their capabilities through intelligent collaboration._
+_This documentation represents a living knowledge base for building production-ready, AI-first web applications. It grows and improves with each implementation, creating a compound knowledge effect for development teams._
