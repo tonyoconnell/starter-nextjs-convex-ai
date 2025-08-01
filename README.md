@@ -1,4 +1,4 @@
-# Starter NextJS Convex AI
+# {PROJECT_NAME}
 
 > An opinionated, production-grade starter template for building AI-native applications using modern edge-first technologies and the BMAD (Breakthrough Method for Agile AI Driven Development) methodology.
 
@@ -40,8 +40,8 @@ This template provides a foundational solution for developers, architects, and t
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/appydave/starter-nextjs-convex-ai.git
-cd starter-nextjs-convex-ai
+git clone {REPOSITORY_URL}
+cd {PROJECT_DIRECTORY}
 ```
 
 2. Install dependencies:
@@ -257,7 +257,7 @@ Test the authentication:
 ## Project Structure
 
 ```
-starter-nextjs-convex-ai/
+{PROJECT_DIRECTORY}/
 ├── apps/web/              # Next.js application
 │   ├── app/              # App Router pages and layouts
 │   ├── components/       # React components
@@ -315,7 +315,7 @@ The template is configured for edge deployment on Cloudflare Pages:
 git push origin main
 
 # Manual deployment (if needed)
-npx wrangler pages deploy apps/web/.vercel/output/static --project-name=your-project
+npx wrangler pages deploy apps/web/.vercel/output/static --project-name={PROJECT_NAME}
 
 # Deploy Convex backend
 bunx convex deploy --prod
@@ -374,9 +374,9 @@ Areas for contribution:
 
 ## Community
 
-- **Discord**: [Join our community](https://discord.gg/starter-nextjs)
-- **GitHub Discussions**: [Ask questions and share ideas](https://github.com/appydave/starter-nextjs-convex-ai/discussions)
-- **Twitter**: [@appydave](https://twitter.com/appydave)
+- **Discord**: [Join our community]({DISCORD_INVITE_LINK})
+- **GitHub Discussions**: [Ask questions and share ideas]({REPOSITORY_URL}/discussions)
+- **Twitter**: [{TWITTER_HANDLE}](https://twitter.com/{TWITTER_HANDLE})
 
 ## License
 
@@ -393,7 +393,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 _Built with AI assistance for the AI-assisted development era._
-
-# Testing CI/CD Pipeline
-
-# Testing CI/CD Pipeline - Fri 18 Jul 2025 12:49:09 +07
