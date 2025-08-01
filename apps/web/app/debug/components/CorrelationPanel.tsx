@@ -3,13 +3,24 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@starter/ui/card';
 import { Badge } from '@starter/ui/badge';
 import { Button } from '@starter/ui/button';
-import { AlertTriangle, TrendingUp, Workflow, Copy } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Workflow, Copy, HelpCircle } from 'lucide-react';
 import type { CorrelationAnalysis } from '../lib/debug-api';
 
 interface CorrelationPanelProps {
   correlationAnalysis: CorrelationAnalysis;
   traceId: string;
 }
+
+// Simple tooltip component
+const HelpTooltip = ({ children, title }: { children: React.ReactNode; title: string }) => (
+  <div className="relative group">
+    {children}
+    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap max-w-xs z-50">
+      {title}
+      <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+    </div>
+  </div>
+);
 
 export default function CorrelationPanel({ correlationAnalysis, traceId }: CorrelationPanelProps) {
   const { errorChains, performanceInsights, systemFlow } = correlationAnalysis;
@@ -65,7 +76,12 @@ ${systemFlow.map((flow, i) =>
       <Card>
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Correlation Analysis</CardTitle>
+            <div className="flex items-center space-x-2">
+              <CardTitle className="text-lg">Correlation Analysis</CardTitle>
+              <HelpTooltip title="Automated log analysis (Currently Mocked) - Real implementation would analyze log patterns to detect error cascades, performance bottlenecks, and request flows across systems.">
+                <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+              </HelpTooltip>
+            </div>
             <Button
               variant="outline"
               size="sm"
@@ -89,6 +105,9 @@ ${systemFlow.map((flow, i) =>
             <AlertTriangle className="h-4 w-4 text-destructive" />
             <CardTitle className="text-base">Error Chains</CardTitle>
             <Badge variant="secondary">{errorChains.length}</Badge>
+            <HelpTooltip title="Error Chain Detection (Currently Mocked) - Links related errors across systems to identify cascading failures. Example: Browser error → API failure → Database timeout">
+              <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" />
+            </HelpTooltip>
           </div>
         </CardHeader>
         <CardContent>
@@ -138,6 +157,9 @@ ${systemFlow.map((flow, i) =>
             <TrendingUp className="h-4 w-4 text-warning" />
             <CardTitle className="text-base">Performance Insights</CardTitle>
             <Badge variant="secondary">{performanceInsights.length}</Badge>
+            <HelpTooltip title="Performance Analysis (Currently Mocked) - Detects slow operations, timeouts, and bottlenecks across trace. Example: Slow database queries, API timeouts, excessive rendering">
+              <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" />
+            </HelpTooltip>
           </div>
         </CardHeader>
         <CardContent>
@@ -173,6 +195,9 @@ ${systemFlow.map((flow, i) =>
             <Workflow className="h-4 w-4 text-primary" />
             <CardTitle className="text-base">System Flow</CardTitle>
             <Badge variant="secondary">{systemFlow.length}</Badge>
+            <HelpTooltip title="System Flow Mapping (Currently Mocked) - Maps how requests flow between systems with timing analysis. Example: Browser → Convex → Worker → External API">
+              <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" />
+            </HelpTooltip>
           </div>
         </CardHeader>
         <CardContent>

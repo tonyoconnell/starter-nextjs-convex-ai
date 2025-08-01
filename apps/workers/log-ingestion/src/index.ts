@@ -19,7 +19,7 @@ export default {
     // CORS headers for all responses
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Methods': 'POST, GET, DELETE, OPTIONS',
       'Access-Control-Allow-Headers':
         'Content-Type, Origin, User-Agent, Authorization',
       'Content-Type': 'application/json',
@@ -43,11 +43,14 @@ export default {
             'POST /log': 'Log ingestion endpoint',
             'GET /health': 'Health check with full system status',
             'GET /logs?trace_id=xxx': 'Retrieve logs by trace ID',
+            'GET /traces/recent': 'List recent trace IDs with metadata',
+            'DELETE /logs/clear': 'Clear all logs from Redis',
           },
           usage: {
             'Log ingestion': 'POST /log with JSON payload',
             'Health check': 'GET /health',
             'Retrieve logs': 'GET /logs?trace_id=your_trace_id',
+            'Clear all logs': 'DELETE /logs/clear',
           },
         }),
         {
@@ -67,6 +70,14 @@ export default {
 
     if (url.pathname === '/logs' && request.method === 'GET') {
       return handleLogRetrieval(request, env, corsHeaders);
+    }
+
+    if (url.pathname === '/logs/clear' && request.method === 'DELETE') {
+      return handleLogClear(env, corsHeaders);
+    }
+
+    if (url.pathname === '/traces/recent' && request.method === 'GET') {
+      return handleRecentTraces(request, env, corsHeaders);
     }
 
     return new Response(JSON.stringify({ error: 'Not found' }), {
@@ -322,6 +333,93 @@ async function handleLogRetrieval(
     return new Response(
       JSON.stringify({
         error: 'Failed to retrieve logs',
+      }),
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
+    );
+  }
+}
+
+async function handleLogClear(
+  env: Environment,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    // Create Redis client
+    const redis = new RedisClient(
+      env.UPSTASH_REDIS_REST_URL,
+      env.UPSTASH_REDIS_REST_TOKEN
+    );
+
+    // Clear all logs
+    const result = await redis.clearAllLogs();
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        deleted: result.deleted,
+        message: result.message,
+        cleared_at: Date.now(),
+      }),
+      {
+        status: 200,
+        headers: corsHeaders,
+      }
+    );
+  } catch (error) {
+    console.error('Log clear error:', error);
+
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'Failed to clear logs',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
+      {
+        status: 500,
+        headers: corsHeaders,
+      }
+    );
+  }
+}
+
+async function handleRecentTraces(
+  request: Request,
+  env: Environment,
+  corsHeaders: Record<string, string>
+): Promise<Response> {
+  try {
+    const url = new URL(request.url);
+    const limitParam = url.searchParams.get('limit');
+    const limit = limitParam ? Math.min(parseInt(limitParam, 10), 50) : 10; // Max 50 traces
+
+    // Get recent traces from Redis
+    const redis = new RedisClient(
+      env.UPSTASH_REDIS_REST_URL,
+      env.UPSTASH_REDIS_REST_TOKEN
+    );
+    const traces = await redis.getRecentTraces(limit);
+
+    return new Response(
+      JSON.stringify({
+        traces,
+        count: traces.length,
+        retrieved_at: Date.now(),
+      }),
+      {
+        status: 200,
+        headers: corsHeaders,
+      }
+    );
+  } catch (error) {
+    console.error('Recent traces retrieval error:', error);
+
+    return new Response(
+      JSON.stringify({
+        error: 'Failed to retrieve recent traces',
+        details: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         status: 500,
