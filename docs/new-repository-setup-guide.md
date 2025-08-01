@@ -56,28 +56,38 @@ Before starting, ensure you have:
 
 1. **Create your new project**:
 
-   **Option A: Using degit (Recommended - Clean start)**
+   **Option A: From blank folder (Recommended)**
+
    ```bash
-   # Install degit if not already installed
-   npm install -g degit
-   
-   # Create new project without git history
-   degit appydave-templates/starter-nextjs-convex-ai my-new-project
-   cd my-new-project
-   
+   # Navigate to your blank project folder
+   cd /path/to/your/blank/project
+
    # Initialize fresh git repository
    git init
    git add .
-   git commit -m "feat: initial project setup from template"
-   
-   # Connect to your new GitHub repository
-   git remote add origin https://github.com/your-username/your-new-repo.git
+   git commit -m "feat: initial project setup"
+
+   # Create GitHub repository first (using GitHub CLI or web interface)
+   gh repo create your-org/your-repo-name --public
+
+   # Connect to your GitHub repository
+   git remote add origin https://github.com/your-org/your-repo-name.git
    git push -u origin main
-   
+
+   # Pull in template files (install degit if not already installed)
+   npm install -g degit
+   degit appydave-templates/starter-nextjs-convex-ai .
+
+   # Commit template files
+   git add .
+   git commit -m "feat: add template files"
+   git push
+
    bun install
    ```
 
    **Option B: Traditional git clone**
+
    ```bash
    git clone https://github.com/your-username/your-repo-name.git
    cd your-repo-name
@@ -92,21 +102,22 @@ Before starting, ensure you have:
    ```
 
    **⚠️ Manual File Setup Required**:
-   
+
    The following files are gitignored and need manual setup:
-   
+
    ```bash
    # Required for development
    cp .env.source-of-truth.example .env.source-of-truth.local
-   
+
    # Worker environment (if using log ingestion)
    cp apps/workers/log-ingestion/.dev.vars.example apps/workers/log-ingestion/.dev.vars
-   
+
    # Optional: Claude Code configuration (if using Claude)
    # Note: .claude/settings.local.json - will be created when first using Claude Code
    ```
 
    **Hidden Files Verification**:
+
    ```bash
    # Verify critical hidden files are present
    ls -la | grep -E "\.(git|husky|prettier)"
@@ -115,7 +126,7 @@ Before starting, ensure you have:
    ```
 
    **Post-Degit Setup Checklist**:
-   
+
    After using degit, verify these components are working:
    - [ ] Git repository initialized (`git status` works)
    - [ ] GitHub Actions workflows present (`.github/workflows/`)
@@ -209,6 +220,7 @@ Before starting, ensure you have:
    ```
 
 4. **Sync and test**:
+
    ```bash
    bun run sync-env
    bun dev
@@ -269,6 +281,7 @@ Before starting, ensure you have:
 3. **Update environment source file** with OpenAI credentials
 
 4. **Sync and test**:
+
    ```bash
    bun run sync-env
    bun dev
@@ -288,13 +301,14 @@ Before starting, ensure you have:
 **Skip this step if you only need basic AI chat without knowledge base functionality.**
 
 1. **Create Cloudflare Vectorize database**:
+
    ```bash
    # Install Wrangler CLI (if not already installed)
    npm install -g wrangler
-   
+
    # Authenticate with Cloudflare
    wrangler login
-   
+
    # Create vector database (use your project name)
    wrangler vectorize create your-project-name-knowledge \
      --dimensions=1536 --metric=cosine
@@ -311,6 +325,7 @@ Before starting, ensure you have:
    - Found in Cloudflare dashboard right sidebar
 
 4. **Update environment source file**:
+
    ```
    | false  | true   | Cloudflare Vector | CLOUDFLARE_ACCOUNT_ID     | your_account_id_here     |
    | false  | true   | Cloudflare Vector | VECTORIZE_DATABASE_ID     | your-project-name-knowledge |
@@ -321,23 +336,26 @@ Before starting, ensure you have:
    **Note**: You need OpenAI API key for embeddings generation even if using OpenRouter for chat.
 
 5. **Sync and test**:
+
    ```bash
    bun run sync-env
-   
+
    # Test the knowledge ingestion system
    ./scripts/test-uat-4.2.sh tc4.2
    ```
 
 6. **Seed your knowledge base** (optional):
+
    ```bash
    # Dry run to see what would be processed
    bun run seed:knowledge:dry
-   
+
    # Actually process and store documents
    bun run seed:knowledge
    ```
 
-✅ **Success Check**: 
+✅ **Success Check**:
+
 - Test command shows successful vector insertion
 - Knowledge seeding processes your project documents
 - AI responses can include relevant context from your knowledge base
@@ -384,12 +402,14 @@ Before starting, ensure you have:
 
 **Goal**: Deploy cost-effective logging infrastructure using Cloudflare Workers + Redis.
 
-**Benefits**: 
+**Benefits**:
+
 - 🔹 ~80% cost reduction ($2/month vs $10/month)
 - 🔹 High-frequency logging without database conflicts
 - 🔹 Automatic log correlation across systems
 
 **Quick Setup** (5 minutes):
+
 ```bash
 # 1. Configure all environment variables
 bun run sync-env --dry-run    # Review changes
@@ -400,10 +420,12 @@ bun run sync-env              # Apply configuration
 ```
 
 **Prerequisites**:
+
 - Upstash Redis account (free tier: 10K commands/day)
 - Your environment variables already configured in `.env.source-of-truth.local`
 
 **Manual Setup** (if automated fails):
+
 1. Create Upstash Redis database at [upstash.com](https://upstash.com)
 2. Update `.env.source-of-truth.local` with Redis credentials
 3. Run sync: `bun run sync-env`
