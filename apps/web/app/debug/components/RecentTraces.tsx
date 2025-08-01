@@ -4,42 +4,55 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@starter/ui/card';
 import { Button } from '@starter/ui/button';
 import { Badge } from '@starter/ui/badge';
-import { Clock, Search } from 'lucide-react';
+import { Clock, Search, RefreshCw } from 'lucide-react';
 
 interface RecentTracesProps {
   onSelectTrace: (traceId: string) => void;
   loading: boolean;
 }
 
-// Mock recent traces for demo purposes
-// In a real implementation, this would come from an API
-const generateMockTraces = () => {
-  const traces = [];
-  const now = Date.now();
-  
-  // Generate some realistic trace IDs based on the format used in console-override.ts
-  for (let i = 0; i < 8; i++) {
-    const timestamp = now - (i * 300000); // 5 minutes apart
-    const randomSuffix = Math.random().toString(36).substr(2, 9);
-    traces.push({
-      id: `trace_${timestamp}_${randomSuffix}`,
-      timestamp,
-      logCount: Math.floor(Math.random() * 50) + 5,
-      systems: ['browser', 'convex', 'worker'].slice(0, Math.floor(Math.random() * 3) + 1),
-      hasErrors: Math.random() > 0.7
-    });
-  }
-  
-  return traces;
-};
+interface TraceInfo {
+  id: string;
+  timestamp: number;
+  logCount: number;
+  systems: string[];
+  hasErrors: boolean;
+}
 
 export default function RecentTraces({ onSelectTrace, loading }: RecentTracesProps) {
-  const [recentTraces, setRecentTraces] = useState<ReturnType<typeof generateMockTraces>>([]);
+  const [recentTraces, setRecentTraces] = useState<TraceInfo[]>([]);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchRecentTraces = async () => {
+    setFetchLoading(true);
+    setError(null);
+    
+    try {
+      const workerUrl = process.env.NEXT_PUBLIC_LOG_WORKER_URL || 'http://localhost:8787';
+      const response = await fetch(`${workerUrl}/traces/recent?limit=10`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch recent traces: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      setRecentTraces(data.traces || []);
+    } catch (err) {
+      // Error logged for debugging
+      setError(err instanceof Error ? err.message : 'Failed to fetch traces');
+      setRecentTraces([]); // Clear traces on error
+    } finally {
+      setFetchLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // For demo purposes, generate mock data
-    // In production, this would fetch from your backend
-    setRecentTraces(generateMockTraces());
+    fetchRecentTraces();
+    
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchRecentTraces, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const formatTimestamp = (timestamp: number) => {
@@ -52,19 +65,66 @@ export default function RecentTraces({ onSelectTrace, loading }: RecentTracesPro
     return new Date(timestamp).toLocaleDateString();
   };
 
-  if (recentTraces.length === 0) {
+  if (error) {
+    return (
+      <Card className="border-destructive">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <Clock className="h-4 w-4" />
+              <span>Recent Traces</span>
+            </CardTitle>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={fetchRecentTraces}
+              disabled={fetchLoading}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`h-3 w-3 ${fetchLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-4 text-destructive">
+            <p className="text-sm font-medium">Failed to load traces</p>
+            <p className="text-xs">{error}</p>
+            <Button size="sm" variant="outline" onClick={fetchRecentTraces} className="mt-2">
+              Retry
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (recentTraces.length === 0 && !fetchLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Clock className="h-4 w-4" />
-            <span>Recent Traces</span>
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center space-x-2">
+              <Clock className="h-4 w-4" />
+              <span>Recent Traces</span>
+            </CardTitle>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={fetchRecentTraces}
+              disabled={fetchLoading}
+              className="h-8 w-8 p-0"
+            >
+              <RefreshCw className={`h-3 w-3 ${fetchLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-center py-4 text-muted-foreground">
             <p className="text-sm">No recent traces found</p>
             <p className="text-xs">Generate some logs to see traces here</p>
+            <Button size="sm" variant="outline" onClick={fetchRecentTraces} className="mt-2">
+              Refresh
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -78,8 +138,21 @@ export default function RecentTraces({ onSelectTrace, loading }: RecentTracesPro
           <CardTitle className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
             <span>Recent Traces</span>
+            {fetchLoading && <RefreshCw className="h-3 w-3 animate-spin ml-2" />}
           </CardTitle>
-          <Badge variant="secondary">{recentTraces.length}</Badge>
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary">{recentTraces.length}</Badge>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={fetchRecentTraces}
+              disabled={fetchLoading}
+              className="h-8 w-8 p-0"
+              title="Refresh recent traces"
+            >
+              <RefreshCw className={`h-3 w-3 ${fetchLoading ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -125,8 +198,8 @@ export default function RecentTraces({ onSelectTrace, loading }: RecentTracesPro
         
         <div className="mt-3 pt-3 border-t">
           <p className="text-xs text-muted-foreground">
-            💡 Tip: Click the search icon to debug a specific trace, or use "Debug Now" 
-            for your current browser session above.
+            💡 Tip: Click the search icon to debug a specific trace, or use &ldquo;Debug Now&rdquo; 
+            for your current browser session above. Auto-refreshes every 30s.
           </p>
         </div>
       </CardContent>

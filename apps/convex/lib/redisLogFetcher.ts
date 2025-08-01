@@ -48,8 +48,8 @@ export async function fetchLogsFromRedis(
     throw new ConvexError('Log worker URL not configured');
   }
 
-  // Construct fetch URL
-  const url = `${workerEndpoint}/logs/${encodeURIComponent(traceId)}`;
+  // Construct fetch URL - worker expects trace_id as query parameter
+  const url = `${workerEndpoint}/logs?trace_id=${encodeURIComponent(traceId)}`;
   
   try {
     const response = await fetch(url, {
@@ -64,17 +64,32 @@ export async function fetchLogsFromRedis(
       if (response.status === 404) {
         return []; // No logs found for this trace ID
       }
-      throw new ConvexError(`Failed to fetch logs: ${response.status} ${response.statusText}`);
+      
+      // Get detailed error information for debugging
+      let errorDetails = `${response.status} ${response.statusText}`;
+      try {
+        const errorBody = await response.text();
+        if (errorBody) {
+          errorDetails += ` - ${errorBody}`;
+        }
+      } catch {
+        // Ignore parsing errors
+      }
+      
+      throw new ConvexError(`Request to ${url} forbidden - ${errorDetails}`);
     }
 
-    const logs: RedisLogEntry[] = await response.json();
+    const responseData = await response.json();
+    
+    // Worker returns { trace_id, logs, count, retrieved_at }
+    const logs: RedisLogEntry[] = responseData.logs || [];
     
     // Apply system filtering if provided
     const filteredLogs = systemFilter && systemFilter.length > 0
       ? logs.filter(log => systemFilter.includes(log.system))
       : logs;
 
-    // Sort by timestamp
+    // Sort by timestamp (worker already sorts, but double-check)
     return filteredLogs.sort((a, b) => a.timestamp - b.timestamp);
   } catch (error) {
     if (error instanceof ConvexError) {
