@@ -82,7 +82,7 @@ files -i '.bmad-core/**/*' -i '.claude/**/*' -i '.github/**/*' -i '.husky/**/*' 
 **Use Case**: Understanding business logic and application structure
 
 ```bash
-files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/**/*.ts' -i 'packages/**/*.tsx' -e '**/node_modules/**/*' -e '**/_generated/**/*' -e '**/__tests__/**/*' -e '**/test*' -d -f tree
+files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/ui/**/*.ts' -i 'packages/ui/**/*.tsx' -e '**/node_modules/**/*' -e '**/_generated/**/*' -e '**/__tests__/**/*' -e '**/test*' -e '**/storybook/**/*' -d -f tree
 ```
 
 #### 5. **code-plus-tests**: Implementation and test files only
@@ -90,7 +90,7 @@ files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/**/*.ts' -i 'packages/**
 **Use Case**: Comprehensive code review including test coverage
 
 ```bash
-files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/**/*.ts' -i 'packages/**/*.tsx' -i 'tests/**/*.ts' -i 'tests/**/*.tsx' -e '**/node_modules/**/*' -e '**/_generated/**/*' -d -f tree
+files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/ui/**/*.ts' -i 'packages/ui/**/*.tsx' -i 'tests/**/*.ts' -i 'tests/**/*.tsx' -e '**/node_modules/**/*' -e '**/_generated/**/*' -e '**/storybook/**/*' -d -f tree
 ```
 
 #### 6. **architecture-context**: Code plus architectural documentation
@@ -98,7 +98,7 @@ files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/**/*.ts' -i 'packages/**
 **Use Case**: Understanding implementation within architectural constraints
 
 ```bash
-files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'docs/architecture/**/*' -i 'docs/patterns/**/*' -i 'docs/methodology/**/*' -e '**/node_modules/**/*' -e '**/_generated/**/*' -d -f tree
+files -i 'apps/**/*.ts' -i 'apps/**/*.tsx' -i 'packages/ui/**/*.ts' -i 'packages/ui/**/*.tsx' -i 'docs/architecture/**/*' -i 'docs/patterns/**/*' -i 'docs/methodology/**/*' -e '**/node_modules/**/*' -e '**/_generated/**/*' -e '**/storybook/**/*' -d -f tree
 ```
 
 ### Documentation Views
@@ -126,7 +126,7 @@ files -i 'docs/testing/uat/**/*' -i 'docs/examples/**/*' -i 'docs/**/story-*' -i
 **Use Case**: Understanding test architecture and coverage patterns
 
 ```bash
-files -i 'tests/**/*' -i 'apps/**/test*' -i 'apps/**/__tests__/**/*' -i 'packages/**/__tests__/**/*' -e '**/node_modules/**/*' -d -f tree
+files -i 'tests/**/*' -i 'apps/**/test*' -i 'apps/**/__tests__/**/*' -i 'packages/**/__tests__/**/*' -e '**/node_modules/**/*' -e '**/storybook/**/*' -d -f tree
 ```
 
 #### 10. **config-only**: Configuration files across project
@@ -134,7 +134,7 @@ files -i 'tests/**/*' -i 'apps/**/test*' -i 'apps/**/__tests__/**/*' -i 'package
 **Use Case**: Understanding project setup, build tools, and environment config
 
 ```bash
-files -i '**/*.json' -i '**/*.js' -i '**/*.config.*' -i '**/tsconfig*' -i '**/jest*' -i '**/eslint*' -i '**/playwright*' -e '**/node_modules/**/*' -e '**/package-lock.json' -e '**/bun.lock' -d -f tree
+files -i '**/*.json' -i '**/*.js' -i '**/*.config.*' -i '**/tsconfig*' -i '**/jest*' -i '**/eslint*' -i '**/playwright*' -e '**/node_modules/**/*' -e '**/package-lock.json' -e '**/bun.lock' -e '**/storybook/**/*' -d -f tree
 ```
 
 #### 11. **deployment-files**: All deployment-related configurations
