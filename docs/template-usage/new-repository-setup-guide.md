@@ -10,6 +10,61 @@ This guide takes you from zero to a fully functional, deployed AI application wi
 **Skill Level**: Intermediate (requires creating accounts and configuring services)  
 **End Result**: Live application with GitHub authentication, AI chat, and automated deployments
 
+## Service Dependencies & Setup Order
+
+### Why Order Matters
+
+Services in this stack have **interdependencies**. Setting them up in the wrong order creates chicken-and-egg problems where later services can't be configured without earlier ones being functional.
+
+### Dependency Tree
+
+```
+Repository Setup
+    ↓
+Convex Backend (Database + Real-time)
+    ↓
+Environment Sync System
+    ↓
+┌─────────────────────────┬─────────────────────────┐
+│                         │                         │
+Upstash Redis            Authentication Services   AI Services
+    ↓                     (GitHub/Google OAuth)     (OpenAI/OpenRouter)
+Log Ingestion Worker          ↓                         ↓
+(Cloudflare Worker)      Session Management        Vector Database
+    ↓                         ↓                         ↓
+└─────────────────────────┼─────────────────────────┘
+                          ↓
+                    Frontend Testing
+                          ↓
+                   Production Deployment
+                          ↓
+                      CI/CD Pipeline
+```
+
+### Recommended Setup Sequence
+
+**🏗️ Foundation Layer** (Must be done first)
+
+1. **Repository + Dependencies** - Get the codebase ready
+2. **Convex Backend** - Core database and API layer
+3. **Environment System** - Centralized configuration management
+
+**⚙️ Service Layer** (Can be done in parallel after foundation) 4. **Upstash Redis** - Caching and session storage (required by worker) 5. **Log Ingestion Worker** - Logging infrastructure (enables debugging) 6. **Authentication** - GitHub/Google OAuth setup 7. **AI Services** - OpenAI/OpenRouter + Vector database
+
+**🚀 Deployment Layer** (Requires all services) 8. **Frontend Testing** - Verify all integrations work locally 9. **Production Deployment** - Cloudflare Pages 10. **CI/CD Pipeline** - Automated testing and deployment
+
+### Testing Checkpoints
+
+At each stage, **verify functionality before proceeding**:
+
+- **✅ Foundation Complete**: `bun dev` starts without errors, Convex connects
+- **✅ Services Complete**: Authentication works, logs are captured, AI responds
+- **✅ Deployment Complete**: Production site loads, all features functional
+
+**🚨 Critical Rule**: Never skip to authentication testing until Convex + Worker are running. Missing services cause cascading "function not found" errors that are hard to debug.
+
+**⚠️ Real-time Data Caveat**: The current authentication system uses cached user data instead of real-time Convex subscriptions. User profile changes in the Convex dashboard won't automatically reflect in the UI. See [Real-time User Data Synchronization KDD](../architecture/real-time-user-data-synchronization-kdd.md) for the fix.
+
 ## Prerequisites
 
 Before starting, ensure you have:
@@ -265,15 +320,95 @@ Before starting, ensure you have:
 
 **Skip this step if you only want GitHub authentication.**
 
-1. **Create Google Cloud Project**: [Google Cloud Console](https://console.cloud.google.com/)
+#### Create Google Cloud Project
 
-2. **Set up OAuth consent screen and credentials**
+1. **Go to Google Cloud Console**: https://console.cloud.google.com/ (NOT admin.google.com)
+2. **Sign in** with your Google account
+3. **Create new project** or select existing project:
+   - Click **"Select a project"** dropdown (top left)
+   - Click **"New Project"**
+   - **Project name**: `YourAppName` (e.g., "SupportSignal")
+   - Click **"Create"**
+4. **Select your new project** from the dropdown
 
-3. **Update environment source file** with Google credentials
+#### Enable Google+ API
+
+1. **Navigate to APIs**: Left sidebar → **"APIs & Services" > "Library"**
+2. **Search for**: `Google+ API`
+3. **Click** on the Google+ API result
+4. **Click** "Enable" button
+5. **Wait** for API to be enabled
+
+#### Configure OAuth Consent Screen
+
+1. **Go to consent screen**: **"APIs & Services" > "OAuth consent screen"**
+2. **Choose user type**: Select **"External"** (unless you have Google Workspace)
+3. **Click** "Create"
+4. **Fill OAuth consent screen**:
+   - **App name**: `YourAppName`
+   - **User support email**: Your email address
+   - **App logo**: Skip for development
+   - **App domain**: Leave blank for development
+   - **Developer contact email**: Your email address
+5. **Click** "Save and Continue"
+6. **Scopes page**: Click **"Save and Continue"** (default scopes are sufficient)
+7. **Test users**: Add your email address, click **"Save and Continue"**
+8. **Summary**: Review settings, click **"Back to Dashboard"**
+
+#### Create OAuth Credentials
+
+1. **Go to credentials**: **"APIs & Services" > "Credentials"**
+2. **Create credentials**: Click **"+ Create Credentials" > "OAuth client ID"**
+3. **Configure OAuth client**:
+   - **Application type**: Select **"Web application"**
+   - **Name**: `YourAppName Dev` (e.g., "SupportSignal Dev")
+   - **Authorized JavaScript origins**:
+     ```
+     http://localhost:3200
+     ```
+   - **Authorized redirect URIs**:
+     ```
+     http://localhost:3200/auth/google/callback
+     ```
+4. **Click** "Create"
+
+#### Get Credentials
+
+1. **Copy credentials** from the popup:
+   - **Client ID**: Long string ending in `.googleusercontent.com`
+   - **Client Secret**: Random string starting with `GOCSPX-`
+2. **Store safely** - you'll need both for next step
+
+#### Generate OAuth Secret
+
+1. **Generate secure random string**:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   ```
+
+#### Update Environment Configuration
+
+1. **Edit** `.env.source-of-truth.local`:
+
+   ```
+   | CONVEX  | Google OAuth     | GOOGLE_CLIENT_ID          | your_actual_client_id.googleusercontent.com |
+   | CONVEX  | Google OAuth     | GOOGLE_CLIENT_SECRET      | GOCSPX-your_actual_client_secret             |
+   | CONVEX  | OAuth            | OAUTH_SECRET              | your_generated_64_char_secret                |
+   ```
+
+2. **Sync environment**:
+
+   ```bash
+   bun run sync-env --deployment=dev
+   ```
+
+3. **Test authentication**:
+   - Visit `http://localhost:3200/register`
+   - Test both GitHub and Google authentication
 
 ✅ **Success Check**: You can log in with both GitHub and Google.
 
-**📖 Detailed Guide**: [Google OAuth Setup](./technical-guides/google-oauth-setup.md)
+**📖 Troubleshooting**: Common issues include wrong callback URLs, missing API enablement, or consent screen not configured.
 
 ---
 
