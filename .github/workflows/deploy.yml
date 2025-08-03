@@ -26,12 +26,15 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Setup Convex development environment
+        run: |
+          cd apps/convex
+          echo "CONVEX_DEPLOYMENT=dev:woozy-fly-898 # team: oneie, project: mono-6ae1c" > .env.local
+
       - name: Generate Convex types (required for web app)
         run: |
           cd apps/convex
-          npx convex codegen --dev
-        env:
-          CONVEX_DEPLOYMENT: dev:woozy-fly-898
+          npx convex codegen
 
       - name: Run TypeScript check for web app
         run: |
