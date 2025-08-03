@@ -112,26 +112,26 @@ CONVEX_DEPLOYMENT=[REDACTED-CONVEX-URL]
 **Full Production Configuration Applied**:
 
 ```
-CLOUDFLARE_ACCOUNT_ID=[REDACTED-API-KEY]
+CLOUDFLARE_ACCOUNT_ID=your-cloudflare-account-id
 CLOUDFLARE_API_TOKEN=your-cloudflare-api-token
-CONVEX_DEPLOYMENT=[REDACTED-CONVEX-URL]
-GITHUB_CLIENT_ID=[REDACTED-OAUTH-TOKEN]
+CONVEX_DEPLOYMENT=production:your-deployment-name
+GITHUB_CLIENT_ID=your-github-oauth-client-id
 GITHUB_CLIENT_SECRET=your-github-oauth-client-secret
-GOOGLE_CLIENT_ID=[REDACTED-GOOGLE-CLIENT-ID]
+GOOGLE_CLIENT_ID=your-google-oauth-client-id
 GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 LLM_FALLBACK_MODEL=openai/gpt-4o-mini
 LLM_MODEL=openai/gpt-4o-mini
-LOG_WORKER_URL=https://log-ingestion-worker.workers.dev
-NEXT_PUBLIC_APP_URL=https://starter-nextjs-convex-ai.pages.dev
-NEXT_PUBLIC_CONVEX_URL=https://helpful-panther-567.convex.cloud
-NEXT_PUBLIC_LOG_WORKER_URL=https://log-ingestion-worker.workers.dev
+LOG_WORKER_URL=https://your-worker.workers.dev
+NEXT_PUBLIC_APP_URL=https://your-site.pages.dev
+NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+NEXT_PUBLIC_LOG_WORKER_URL=https://your-worker.workers.dev
 OAUTH_SECRET=your-generated-oauth-secret
 OPENAI_API_KEY=your-openai-api-key
 OPENROUTER_API_KEY=your-openrouter-api-key
 PORT=3000
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
-UPSTASH_REDIS_REST_URL=https://unbiased-weasel-57979.upstash.io
-VECTORIZE_DATABASE_ID=starter-nextjs-convex-ai-knowledge
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+VECTORIZE_DATABASE_ID=your-vectorize-database-id
 ```
 
 ## Files Modified
