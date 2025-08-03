@@ -7,11 +7,21 @@
 import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { mockDocuments, mockChunks } from './fixtures/testData';
 
-// Mock Convex modules
-jest.mock('@convex/_generated/server');
-jest.mock('@convex/_generated/api');
+// Mock Convex modules with proper function wrappers
+jest.mock('../../apps/convex/_generated/server', () => ({
+  internalMutation: jest.fn((config) => ({ handler: config.handler, ...config })),
+  mutation: jest.fn((config) => ({ handler: config.handler, ...config })),
+  query: jest.fn((config) => ({ handler: config.handler, ...config })),
+}));
+jest.mock('../../apps/convex/_generated/api', () => ({
+  internal: {
+    knowledgeMutations: {
+      deleteChunksBySource: 'internal/knowledgeMutations/deleteChunksBySource',
+    },
+  },
+}));
 
-const { createMockCtx } = require('./__mocks__/_generated/server');
+import { createMockCtx } from './__mocks__/_generated/server';
 
 // Import functions to test
 import {
@@ -21,7 +31,7 @@ import {
   deleteDocument,
   deleteChunksBySource,
   getDocumentByPath,
-} from '@convex/knowledgeMutations';
+} from '../../apps/convex/knowledgeMutations';
 
 describe('Knowledge Mutations', () => {
   let mockCtx: any;
@@ -44,7 +54,8 @@ describe('Knowledge Mutations', () => {
         // No existing document found
         mockCtx.db._setMockData('source_documents_first', null);
 
-        const result = await createOrUpdateDocument(mockCtx, validArgs);
+        // Access the handler function from the wrapped Convex function
+        const result = await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         expect(typeof result).toBe('string');
         expect(result).toMatch(/^source_documents_\d+$/);
@@ -62,7 +73,7 @@ describe('Knowledge Mutations', () => {
       it('should set initial processing status to processing', async () => {
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await createOrUpdateDocument(mockCtx, validArgs);
+        await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].processing_status).toBe('processing');
@@ -73,7 +84,7 @@ describe('Knowledge Mutations', () => {
         mockCtx.db._setMockData('source_documents_first', null);
         const beforeTime = Date.now();
 
-        await createOrUpdateDocument(mockCtx, validArgs);
+        await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         const afterTime = Date.now();
@@ -90,7 +101,7 @@ describe('Knowledge Mutations', () => {
         };
         mockCtx.db._setMockData('source_documents_first', existingDoc);
 
-        const result = await createOrUpdateDocument(mockCtx, validArgs);
+        const result = await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         expect(result).toBe(existingDoc._id);
         expect(mockCtx.db.patch).toHaveBeenCalledWith(existingDoc._id, {
@@ -116,7 +127,7 @@ describe('Knowledge Mutations', () => {
           'old_vector_id_2',
         ]);
 
-        const result = await createOrUpdateDocument(mockCtx, validArgs);
+        const result = await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         expect(result).toBe(existingDoc._id);
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
@@ -135,7 +146,7 @@ describe('Knowledge Mutations', () => {
         };
         mockCtx.db._setMockData('source_documents_first', existingDoc);
 
-        await createOrUpdateDocument(mockCtx, validArgs);
+        await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         expect(mockCtx.runMutation).not.toHaveBeenCalled();
       });
@@ -147,7 +158,7 @@ describe('Knowledge Mutations', () => {
         };
         mockCtx.db._setMockData('source_documents_first', existingDoc);
 
-        await createOrUpdateDocument(mockCtx, validArgs);
+        await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         const patchCall = mockCtx.db.patch.mock.calls[0];
         expect(patchCall[1].chunk_count).toBe(0);
@@ -163,7 +174,7 @@ describe('Knowledge Mutations', () => {
 
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await createOrUpdateDocument(mockCtx, specialArgs);
+        await createOrUpdateDocument.handler(mockCtx, specialArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].file_path).toBe(specialArgs.filePath);
@@ -177,7 +188,7 @@ describe('Knowledge Mutations', () => {
 
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await createOrUpdateDocument(mockCtx, unicodeArgs);
+        await createOrUpdateDocument.handler(mockCtx, unicodeArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].file_path).toBe(unicodeArgs.filePath);
@@ -189,7 +200,7 @@ describe('Knowledge Mutations', () => {
 
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await createOrUpdateDocument(mockCtx, longArgs);
+        await createOrUpdateDocument.handler(mockCtx, longArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].file_path).toBe(longPath);
@@ -208,7 +219,7 @@ describe('Knowledge Mutations', () => {
           mockCtx.db.insert.mockClear();
           mockCtx.db._setMockData('source_documents_first', null);
 
-          await createOrUpdateDocument(mockCtx, { ...validArgs, fileType });
+          await createOrUpdateDocument.handler(mockCtx, { ...validArgs, fileType });
 
           const insertCall = mockCtx.db.insert.mock.calls[0];
           expect(insertCall[1].file_type).toBe(fileType);
@@ -221,7 +232,7 @@ describe('Knowledge Mutations', () => {
 
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await createOrUpdateDocument(mockCtx, hashArgs);
+        await createOrUpdateDocument.handler(mockCtx, hashArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].content_hash).toBe(longHash);
@@ -235,7 +246,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          createOrUpdateDocument(mockCtx, validArgs)
+          createOrUpdateDocument.handler(mockCtx, validArgs)
         ).rejects.toThrow('Database connection failed');
       });
 
@@ -246,7 +257,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          createOrUpdateDocument(mockCtx, validArgs)
+          createOrUpdateDocument.handler(mockCtx, validArgs)
         ).rejects.toThrow('Insert failed');
       });
 
@@ -258,7 +269,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          createOrUpdateDocument(mockCtx, validArgs)
+          createOrUpdateDocument.handler(mockCtx, validArgs)
         ).rejects.toThrow('Patch failed');
       });
     });
@@ -282,7 +293,7 @@ describe('Knowledge Mutations', () => {
 
     describe('Successful Chunk Creation', () => {
       it('should create document chunk with all required fields', async () => {
-        const result = await createDocumentChunk(mockCtx, validChunkArgs);
+        const result = await createDocumentChunk.handler(mockCtx, validChunkArgs);
 
         expect(typeof result).toBe('string');
         expect(result).toMatch(/^document_chunks_\d+$/);
@@ -301,7 +312,7 @@ describe('Knowledge Mutations', () => {
       it('should set current timestamp for created_at', async () => {
         const beforeTime = Date.now();
 
-        await createDocumentChunk(mockCtx, validChunkArgs);
+        await createDocumentChunk.handler(mockCtx, validChunkArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         const afterTime = Date.now();
@@ -321,7 +332,7 @@ describe('Knowledge Mutations', () => {
             vectorizeId: `hash123456789abc_c${index}`,
           };
 
-          await createDocumentChunk(mockCtx, args);
+          await createDocumentChunk.handler(mockCtx, args);
 
           const insertCall = mockCtx.db.insert.mock.calls[0];
           expect(insertCall[1].chunk_index).toBe(index);
@@ -340,7 +351,7 @@ describe('Knowledge Mutations', () => {
           },
         };
 
-        await createDocumentChunk(mockCtx, largeArgs);
+        await createDocumentChunk.handler(mockCtx, largeArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].content).toBe(largeContent);
@@ -367,7 +378,7 @@ describe('Knowledge Mutations', () => {
           metadata: complexMetadata,
         };
 
-        await createDocumentChunk(mockCtx, complexArgs);
+        await createDocumentChunk.handler(mockCtx, complexArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].metadata).toEqual(complexMetadata);
@@ -387,7 +398,7 @@ describe('Knowledge Mutations', () => {
           metadata: specialMetadata,
         };
 
-        await createDocumentChunk(mockCtx, specialArgs);
+        await createDocumentChunk.handler(mockCtx, specialArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].metadata).toEqual(specialMetadata);
@@ -405,7 +416,7 @@ describe('Knowledge Mutations', () => {
           },
         };
 
-        await createDocumentChunk(mockCtx, emptyArgs);
+        await createDocumentChunk.handler(mockCtx, emptyArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].content).toBe('');
@@ -423,7 +434,7 @@ describe('Knowledge Mutations', () => {
           },
         };
 
-        await createDocumentChunk(mockCtx, unicodeArgs);
+        await createDocumentChunk.handler(mockCtx, unicodeArgs);
 
         const insertCall = mockCtx.db.insert.mock.calls[0];
         expect(insertCall[1].content).toBe(unicodeContent);
@@ -442,7 +453,7 @@ describe('Knowledge Mutations', () => {
 
           const args = { ...validChunkArgs, vectorizeId };
 
-          await createDocumentChunk(mockCtx, args);
+          await createDocumentChunk.handler(mockCtx, args);
 
           const insertCall = mockCtx.db.insert.mock.calls[0];
           expect(insertCall[1].vectorize_id).toBe(vectorizeId);
@@ -457,7 +468,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          createDocumentChunk(mockCtx, validChunkArgs)
+          createDocumentChunk.handler(mockCtx, validChunkArgs)
         ).rejects.toThrow('Insert failed');
       });
 
@@ -465,7 +476,7 @@ describe('Knowledge Mutations', () => {
         const malformedCtx = { db: null };
 
         await expect(
-          createDocumentChunk(malformedCtx as any, validChunkArgs)
+          createDocumentChunk.handler(malformedCtx as any, validChunkArgs)
         ).rejects.toThrow();
       });
     });
@@ -483,7 +494,7 @@ describe('Knowledge Mutations', () => {
           chunkCount: 5,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         expect(mockCtx.db.patch).toHaveBeenCalledWith(documentId, {
           processing_status: 'completed',
@@ -499,7 +510,7 @@ describe('Knowledge Mutations', () => {
           errorMessage: 'Processing failed due to invalid content',
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         expect(mockCtx.db.patch).toHaveBeenCalledWith(documentId, {
           processing_status: 'failed',
@@ -514,7 +525,7 @@ describe('Knowledge Mutations', () => {
           status: 'processing' as const,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         expect(mockCtx.db.patch).toHaveBeenCalledWith(documentId, {
           processing_status: 'processing',
@@ -528,7 +539,7 @@ describe('Knowledge Mutations', () => {
           status: 'pending' as const,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         expect(mockCtx.db.patch).toHaveBeenCalledWith(documentId, {
           processing_status: 'pending',
@@ -545,7 +556,7 @@ describe('Knowledge Mutations', () => {
           chunkCount: 10,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         const patchCall = mockCtx.db.patch.mock.calls[0];
         expect(patchCall[1].chunk_count).toBe(10);
@@ -557,7 +568,7 @@ describe('Knowledge Mutations', () => {
           status: 'processing' as const,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         const patchCall = mockCtx.db.patch.mock.calls[0];
         expect(patchCall[1]).not.toHaveProperty('chunk_count');
@@ -571,7 +582,7 @@ describe('Knowledge Mutations', () => {
           errorMessage,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         const patchCall = mockCtx.db.patch.mock.calls[0];
         expect(patchCall[1].error_message).toBe(errorMessage);
@@ -583,7 +594,7 @@ describe('Knowledge Mutations', () => {
           status: 'completed' as const,
         };
 
-        await updateDocumentStatus(mockCtx, args);
+        await updateDocumentStatus.handler(mockCtx, args);
 
         const patchCall = mockCtx.db.patch.mock.calls[0];
         expect(patchCall[1]).not.toHaveProperty('error_message');
@@ -594,7 +605,7 @@ describe('Knowledge Mutations', () => {
       it('should update last_processed timestamp', async () => {
         const beforeTime = Date.now();
 
-        await updateDocumentStatus(mockCtx, {
+        await updateDocumentStatus.handler(mockCtx, {
           ...baseArgs,
           status: 'completed' as const,
         });
@@ -613,7 +624,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          updateDocumentStatus(mockCtx, {
+          updateDocumentStatus.handler(mockCtx, {
             ...baseArgs,
             status: 'completed' as const,
           })
@@ -626,7 +637,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          updateDocumentStatus(mockCtx, {
+          updateDocumentStatus.handler(mockCtx, {
             documentId: 'invalid_id' as any,
             status: 'completed' as const,
           })
@@ -648,7 +659,7 @@ describe('Knowledge Mutations', () => {
 
     describe('Successful Chunk Deletion', () => {
       it('should delete all chunks for source document', async () => {
-        const result = await deleteChunksBySource(mockCtx, validArgs);
+        const result = await deleteChunksBySource.handler(mockCtx, validArgs);
 
         expect(Array.isArray(result)).toBe(true);
         expect(mockCtx.db.query).toHaveBeenCalledWith('document_chunks');
@@ -661,7 +672,7 @@ describe('Knowledge Mutations', () => {
       });
 
       it('should return vectorize IDs for external cleanup', async () => {
-        const result = await deleteChunksBySource(mockCtx, validArgs);
+        const result = await deleteChunksBySource.handler(mockCtx, validArgs);
 
         const expectedVectorizeIds = mockChunks
           .map(chunk => chunk.vectorize_id)
@@ -690,7 +701,7 @@ describe('Knowledge Mutations', () => {
           chunksWithPlaceholders
         );
 
-        const result = await deleteChunksBySource(mockCtx, validArgs);
+        const result = await deleteChunksBySource.handler(mockCtx, validArgs);
 
         // Should not include placeholder or null vectorize_ids
         expect(result).not.toContain('placeholder');
@@ -701,7 +712,7 @@ describe('Knowledge Mutations', () => {
       it('should handle empty chunk collections', async () => {
         mockCtx.db._setMockData('document_chunks_collect', []);
 
-        const result = await deleteChunksBySource(mockCtx, validArgs);
+        const result = await deleteChunksBySource.handler(mockCtx, validArgs);
 
         expect(result).toEqual([]);
         expect(mockCtx.db.delete).not.toHaveBeenCalled();
@@ -710,7 +721,7 @@ describe('Knowledge Mutations', () => {
       it('should log deletion count', async () => {
         const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
 
-        await deleteChunksBySource(mockCtx, validArgs);
+        await deleteChunksBySource.handler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           `Deleted ${mockChunks.length} chunks for document: ${validArgs.sourceDocument}`
@@ -733,7 +744,7 @@ describe('Knowledge Mutations', () => {
         for (const sourceDocument of documentTypes) {
           mockCtx.db.delete.mockClear();
 
-          await deleteChunksBySource(mockCtx, {
+          await deleteChunksBySource.handler(mockCtx, {
             ...validArgs,
             sourceDocument,
           });
@@ -753,7 +764,7 @@ describe('Knowledge Mutations', () => {
         for (const sourceDocument of specialDocs) {
           mockCtx.db.delete.mockClear();
 
-          const result = await deleteChunksBySource(mockCtx, {
+          const result = await deleteChunksBySource.handler(mockCtx, {
             ...validArgs,
             sourceDocument,
           });
@@ -769,7 +780,7 @@ describe('Knowledge Mutations', () => {
           throw new Error('Query failed');
         });
 
-        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteChunksBySource.handler(mockCtx, validArgs)).rejects.toThrow(
           'Query failed'
         );
       });
@@ -779,7 +790,7 @@ describe('Knowledge Mutations', () => {
           throw new Error('Delete failed');
         });
 
-        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteChunksBySource.handler(mockCtx, validArgs)).rejects.toThrow(
           'Delete failed'
         );
       });
@@ -792,7 +803,7 @@ describe('Knowledge Mutations', () => {
             throw new Error('Second delete failed');
           });
 
-        await expect(deleteChunksBySource(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteChunksBySource.handler(mockCtx, validArgs)).rejects.toThrow(
           'Second delete failed'
         );
 
@@ -808,7 +819,7 @@ describe('Knowledge Mutations', () => {
         const expectedDoc = mockDocuments.simple;
         mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
-        const result = await getDocumentByPath(mockCtx, {
+        const result = await getDocumentByPath.handler(mockCtx, {
           filePath: 'test-simple.md',
         });
 
@@ -819,7 +830,7 @@ describe('Knowledge Mutations', () => {
       it('should return null when document not found', async () => {
         mockCtx.db._setMockData('source_documents_first', null);
 
-        const result = await getDocumentByPath(mockCtx, {
+        const result = await getDocumentByPath.handler(mockCtx, {
           filePath: 'nonexistent.md',
         });
 
@@ -833,7 +844,7 @@ describe('Knowledge Mutations', () => {
         const expectedDoc = { ...mockDocuments.simple, file_path: specialPath };
         mockCtx.db._setMockData('source_documents_first', expectedDoc);
 
-        const result = await getDocumentByPath(mockCtx, {
+        const result = await getDocumentByPath.handler(mockCtx, {
           filePath: specialPath,
         });
 
@@ -854,7 +865,7 @@ describe('Knowledge Mutations', () => {
         const expectedVectorizeIds = ['vector_1', 'vector_2', 'vector_3'];
         mockCtx.runMutation.mockResolvedValue(expectedVectorizeIds);
 
-        const result = await deleteDocument(mockCtx, validArgs);
+        const result = await deleteDocument.handler(mockCtx, validArgs);
 
         expect(result.deleted).toBe(true);
         expect(result.vectorizeIds).toEqual(expectedVectorizeIds);
@@ -866,7 +877,7 @@ describe('Knowledge Mutations', () => {
         mockCtx.db._setMockData('source_documents_first', existingDoc);
         mockCtx.runMutation.mockResolvedValue([]);
 
-        await deleteDocument(mockCtx, validArgs);
+        await deleteDocument.handler(mockCtx, validArgs);
 
         expect(mockCtx.runMutation).toHaveBeenCalledWith(
           'internal/knowledgeMutations/deleteChunksBySource',
@@ -882,7 +893,7 @@ describe('Knowledge Mutations', () => {
         mockCtx.db._setMockData('source_documents_first', existingDoc);
         mockCtx.runMutation.mockResolvedValue([]);
 
-        await deleteDocument(mockCtx, validArgs);
+        await deleteDocument.handler(mockCtx, validArgs);
 
         const runMutationCall = mockCtx.runMutation.mock.calls[0];
         expect(runMutationCall[1].correlationId).toMatch(/^\d+-\w+$/);
@@ -896,7 +907,7 @@ describe('Knowledge Mutations', () => {
         mockCtx.db._setMockData('source_documents_first', existingDoc);
         mockCtx.runMutation.mockResolvedValue(vectorizeIds);
 
-        await deleteDocument(mockCtx, validArgs);
+        await deleteDocument.handler(mockCtx, validArgs);
 
         expect(consoleSpy).toHaveBeenCalledWith(
           `Deleted document: ${validArgs.filePath} with ${vectorizeIds.length} vectorize entries`
@@ -910,7 +921,7 @@ describe('Knowledge Mutations', () => {
       it('should throw error when document not found', async () => {
         mockCtx.db._setMockData('source_documents_first', null);
 
-        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteDocument.handler(mockCtx, validArgs)).rejects.toThrow(
           `Document not found: ${validArgs.filePath}`
         );
       });
@@ -922,7 +933,7 @@ describe('Knowledge Mutations', () => {
           new Error('Chunk deletion failed')
         );
 
-        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteDocument.handler(mockCtx, validArgs)).rejects.toThrow(
           'Chunk deletion failed'
         );
       });
@@ -935,7 +946,7 @@ describe('Knowledge Mutations', () => {
           throw new Error('Document deletion failed');
         });
 
-        await expect(deleteDocument(mockCtx, validArgs)).rejects.toThrow(
+        await expect(deleteDocument.handler(mockCtx, validArgs)).rejects.toThrow(
           'Document deletion failed'
         );
       });
@@ -950,7 +961,7 @@ describe('Knowledge Mutations', () => {
 
         // 1. Create document
         mockCtx.db._setMockData('source_documents_first', null);
-        const documentId = await createOrUpdateDocument(mockCtx, {
+        const documentId = await createOrUpdateDocument.handler(mockCtx, {
           filePath,
           fileType: 'markdown',
           contentHash: 'hash123',
@@ -961,7 +972,7 @@ describe('Knowledge Mutations', () => {
 
         // 2. Create chunks
         for (let i = 0; i < 3; i++) {
-          await createDocumentChunk(mockCtx, {
+          await createDocumentChunk.handler(mockCtx, {
             sourceDocument: filePath,
             chunkIndex: i,
             content: `Chunk ${i} content`,
@@ -978,7 +989,7 @@ describe('Knowledge Mutations', () => {
         }
 
         // 3. Update document status
-        await updateDocumentStatus(mockCtx, {
+        await updateDocumentStatus.handler(mockCtx, {
           documentId: documentId as any,
           status: 'completed',
           chunkCount: 3,
@@ -993,7 +1004,7 @@ describe('Knowledge Mutations', () => {
           'hash123_c2',
         ]);
 
-        const deleteResult = await deleteDocument(mockCtx, { filePath });
+        const deleteResult = await deleteDocument.handler(mockCtx, { filePath });
 
         expect(deleteResult.deleted).toBe(true);
         expect(deleteResult.vectorizeIds).toHaveLength(3);
@@ -1007,7 +1018,7 @@ describe('Knowledge Mutations', () => {
 
         // Document creation succeeds
         mockCtx.db._setMockData('source_documents_first', null);
-        const documentId = await createOrUpdateDocument(mockCtx, {
+        const documentId = await createOrUpdateDocument.handler(mockCtx, {
           filePath,
           fileType: 'markdown',
           contentHash: 'hash123',
@@ -1022,7 +1033,7 @@ describe('Knowledge Mutations', () => {
         });
 
         await expect(
-          createDocumentChunk(mockCtx, {
+          createDocumentChunk.handler(mockCtx, {
             sourceDocument: filePath,
             chunkIndex: 0,
             content: 'Test content',
@@ -1039,7 +1050,7 @@ describe('Knowledge Mutations', () => {
         ).rejects.toThrow('Chunk creation failed');
 
         // Status update should still work
-        await updateDocumentStatus(mockCtx, {
+        await updateDocumentStatus.handler(mockCtx, {
           documentId: documentId as any,
           status: 'failed',
           errorMessage: 'Chunk creation failed',

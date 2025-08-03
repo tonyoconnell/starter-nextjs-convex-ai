@@ -3,7 +3,7 @@
 
 name = "log-ingestion-worker"
 main = "src/index.ts"
-compatibility_date = "2024-12-01"
+compatibility_date = "2025-08-03"
 compatibility_flags = ["nodejs_compat"]
 
 # Worker deployment settings
@@ -13,6 +13,10 @@ account_id = "627e0c7ccbe735a4a7cabf91e377bbad"
 # Environment variables (set via wrangler secret or dashboard)
 [vars]
 ENVIRONMENT = "development"
+UPSTASH_REDIS_REST_URL = "https://content-dane-8053.upstash.io"
+RATE_LIMIT_REQUESTS_PER_MINUTE = "100"
+RATE_LIMIT_BURST_SIZE = "20"
+LOG_LEVEL = "debug"
 
 # Durable Objects for rate limiting state
 [[durable_objects.bindings]]
@@ -33,6 +37,11 @@ workers_dev = true
 
 [env.development.vars]
 ENVIRONMENT = "development"
+UPSTASH_REDIS_REST_URL = "https://content-dane-8053.upstash.io"
+UPSTASH_REDIS_REST_TOKEN = "AR91AAIjcDEwZWIwZDNkZmQyZDc0YWM1Yjc1ZDBhOTczMTM5MGM3MHAxMA"
+RATE_LIMIT_REQUESTS_PER_MINUTE = "100"
+RATE_LIMIT_BURST_SIZE = "20"
+LOG_LEVEL = "debug"
 
 [[env.development.durable_objects.bindings]]
 name = "RATE_LIMIT_STATE"
@@ -44,6 +53,10 @@ workers_dev = false
 
 [env.production.vars]
 ENVIRONMENT = "production"
+UPSTASH_REDIS_REST_URL = "https://content-dane-8053.upstash.io"
+RATE_LIMIT_REQUESTS_PER_MINUTE = "500"
+RATE_LIMIT_BURST_SIZE = "50"
+LOG_LEVEL = "info"
 # ALLOWED_ORIGINS set via environment variables in production
 
 [[env.production.durable_objects.bindings]]
@@ -55,6 +68,6 @@ class_name = "RateLimiterDO"
 type = "ESModule"
 globs = ["**/*.js", "**/*.ts"]
 
-# Comment: Add these secrets via CLI or dashboard:
-# wrangler secret put UPSTASH_REDIS_REST_URL
-# wrangler secret put UPSTASH_REDIS_REST_TOKEN
+# Note: UPSTASH_REDIS_REST_TOKEN should be set as a secret
+# For development, the token can be added to .env.local
+# For production, use: wrangler secret put UPSTASH_REDIS_REST_TOKEN

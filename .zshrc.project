@@ -1,0 +1,8 @@
+# Project-specific environment variables
+export NODE_NO_WARNINGS=1
+export AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1
+export TURBO_TELEMETRY_DISABLED=1
+export NEXT_TELEMETRY_DISABLED=1
+
+# Add this to your ~/.zshrc:
+# source ~/.zshrc.project (if you want global suppression)

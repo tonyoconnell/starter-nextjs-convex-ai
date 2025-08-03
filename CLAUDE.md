@@ -47,6 +47,24 @@ bun dev:claude       # Development with Claude logging integration
 bun build            # Build for production
 bun start            # Start production server
 
+# Rock-Solid Deployment System
+bun run deploy:orchestrate              # Full deployment orchestration
+bun run deploy:orchestrate:staging      # Deploy to staging environment
+bun run deploy:validate                 # Comprehensive deployment validation
+bun run deploy:monitor                  # Start real-time monitoring
+bun run deploy:monitor:check            # One-time health check
+bun run deploy:monitor:report           # Generate health report
+bun run deploy:snapshot                 # Capture deployment snapshot
+bun run deploy:rollback:worker          # Rollback worker service
+bun run deploy:rollback:pages           # Rollback pages deployment
+
+# Environment Management
+bun run env:init                        # Initialize environment configurations
+bun run env:validate                    # Validate production secrets
+bun run env:validate:staging            # Validate staging secrets
+bun run env:sync                        # Sync environment to Cloudflare
+bun run env:config                      # Generate deployment configuration
+
 # Testing
 bun test             # Run Jest unit tests
 bun test:e2e         # Run Playwright E2E tests
@@ -275,33 +293,78 @@ For systematic development, reference specific epics and architectural component
 
 ### Deployment
 
-#### Cloudflare Pages Configuration
+**🚀 ROCK-SOLID DEPLOYMENT SYSTEM**: This project uses an enterprise-grade deployment orchestration system with MCP integrations for maximum reliability.
 
-- **Auto-deployment**: Configured for `main` branch via Git integration
-- **Build Command**: `bun run build && bun run pages:build`
-- **Output Directory**: `.vercel/output/static`
-- **Root Directory**: `apps/web`
-- **Environment Variables**: `HUSKY=0` (required for CI)
-- **Compatibility Flags**: `nodejs_compat` (required for Node.js runtime)
-
-#### Critical Requirements
-
-- **Next.js Config**: Must use `output: 'export'` for static generation
-- **Images**: Must set `images: { unoptimized: true }` for Cloudflare compatibility
-- **No wrangler.toml**: Use only Cloudflare Pages dashboard configuration
-- **CI Compatibility**: Husky scripts must be disabled in CI environment
-
-#### Deployment Commands
+#### Quick Deployment
 
 ```bash
-# Local testing
-cd apps/web && bun run build:pages
+# Complete deployment orchestration (RECOMMENDED)
+bun run deploy:orchestrate              # Deploy all services to production
+bun run deploy:orchestrate:staging      # Deploy to staging environment
 
-# Manual deployment (testing only)
-bun run pages:deploy
+# Validate deployment health
+bun run deploy:validate                 # Comprehensive validation suite
 
-# Auto-deployment (production)
-git push origin main  # Triggers automatic deployment
+# Monitor deployment
+bun run deploy:monitor:check            # One-time health check
+bun run deploy:monitor                  # Continuous monitoring
+```
+
+#### Deployment Architecture
+
+The system orchestrates three services with MCP-powered integrations:
+
+1. **Convex Backend** (real-time database) - via `mcp__convex__*`
+2. **Cloudflare Workers** (log ingestion) - via `mcp__cloudflare-observability__*`
+3. **Cloudflare Pages** (Next.js frontend) - via `mcp__github__*`
+
+**Features:**
+- ✅ **Atomic deployments** with dependency ordering
+- ✅ **Pre-flight validation** (secrets, dependencies, configs)
+- ✅ **Real-time monitoring** with health checks
+- ✅ **Automatic rollback** on failure
+- ✅ **Environment management** (dev/staging/prod)
+- ✅ **Comprehensive validation** suite
+
+#### Environment Management
+
+```bash
+# Initialize environment configurations
+bun run env:init
+
+# Validate secrets and configurations
+bun run env:validate                    # Production
+bun run env:validate:staging            # Staging
+
+# Sync environment variables to Cloudflare
+bun run env:sync production
+
+# Generate deployment configurations
+bun run env:config production
+```
+
+#### Monitoring & Rollback
+
+```bash
+# Capture deployment snapshot (for rollback)
+bun run deploy:snapshot
+
+# Health monitoring
+bun run deploy:monitor:report           # Generate health report
+bun run deploy:monitor                  # Start continuous monitoring
+
+# Rollback services if needed
+bun run deploy:rollback:worker          # Rollback worker to previous version
+bun run deploy:rollback:pages           # Rollback pages to previous deployment
+```
+
+#### Legacy Deployment Commands (Use orchestrator instead)
+
+```bash
+# Individual service deployments (NOT RECOMMENDED - use orchestrator)
+cd apps/web && bun run build:pages     # Build pages manually
+bun run pages:deploy                    # Deploy pages manually
+git push origin main                    # Triggers GitHub Actions
 ```
 
 #### Troubleshooting

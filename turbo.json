@@ -18,7 +18,10 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": [],
+      "env": ["NODE_ENV", "CONVEX_DEPLOYMENT", "NEXT_PUBLIC_CONVEX_URL", "TURBO_TELEMETRY_DISABLED"],
+      "inputs": ["package.json", "apps/*/package.json", "apps/workers/*/package.json"]
     },
     "format": {
       "outputs": []

@@ -74,6 +74,13 @@ export default {
     '^@ui/(.*)$': '<rootDir>/packages/ui/$1',
   },
 
+  // Ensure Jest globals are properly available
+  injectGlobals: true,
+
+  // Clear mocks between tests
+  clearMocks: true,
+  restoreMocks: true,
+
   // Prevent watch mode from automatically starting
   watchman: false,
 };
