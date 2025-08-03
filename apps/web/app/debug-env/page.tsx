@@ -13,7 +13,9 @@ export default function DebugEnvPage() {
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Environment Variables Debug</h1>
+      <h1 className="text-2xl font-bold mb-6">
+        XMEN Environment Variables Debug
+      </h1>
       <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
         <pre className="text-sm">{JSON.stringify(envVars, null, 2)}</pre>
       </div>
