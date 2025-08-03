@@ -74,18 +74,8 @@ export default {
     '^@ui/(.*)$': '<rootDir>/packages/ui/$1',
   },
 
-  // Jest globals configuration - ensure Jest globals are available
-  globals: {
-    jest: true,
-    describe: true,
-    it: true,
-    test: true,
-    expect: true,
-    beforeEach: true,
-    afterEach: true,
-    beforeAll: true,
-    afterAll: true,
-  },
+  // Ensure Jest globals are properly available
+  injectGlobals: true,
 
   // Clear mocks between tests
   clearMocks: true,
