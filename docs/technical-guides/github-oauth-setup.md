@@ -30,13 +30,15 @@ https://your-production-domain.com/auth/github/callback
 ```
 
 **Why Multiple URLs?**
+
 - `localhost:3000` - Human development environment
-- `localhost:3100` - AI development environment  
+- `localhost:3100` - AI development environment
 - Staging/Production - Deployed environments
 
 ### 3. Get OAuth Credentials
 
 After creating the app:
+
 1. Copy the **Client ID**
 2. Generate and copy the **Client Secret**
 
@@ -68,8 +70,9 @@ bun dev
 ```
 
 **What this does**:
+
 - Updates `apps/web/.env.local` with Next.js variables
-- Updates `apps/convex/.env.local` with Convex variables  
+- Updates `apps/convex/.env.local` with Convex variables
 - Maintains consistency across all environments
 - Supports both development ports (3000 and 3100)
 
@@ -88,13 +91,13 @@ PORT=3000 bun dev
 # GitHub OAuth will redirect to: http://localhost:3000/auth/github/callback
 ```
 
-### AI Development (Port 3100)  
+### AI Development (Port 3100)
 
 ```bash
 # Start AI development server
 PORT=3100 bun dev
 
-# Access at: http://localhost:3100  
+# Access at: http://localhost:3100
 # GitHub OAuth will redirect to: http://localhost:3100/auth/github/callback
 ```
 
@@ -118,30 +121,67 @@ PORT=3000 bun dev
 ### 2. Test AI Development Environment
 
 ```bash
-# Start AI dev server  
+# Start AI dev server
 PORT=3100 bun dev
 
 # Navigate to: http://localhost:3100/login
-# Click "Continue with GitHub" 
+# Click "Continue with GitHub"
 # Should redirect to GitHub, then back to localhost:3100
 ```
 
 ### 3. Verify Callback URLs
 
 Check that your GitHub OAuth app includes:
+
 - ✅ `http://localhost:3000/auth/github/callback`
 - ✅ `http://localhost:3100/auth/github/callback`
 
 ## Production Deployment
 
+⚠️ **Critical**: Production OAuth requires **both** GitHub OAuth app configuration **and** Convex environment variable setup.
+
+### 1. Update GitHub OAuth App
+
+Add production redirect URI to your GitHub OAuth app:
+
+1. Go to https://github.com/settings/applications/your-app-id
+2. Add production callback URL:
+   ```
+   https://your-production-domain.pages.dev/auth/github/callback
+   ```
+
+### 2. Configure Convex Production Environment
+
+**Most Critical Step**: Set environment variables in your Convex **production deployment** (not defaults):
+
+1. **Access Convex Dashboard**: Go to [convex.dev](https://convex.dev) → Your Project
+2. **Find Production Deployment**: Look for `production:your-deployment-name`
+3. **Set Environment Variables**:
+
+```
+NEXT_PUBLIC_APP_URL=https://your-production-domain.pages.dev
+GITHUB_CLIENT_ID=your-github-oauth-client-id
+GITHUB_CLIENT_SECRET=your-github-oauth-client-secret
+OAUTH_SECRET=your-generated-oauth-secret
+```
+
+**Common Mistake**: Setting variables in "Default Environment Variables" only affects new deployments, not existing production deployment.
+
+### 3. Verify Production OAuth
+
+1. **Test Authentication**: Visit your production site and try GitHub login
+2. **Check Callback URL**: Should redirect to production domain, not localhost
+3. **No Errors**: Should not see "redirect_uri is not associated" error
+
 ### Staging Environment
 
 1. Add staging redirect URI to GitHub OAuth app:
+
    ```
    https://your-staging-domain.com/auth/github/callback
    ```
 
-2. Set staging environment variables:
+2. Set staging environment variables in respective Convex deployment:
    ```bash
    NEXT_PUBLIC_APP_URL=https://your-staging-domain.com
    GITHUB_CLIENT_ID=your_client_id
@@ -164,7 +204,7 @@ Check that your GitHub OAuth app includes:
 ### Environment Separation
 
 - **Development**: Use localhost redirect URIs
-- **Staging**: Use staging domain redirect URIs  
+- **Staging**: Use staging domain redirect URIs
 - **Production**: Use production domain redirect URIs
 
 ### Secret Management
@@ -184,24 +224,28 @@ Check that your GitHub OAuth app includes:
 ### Common Issues
 
 **Error: "redirect_uri_mismatch"**
+
 - Check that the exact redirect URI is configured in GitHub OAuth app
 - Verify `NEXT_PUBLIC_APP_URL` matches the port you're running on
 
 **Error: "Invalid client_id"**
+
 - Check that `GITHUB_CLIENT_ID` is correctly set
 - Verify the OAuth app exists and is active
 
-**Error: "Invalid client_secret"** 
+**Error: "Invalid client_secret"**
+
 - Check that `GITHUB_CLIENT_SECRET` is correctly set
 - Regenerate client secret if needed
 
 ### Debug Steps
 
 1. **Check environment variables**:
+
    ```bash
    # Verify variables are set
    cat apps/web/.env.local | grep GITHUB
-   
+
    # Check source file
    cat .env.source-of-truth.local | grep "GitHub OAuth"
    ```
