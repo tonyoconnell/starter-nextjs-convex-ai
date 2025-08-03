@@ -62,6 +62,9 @@
     "migrate:logging-status": "cd apps/convex && bunx convex run migrations/cleanupLoggingTables:checkLoggingDataStatus",
     "migrate:logging-verify": "cd apps/convex && bunx convex run migrations/cleanupLoggingTables:verifyCleanupComplete",
     "deploy:worker": "./scripts/deploy-worker.sh",
+    "pages:build": "cd apps/web && bun run build:pages",
+    "pages:deploy": "echo '🚀 Cloudflare Pages auto-deploys from GitHub. Use: git push origin main'",
+    "deploy": "git add . && git commit -m 'Deploy to Cloudflare Pages' && git push origin main",
     "prepare": "echo 'Skipping husky in CI' && exit 0"
   },
   "dependencies": {
