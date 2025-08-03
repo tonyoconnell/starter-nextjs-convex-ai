@@ -131,6 +131,21 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Debug Environment Variables
+        run: |
+          echo "=== GitHub Secrets (should show values) ==="
+          echo "NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}"
+          echo "NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}"
+          echo "NEXT_PUBLIC_LOG_WORKER_URL: ${{ secrets.NEXT_PUBLIC_LOG_WORKER_URL }}"
+          echo ""
+          echo "=== Environment Variables (should show values) ==="
+          echo "NEXT_PUBLIC_APP_URL: $NEXT_PUBLIC_APP_URL"
+          echo "NEXT_PUBLIC_CONVEX_URL: $NEXT_PUBLIC_CONVEX_URL"
+          echo "NEXT_PUBLIC_LOG_WORKER_URL: $NEXT_PUBLIC_LOG_WORKER_URL"
+          echo ""
+          echo "=== All NEXT_PUBLIC env vars ==="
+          env | grep NEXT_PUBLIC || echo "No NEXT_PUBLIC vars found"
+
       - name: Generate Convex files
         run: |
           cd apps/convex && bun run build
