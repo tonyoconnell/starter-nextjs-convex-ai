@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  productionBrowserSourceMaps: false,
   transpilePackages: ['@repo/ui'],
   eslint: {
     ignoreDuringBuilds: false,
