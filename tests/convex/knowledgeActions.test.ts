@@ -4,7 +4,7 @@
  * Tests: addDocumentHandler action, queryVectorSimilarityHandler, deduplication logic, integration workflows
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 import {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   mockDocuments,
