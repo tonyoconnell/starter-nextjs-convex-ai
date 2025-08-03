@@ -10,6 +10,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 
 - **[Scripts and Commands Reference](./scripts-and-commands-reference.md)** - Complete guide to all scripts and commands
 - **[Environment Management](./environment-management.md)** - Advanced environment variable management
+- **[Project Environment Variable Management](./project-environment-variable-management.md)** - Three Environments problem & configuration
 - **[Setup Verification Checklist](../setup-verification-checklist.md)** - Systematic verification process
 
 ### 🔐 Authentication & APIs
@@ -43,9 +44,10 @@ Technical implementation guides for setting up, configuring, and maintaining the
 
 ### Phase 1: Core Infrastructure
 
-1. **[Environment Setup](./environment-management.md)** - Configure environment variable system
-2. **[Scripts Setup](./scripts-and-commands-reference.md)** - Understand script ecosystem
-3. **[Convex Backend](./convex-components-guide.md)** - Initialize backend services
+1. **[Environment Setup](./environment-management.md)** - Configure local environment variable system
+2. **[Project Environment Management](./project-environment-variable-management.md)** - Understand Three Environments problem
+3. **[Scripts Setup](./scripts-and-commands-reference.md)** - Understand script ecosystem
+4. **[Convex Backend](./convex-components-guide.md)** - Initialize backend services
 
 ### Phase 2: Authentication Services
 
@@ -122,6 +124,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 
 - [TypeScript Configuration](./typescript-configuration-best-practices.md)
 - [Environment Management](./environment-management.md)
+- [Project Environment Variable Management](./project-environment-variable-management.md)
 - [Dev Error Pipeline](./dev-error-pipeline.md)
 
 **Convex Backend:**
@@ -156,6 +159,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 
 - [Scripts and Commands Reference](./scripts-and-commands-reference.md)
 - [Environment Management](./environment-management.md)
+- [Project Environment Variable Management](./project-environment-variable-management.md)
 - [GitHub OAuth Setup](./github-oauth-setup.md)
 - [LLM API Setup](./llm-api-setup.md)
 
@@ -164,6 +168,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 - [Cloudflare Pages Setup](./cloudflare-pages-setup.md)
 - [CI/CD Pipeline Setup](./cicd-pipeline-setup.md)
 - [Environment Management](./environment-management.md)
+- [Project Environment Variable Management](./project-environment-variable-management.md)
 
 **Optional Enhancements:**
 
@@ -183,7 +188,8 @@ Technical implementation guides for setting up, configuring, and maintaining the
 
 1. [Scripts and Commands Reference](./scripts-and-commands-reference.md)
 2. [Environment Management](./environment-management.md)
-3. [Development workflow guides](../development-guide.md)
+3. [Project Environment Variable Management](./project-environment-variable-management.md)
+4. [Development workflow guides](../development-guide.md)
 
 **DevOps Engineers:**
 
@@ -196,6 +202,7 @@ Technical implementation guides for setting up, configuring, and maintaining the
 1. [API Security and Secret Management](./api-security-and-secret-management.md)
 2. [Authentication Architecture](./authentication-architecture.md)
 3. [Environment Management](./environment-management.md)
+4. [Project Environment Variable Management](./project-environment-variable-management.md)
 
 **Solution Architects:**
 
