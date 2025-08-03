@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-08-03T20:31:30.602Z",
+  "overall": false,
+  "services": {
+    "convex": {
+      "tests": [
+        {
+          "name": "Function Listing",
+          "success": false,
+          "error": "Command failed: cd apps/convex && npx convex function list --prod\nerror: unknown command 'function'\n\nUsage: convex <command> [options]\n\nStart developing with Convex by running `npx convex dev`.\n\nCommands:\n  dev [options]                        Develop against a dev deployment,\n                                       watching for changes\n  deploy [options]                     Deploy to your prod deployment\n  run [options] <functionName> [args]  Run a function (query, mutation, or\n                                       action) on your deployment\n  import [options] <path>              Import data from a file to your\n                                       deployment\n  dashboard|dash [options]             Open the dashboard in the browser\n  docs [options]                       Open the docs in the browser\n  logs [options]                       Watch logs from your deployment\n  export [options]                     Export data from your deployment to a\n                                       ZIP file\n  env [options]                        Set and view environment variables\n  data [options] [table]               List tables and print data from your\n                                       database\n  codegen [options]                    Generate backend type definitions\n  update                               Print instructions for updating the\n                                       convex package\n  logout                               Log out of Convex on this machine\n  function-spec [options]              List function metadata from your\n                                       deployment\n  disable-local-deployments [options]  Stop using a local deployment for the\n                                       current project, or globally disable\n                                       local depoyments with --global\n  mcp                                  Manage the Model Context Protocol server\n                                       for Convex [BETA]\n  help <command>                       Show help for given <command>\n"
+        },
+        {
+          "name": "API Endpoint",
+          "success": true,
+          "details": "Status: 200, Response time: 0ms"
+        }
+      ],
+      "overall": false
+    },
+    "worker": {
+      "tests": [
+        {
+          "name": "Health Endpoint",
+          "success": false,
+          "details": "Error: undefined"
+        },
+        {
+          "name": "Log Ingestion",
+          "success": false,
+          "details": "Status: 500"
+        },
+        {
+          "name": "Rate Limiting Headers",
+          "success": false,
+          "details": "Rate limit headers present: false"
+        }
+      ],
+      "overall": false
+    },
+    "pages": {
+      "tests": [
+        {
+          "name": "Homepage Load",
+          "success": true,
+          "details": "Response time: 0ms"
+        },
+        {
+          "name": "Static Assets",
+          "success": true,
+          "details": "CSS file accessible: true"
+        },
+        {
+          "name": "API Routes",
+          "success": true,
+          "details": "Status: 404"
+        },
+        {
+          "name": "SEO Meta Tags",
+          "success": true,
+          "details": "Title: true, Description: true"
+        }
+      ],
+      "overall": true
+    },
+    "integration": {
+      "tests": [
+        {
+          "name": "Frontend-Backend Integration",
+          "success": true,
+          "details": "Integration test needs Convex client implementation"
+        },
+        {
+          "name": "Log Flow Integration",
+          "success": false,
+          "details": "Log sent: false, Retrieved: false"
+        },
+        {
+          "name": "CORS Configuration",
+          "success": false,
+          "details": "CORS headers present: true"
+        }
+      ],
+      "overall": false
+    }
+  },
+  "summary": {
+    "total": 12,
+    "passed": 6,
+    "failed": 6
+  }
+}
