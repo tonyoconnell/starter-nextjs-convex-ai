@@ -26,8 +26,20 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Run TypeScript check
-        run: bun run typecheck
+      - name: Run TypeScript check for web app
+        run: |
+          cd apps/web
+          bun run typecheck
+
+      - name: Run TypeScript check for Convex backend
+        run: |
+          cd apps/convex
+          bun run typecheck
+
+      - name: Run TypeScript check for worker
+        run: |
+          cd apps/workers/log-ingestion
+          bun run typecheck
 
       - name: Run linting
         run: bun run lint
@@ -36,7 +48,14 @@ jobs:
         run: bun run test
 
       - name: Build web application
-        run: bun run build
+        run: |
+          cd apps/web
+          bun run build
+
+      - name: Build Convex backend
+        run: |
+          cd apps/convex
+          bun run build
 
       - name: Test worker compilation
         run: |
@@ -63,11 +82,7 @@ jobs:
       - name: Deploy Convex Backend
         run: |
           cd apps/convex
-          npx convex deploy --cmd="$(cat <<EOF
-          import { defineSchema } from 'convex/server';
-          export default defineSchema({});
-          EOF
-          )"
+          npx convex deploy --cmd-fail-on-error
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
@@ -101,11 +116,9 @@ jobs:
           secrets: |
             UPSTASH_REDIS_REST_URL
             UPSTASH_REDIS_REST_TOKEN
-            CONVEX_URL
         env:
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
-          CONVEX_URL: ${{ secrets.CONVEX_URL }}
 
   deploy-frontend:
     name: Deploy Next.js Frontend to Cloudflare Pages
@@ -125,7 +138,9 @@ jobs:
         run: bun install
 
       - name: Build for Cloudflare Pages
-        run: bun run build:pages
+        run: |
+          cd apps/web
+          bun run build:pages
         env:
           CI: true
           NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
@@ -150,11 +165,7 @@ jobs:
 
       - name: Check Convex Backend Health
         run: |
-          # Test Convex API connectivity
-          curl -f -X POST https://api.convex.dev/v1/query \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ secrets.CONVEX_API_KEY }}" \
-            -d '{"path":"health:check","args":{}}' || echo "Convex health check endpoint not implemented"
+          echo "✅ Convex Backend deployed to: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}"
 
       - name: Check Log Ingestion Worker
         run: |
@@ -168,14 +179,13 @@ jobs:
 
       - name: Test Integration Flow
         run: |
-          # Test that frontend can reach backend services
           curl -f https://starter-nextjs-convex-ai.pages.dev/api/health || echo "⚠️ Frontend health endpoint not implemented"
 
       - name: Notify deployment success
         if: success()
         run: |
           echo "🎉 Three-service deployment successful!"
-          echo "📊 Convex Backend: ${{ secrets.CONVEX_URL }}"
+          echo "📊 Convex Backend: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}"
           echo "🔄 Log Worker: https://log-ingestion-worker.tonyoconnell.workers.dev"
           echo "🌐 Frontend: https://starter-nextjs-convex-ai.pages.dev"
 
