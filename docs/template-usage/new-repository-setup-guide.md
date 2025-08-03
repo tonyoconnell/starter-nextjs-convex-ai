@@ -551,7 +551,9 @@ Before starting, ensure you have:
 
 ### Step 8: Cloudflare Pages Deployment
 
-**Goal**: Deploy your application to the web with a public URL.
+**Goal**: Deploy your application to the web with a public URL and configure production environment variables.
+
+⚠️ **Critical**: This step must be completed early because it configures one of the **Three Environments** (Production) where your application will actually run. See [Project Environment Variable Management](../technical-guides/project-environment-variable-management.md) for details.
 
 1. **Create Cloudflare account**: Go to [cloudflare.com](https://cloudflare.com)
 
@@ -566,9 +568,17 @@ Before starting, ensure you have:
      Root directory: apps/web
      ```
 
-3. **Add environment variables in Cloudflare**:
-   - `HUSKY=0`
-   - `NEXT_PUBLIC_CONVEX_URL=your-convex-url`
+3. **Add required environment variables in Cloudflare**:
+
+   Navigate to your Pages project → Settings → Environment variables and add:
+
+   | Variable Name            | Example Value                          | Why Required                                                 |
+   | ------------------------ | -------------------------------------- | ------------------------------------------------------------ |
+   | `HUSKY=0`                | `0`                                    | Bypasses git hooks in CI environment                         |
+   | `NEXT_PUBLIC_CONVEX_URL` | `https://your-deployment.convex.cloud` | Connects frontend to Convex backend                          |
+   | `NEXT_PUBLIC_APP_URL`    | `https://your-site.pages.dev`          | Used for OAuth callback URLs                                 |
+   | `NODE_VERSION`           | `20`                                   | Ensures stable Node.js version                               |
+   | `NPM_FLAGS`              | `--version`                            | **Critical**: Bypasses faulty auto-install, allows bun usage |
 
 4. **Enable Node.js compatibility**:
    - Settings → Functions → Compatibility flags
@@ -577,9 +587,14 @@ Before starting, ensure you have:
 5. **Test deployment**:
    - Trigger deploy and visit the provided URL
 
+⚠️ **The Three Environments Problem**: Remember that Cloudflare Pages environment variables are completely separate from your local `.env.local` and GitHub Actions variables. If you add variables locally, you must also add them to Cloudflare Pages for production deployment.
+
 ✅ **Success Check**: Your application loads at the Cloudflare Pages URL and basic functionality works.
 
-**📖 Detailed Guide**: [Cloudflare Pages Setup](./technical-guides/cloudflare-pages-setup.md)
+**📖 Detailed Guides**:
+
+- [Cloudflare Pages Setup](../technical-guides/cloudflare-pages-setup.md)
+- [Project Environment Variable Management](../technical-guides/project-environment-variable-management.md)
 
 ### Step 8b: Log Ingestion Worker Setup
 
