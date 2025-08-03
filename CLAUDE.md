@@ -277,9 +277,10 @@ For systematic development, reference specific epics and architectural component
 
 #### Cloudflare Pages Configuration
 
-- **Auto-deployment**: Configured for `main` branch via Git integration
+- **Deployment Method**: GitHub Actions CI/CD (recommended)
+- **Auto-deployment**: **DISABLED** (prevents dual deployment issues)
 - **Build Command**: `bun run build && bun run pages:build`
-- **Output Directory**: `.vercel/output/static`
+- **Output Directory**: `dist`
 - **Root Directory**: `apps/web`
 - **Environment Variables**: `HUSKY=0` (required for CI)
 - **Compatibility Flags**: `nodejs_compat` (required for Node.js runtime)
@@ -290,6 +291,8 @@ For systematic development, reference specific epics and architectural component
 - **Images**: Must set `images: { unoptimized: true }` for Cloudflare compatibility
 - **No wrangler.toml**: Use only Cloudflare Pages dashboard configuration
 - **CI Compatibility**: Husky scripts must be disabled in CI environment
+- **GitHub Secrets**: Must contain production URLs, not localhost values
+- **Single Deployment**: Disable Cloudflare Pages auto-deploy to prevent dual deployments
 
 #### Deployment Commands
 
@@ -301,11 +304,14 @@ cd apps/web && bun run build:pages
 bun run pages:deploy
 
 # Auto-deployment (production)
-git push origin main  # Triggers automatic deployment
+git push origin main  # Triggers GitHub Actions deployment only
 ```
 
 #### Troubleshooting
 
+- **Dual Deployments**: Disable Cloudflare Pages auto-deploy in dashboard settings
+- **Environment Variables**: Check GitHub repository secrets contain production URLs
+- **Debug Process**: Use [Environment Variable Troubleshooting KDD](docs/lessons-learned/dual-deployment-and-environment-variable-troubleshooting-kdd.md)
 - See [Deployment Troubleshooting Guide](docs/technical-guides/cloudflare-pages-deployment-troubleshooting.md)
 - Check build logs in Cloudflare Pages dashboard
 - Verify compatibility flags are enabled for both Production and Preview environments
