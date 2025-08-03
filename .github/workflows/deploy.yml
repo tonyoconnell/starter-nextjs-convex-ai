@@ -26,6 +26,13 @@ jobs:
       - name: Install dependencies
         run: bun install
 
+      - name: Generate Convex types (required for web app)
+        run: |
+          cd apps/convex
+          npx convex codegen --dev
+        env:
+          CONVEX_DEPLOYMENT: dev:woozy-fly-898
+
       - name: Run TypeScript check for web app
         run: |
           cd apps/web
@@ -136,6 +143,13 @@ jobs:
 
       - name: Install dependencies
         run: bun install
+
+      - name: Generate Convex types for production build
+        run: |
+          cd apps/convex
+          npx convex codegen
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
       - name: Build for Cloudflare Pages
         run: |
