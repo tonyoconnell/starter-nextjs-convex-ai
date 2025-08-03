@@ -67,7 +67,7 @@ export class RedisClient {
     await this.pipeline([
       ['LPUSH', key, serializedEntry],
       ['EXPIRE', key, '3600'], // 1 hour TTL
-      ['ZADD', 'recent_traces', entry.timestamp, entry.trace_id], // Sorted set for recent traces
+      ['ZADD', 'recent_traces', entry.timestamp.toString(), entry.trace_id], // Sorted set for recent traces
       ['EXPIRE', 'recent_traces', '3600'], // 1 hour TTL for the sorted set
       ['HSET', metaKey, 'system', entry.system, 'level', entry.level, 'timestamp', entry.timestamp.toString()], // Metadata
       ['EXPIRE', metaKey, '3600'], // 1 hour TTL for metadata
