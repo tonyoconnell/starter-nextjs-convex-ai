@@ -439,3 +439,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 _Built with AI assistance for the AI-assisted development era._
+
+# Environment variables now managed via Cloudflare Pages dashboard
