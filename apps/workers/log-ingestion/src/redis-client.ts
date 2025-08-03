@@ -60,12 +60,17 @@ export class RedisClient {
 
   async storeLogEntry(entry: RedisLogEntry): Promise<void> {
     const key = `logs:${entry.trace_id}`;
+    const metaKey = `meta:${entry.trace_id}`;
     const serializedEntry = JSON.stringify(entry);
     
-    // Use pipeline for atomic operations
+    // Use pipeline for atomic operations with metadata caching
     await this.pipeline([
       ['LPUSH', key, serializedEntry],
       ['EXPIRE', key, '3600'], // 1 hour TTL
+      ['ZADD', 'recent_traces', entry.timestamp, entry.trace_id], // Sorted set for recent traces
+      ['EXPIRE', 'recent_traces', '3600'], // 1 hour TTL for the sorted set
+      ['HSET', metaKey, 'system', entry.system, 'level', entry.level, 'timestamp', entry.timestamp.toString()], // Metadata
+      ['EXPIRE', metaKey, '3600'], // 1 hour TTL for metadata
     ]);
   }
 
@@ -126,25 +131,37 @@ export class RedisClient {
     }
   }
 
-  // Cleanup expired keys (not needed with TTL, but useful for monitoring)
+  // Get active traces from cached sorted set (much faster than KEYS)
   async getActiveTraces(): Promise<string[]> {
-    const keys = await this.request(['KEYS', 'logs:*']);
-    return keys
-      .filter((key: string) => key.startsWith('logs:'))
-      .map((key: string) => key.replace('logs:', ''));
+    try {
+      // Get all trace IDs from the sorted set, sorted by timestamp (most recent first)
+      const traceIds = await this.request(['ZREVRANGE', 'recent_traces', '0', '-1']);
+      return traceIds || [];
+    } catch {
+      // Fallback to KEYS if recent_traces doesn't exist (backward compatibility)
+      const keys = await this.request(['KEYS', 'logs:*']);
+      return keys
+        .filter((key: string) => key.startsWith('logs:'))
+        .map((key: string) => key.replace('logs:', ''));
+    }
   }
 
   async clearAllLogs(): Promise<{ deleted: number; message: string }> {
     try {
-      // Get all log keys
-      const keys = await this.request(['KEYS', 'logs:*']);
+      // Get all log and metadata keys
+      const [logKeys, metaKeys] = await Promise.all([
+        this.request(['KEYS', 'logs:*']),
+        this.request(['KEYS', 'meta:*'])
+      ]);
       
-      if (!keys || keys.length === 0) {
+      const allKeys = [...(logKeys || []), ...(metaKeys || []), 'recent_traces'];
+      
+      if (allKeys.length === 0) {
         return { deleted: 0, message: 'No logs found to delete' };
       }
 
-      // Delete all log keys in batch
-      const deleteCommands = keys.map((key: string) => ['DEL', key]);
+      // Delete all keys in batch
+      const deleteCommands = allKeys.map((key: string) => ['DEL', key]);
       const results = await this.pipeline(deleteCommands);
       
       // Count successful deletions
@@ -152,7 +169,7 @@ export class RedisClient {
       
       return { 
         deleted, 
-        message: `Successfully deleted ${deleted} log collections` 
+        message: `Successfully deleted ${deleted} keys (logs, metadata, and trace index)` 
       };
     } catch (error) {
       throw new Error(`Failed to clear logs: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -161,11 +178,22 @@ export class RedisClient {
 
   async clearLogsByTraceId(traceId: string): Promise<{ deleted: boolean; message: string }> {
     try {
-      const key = `logs:${traceId}`;
-      const result = await this.request(['DEL', key]);
+      const logKey = `logs:${traceId}`;
+      const metaKey = `meta:${traceId}`;
       
-      if (result === 1) {
-        return { deleted: true, message: `Deleted logs for trace: ${traceId}` };
+      // Delete logs, metadata, and remove from recent traces in one pipeline
+      const results = await this.pipeline([
+        ['DEL', logKey],
+        ['DEL', metaKey],
+        ['ZREM', 'recent_traces', traceId]
+      ]);
+      
+      const deletedLogs = results[0];
+      const deletedMeta = results[1];
+      const removedFromIndex = results[2];
+      
+      if (deletedLogs === 1 || deletedMeta === 1 || removedFromIndex === 1) {
+        return { deleted: true, message: `Deleted logs and metadata for trace: ${traceId}` };
       } else {
         return { deleted: false, message: `No logs found for trace: ${traceId}` };
       }
@@ -182,56 +210,77 @@ export class RedisClient {
     hasErrors: boolean;
   }>> {
     try {
-      // Get all active trace IDs
-      const traceIds = await this.getActiveTraces();
+      // Get recent trace IDs from sorted set (already sorted by timestamp)
+      const traceIds = await this.request(['ZREVRANGE', 'recent_traces', '0', (limit - 1).toString()]);
       
-      if (traceIds.length === 0) {
+      if (!traceIds || traceIds.length === 0) {
         return [];
       }
 
-      // Get metadata for each trace in parallel
-      const tracePromises = traceIds.slice(0, Math.min(limit * 2, 50)) // Get more than needed, then filter
-        .map(async (traceId) => {
-          try {
-            const key = `logs:${traceId}`;
-            // Get the most recent log entry and total count
-            const [firstEntry, logCount] = await Promise.all([
-              this.request(['LINDEX', key, '0']), // Most recent (LPUSH adds to front)
-              this.request(['LLEN', key])
-            ]);
+      // Batch all Redis operations for maximum efficiency
+      const commands: string[][] = [];
+      
+      traceIds.forEach((traceId: string) => {
+        commands.push(
+          ['LLEN', `logs:${traceId}`], // Get log count
+          ['HGETALL', `meta:${traceId}`], // Get cached metadata
+          ['LRANGE', `logs:${traceId}`, '0', '4'] // Get first 5 logs to check for multiple systems/errors
+        );
+      });
 
-            if (!firstEntry || logCount === 0) {
+      const results = await this.pipeline(commands);
+      
+      const traces: Array<{
+        id: string;
+        timestamp: number;
+        logCount: number;
+        systems: string[];
+        hasErrors: boolean;
+      }> = [];
+
+      // Process results in chunks of 3 (logCount, metadata, sampleLogs)
+      for (let i = 0; i < traceIds.length; i++) {
+        try {
+          const traceId = traceIds[i];
+          const logCount = results[i * 3] || 0;
+          const metadata = results[i * 3 + 1] || {};
+          const sampleLogs = results[i * 3 + 2] || [];
+
+          if (logCount === 0) continue;
+
+          // Extract systems and error status from sample logs
+          const parsedLogs: RedisLogEntry[] = sampleLogs.map((log: string) => {
+            try {
+              return JSON.parse(log);
+            } catch {
               return null;
             }
+          }).filter(Boolean);
 
-            const parsed: RedisLogEntry = JSON.parse(firstEntry);
-            
-            // Get a sample of logs to determine systems and errors
-            const sampleLogs = await this.request(['LRANGE', key, '0', Math.min(9, logCount - 1).toString()]);
-            const parsedLogs: RedisLogEntry[] = sampleLogs.map((log: string) => JSON.parse(log));
-            
-            const systems = [...new Set(parsedLogs.map(log => log.system))];
-            const hasErrors = parsedLogs.some(log => log.level === 'error');
+          const systems = [...new Set([
+            metadata.system, // Include system from metadata
+            ...parsedLogs.map(log => log.system)
+          ])].filter(Boolean);
 
-            return {
-              id: traceId,
-              timestamp: parsed.timestamp,
-              logCount,
-              systems,
-              hasErrors
-            };
-          } catch (error) {
-            // Skip traces that can't be processed
-            return null;
-          }
-        });
+          const hasErrors = metadata.level === 'error' || parsedLogs.some(log => log.level === 'error');
 
-      const traces = (await Promise.all(tracePromises))
-        .filter((trace): trace is NonNullable<typeof trace> => trace !== null)
-        .sort((a, b) => b.timestamp - a.timestamp) // Most recent first
-        .slice(0, limit);
+          const timestamp = metadata.timestamp ? parseInt(metadata.timestamp) : 
+                          (parsedLogs[0]?.timestamp || Date.now());
 
-      return traces;
+          traces.push({
+            id: traceId,
+            timestamp,
+            logCount,
+            systems,
+            hasErrors
+          });
+        } catch (error) {
+          // Skip traces that can't be processed
+          continue;
+        }
+      }
+
+      return traces.sort((a, b) => b.timestamp - a.timestamp);
     } catch (error) {
       throw new Error(`Failed to get recent traces: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
