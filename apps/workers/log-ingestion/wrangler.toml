@@ -8,7 +8,7 @@ compatibility_flags = ["nodejs_compat"]
 
 # Worker deployment settings
 workers_dev = true
-# Account ID from environment variable CLOUDFLARE_ACCOUNT_ID
+account_id = "627e0c7ccbe735a4a7cabf91e377bbad"
 
 # Environment variables (set via wrangler secret or dashboard)
 [vars]
@@ -37,6 +37,11 @@ workers_dev = false
 [env.production.vars]
 ENVIRONMENT = "production"
 # ALLOWED_ORIGINS set via environment variables in production
+
+[[env.production.durable_objects.bindings]]
+name = "RATE_LIMIT_STATE"
+class_name = "RateLimiterDO"
+script_name = "log-ingestion-worker"
 
 # Build configuration
 [[rules]]
