@@ -97,7 +97,7 @@ jobs:
       - name: Deploy Convex Backend
         run: |
           cd apps/convex
-          npx convex deploy --cmd-fail-on-error
+          npx convex deploy --verbose --yes
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
 
@@ -122,18 +122,12 @@ jobs:
         run: bun install
 
       - name: Deploy Log Ingestion Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/workers/log-ingestion
-          command: deploy --env production
-          secrets: |
-            UPSTASH_REDIS_REST_URL
-            UPSTASH_REDIS_REST_TOKEN
+        run: |
+          cd apps/workers/log-ingestion
+          npx wrangler deploy --env production
         env:
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   deploy-frontend:
     name: Deploy Next.js Frontend to Cloudflare Pages
@@ -170,11 +164,11 @@ jobs:
           NEXT_PUBLIC_LOG_WORKER_URL: https://log-ingestion-worker.tonyoconnell.workers.dev
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/web/dist --project-name=starter-nextjs-convex-ai
+        run: |
+          npx wrangler pages deploy apps/web/dist --project-name=starter-nextjs-convex-ai
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
   health-check:
     name: End-to-End Health Check
