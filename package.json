@@ -10,7 +10,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "turbo build",
+    "build": "node scripts/debug-env-build.cjs && turbo build",
+    "build:debug": "node scripts/debug-env-build.cjs",
     "dev": "turbo dev",
     "web:dev": "cd apps/web && bun dev",
     "storybook:dev": "cd packages/storybook && bun run storybook",
