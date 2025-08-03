@@ -4,6 +4,7 @@ node_modules/
 
 # Bun
 bun.lockb
+# Commit text lockfile (bun.lock) for CI compatibility
 
 # Turborepo
 .turbo/
