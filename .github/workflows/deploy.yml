@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: 18
-  BUN_VERSION: 1.1.0
+  BUN_VERSION: 1.2.19
 
 jobs:
   test:
