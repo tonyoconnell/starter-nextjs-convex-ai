@@ -186,7 +186,10 @@ beforeAll(() => {
   console.error = (...args) => {
     if (
       typeof args[0] === 'string' &&
-      args[0].includes('Warning: ReactDOM.render')
+      (args[0].includes('Warning: ReactDOM.render') ||
+       args[0].includes('Warning: An update to') ||
+       args[0].includes('act(...)')
+      )
     ) {
       return;
     }
