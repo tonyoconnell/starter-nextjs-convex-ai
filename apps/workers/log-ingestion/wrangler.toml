@@ -18,7 +18,11 @@ ENVIRONMENT = "development"
 [[durable_objects.bindings]]
 name = "RATE_LIMIT_STATE"
 class_name = "RateLimiterDO"
-script_name = "log-ingestion-worker"
+
+# Durable Object migrations
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RateLimiterDO"]
 
 [build]
 command = "npm run build"
@@ -29,6 +33,10 @@ workers_dev = true
 
 [env.development.vars]
 ENVIRONMENT = "development"
+
+[[env.development.durable_objects.bindings]]
+name = "RATE_LIMIT_STATE"
+class_name = "RateLimiterDO"
 
 # Production configuration  
 [env.production]
@@ -41,7 +49,6 @@ ENVIRONMENT = "production"
 [[env.production.durable_objects.bindings]]
 name = "RATE_LIMIT_STATE"
 class_name = "RateLimiterDO"
-script_name = "log-ingestion-worker"
 
 # Build configuration
 [[rules]]
