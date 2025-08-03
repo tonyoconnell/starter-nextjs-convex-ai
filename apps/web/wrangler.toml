@@ -1,7 +1,0 @@
-name = "starter-nextjs-convex-ai"
-compatibility_date = "2024-01-01"
-
-[vars]
-NEXT_PUBLIC_APP_URL = "https://starter-nextjs-convex-ai.pages.dev"
-NEXT_PUBLIC_CONVEX_URL = "https://helpful-panther-567.convex.cloud"
-NEXT_PUBLIC_LOG_WORKER_URL = "https://log-ingestion-worker.workers.dev"
