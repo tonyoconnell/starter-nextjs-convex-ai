@@ -5,11 +5,16 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env production",
+    "deploy:dev": "wrangler deploy --env development",
     "deploy:production": "wrangler deploy --env production",
     "build": "esbuild src/index.ts --bundle --format=esm --target=es2022 --outfile=dist/index.js",
     "typecheck": "tsc --noEmit",
-    "format": "prettier --write src/**/*.ts"
+    "format": "prettier --write src/**/*.ts",
+    "setup:secrets": "./scripts/setup-secrets.sh",
+    "secrets:list": "npx wrangler secret:list",
+    "secrets:list:dev": "npx wrangler secret:list --env development",
+    "secrets:list:prod": "npx wrangler secret:list --env production"
   },
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250803.0"
