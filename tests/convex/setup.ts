@@ -4,11 +4,7 @@
  * Comprehensive mocking and environment setup for Knowledge Ingestion Service tests
  */
 
-// Import Jest globals to ensure they're available
-import { jest, beforeEach, afterEach } from '@jest/globals';
-
-// Make Jest available globally for all test files
-(global as any).jest = jest;
+// Jest globals are automatically available in CommonJS mode
 
 // Global test environment setup
 beforeEach(() => {

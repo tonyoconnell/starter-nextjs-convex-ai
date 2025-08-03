@@ -181,21 +181,20 @@ describe('Configuration Management', () => {
       });
 
       it('should reject placeholder OpenRouter API key', () => {
-        const placeholders = [
-          'your_api_key_here',
-          'placeholder',
-          'test',
-          'dummy',
-          'YOUR_API_KEY_HERE',
+        const placeholderTests = [
+          { value: 'your_api_key_here', expectedError: 'OPENROUTER_API_KEY appears to be a placeholder value' },
+          { value: 'placeholder_key', expectedError: 'OPENROUTER_API_KEY appears to be a placeholder value' },
+          { value: 'test', expectedError: 'OPENROUTER_API_KEY appears to be invalid (too short)' },
+          { value: 'dummy', expectedError: 'OPENROUTER_API_KEY appears to be invalid (too short)' },
+          { value: 'YOUR_API_KEY_HERE', expectedError: 'OPENROUTER_API_KEY appears to be a placeholder value' },
+          { value: 'dummy_api_key_placeholder', expectedError: 'OPENROUTER_API_KEY appears to be a placeholder value' },
         ];
 
-        placeholders.forEach(placeholder => {
-          process.env.OPENROUTER_API_KEY = placeholder;
+        placeholderTests.forEach(({ value, expectedError }) => {
+          process.env.OPENROUTER_API_KEY = value;
           resetConfig();
 
-          expect(() => loadConfig()).toThrow(
-            'OPENROUTER_API_KEY appears to be a placeholder value'
-          );
+          expect(() => loadConfig()).toThrow(expectedError);
         });
       });
 

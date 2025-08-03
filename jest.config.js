@@ -1,9 +1,8 @@
 // Root-level Jest configuration for Convex tests
 // Tests are located in tests/convex/ to avoid conflicts with Convex dev server
 export default {
-  preset: 'ts-jest/presets/default-esm',
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  extensionsToTreatAsEsm: ['.ts'],
 
   // Test discovery - only look in tests/convex directory
   testMatch: [
@@ -39,28 +38,20 @@ export default {
   // File extensions
   moduleFileExtensions: ['ts', 'js', 'json'],
 
-  // TypeScript transformation for ESM
+  // TypeScript transformation
   transform: {
     '^.+\\.ts$': [
       'ts-jest',
       {
-        useESM: true,
         tsconfig: {
-          verbatimModuleSyntax: false,
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
         },
       },
     ],
-    '^.+\\.js$': [
-      'ts-jest',
-      {
-        useESM: true,
-      },
-    ],
   },
 
-  // Allow Jest to transform ESM modules
+  // Allow Jest to transform necessary modules
   transformIgnorePatterns: ['node_modules/(?!(convex|@convex)/)'],
 
   // Setup file for global test configuration

@@ -49,9 +49,25 @@ function validateApiKey(key: string, keyName: string): void {
     throw new Error(`${keyName} appears to be invalid (too short)`);
   }
   
-  // Check for common placeholder values
-  const placeholders = ['your_api_key_here', 'placeholder', 'test', 'dummy'];
-  if (placeholders.some(placeholder => key.toLowerCase().includes(placeholder))) {
+  // Check for common placeholder values - be more specific to avoid rejecting valid test keys
+  const exactPlaceholders = ['your_api_key_here', 'placeholder', 'dummy', 'test', 'example'];
+  const isExactPlaceholder = exactPlaceholders.some(placeholder => 
+    key.toLowerCase() === placeholder || key.toLowerCase() === placeholder.toUpperCase()
+  );
+  
+  // Check for common placeholder patterns (but allow test keys with proper format)
+  const placeholderPatterns = [
+    /^your[_-]?api[_-]?key/i,
+    /^placeholder/i,
+    /^dummy/i,
+    /^example/i,
+    /^sk-test$/i, // Exact match for just "sk-test"
+    /^test$/i,    // Exact match for just "test"
+  ];
+  
+  const hasPlaceholderPattern = placeholderPatterns.some(pattern => pattern.test(key));
+  
+  if (isExactPlaceholder || hasPlaceholderPattern) {
     throw new Error(`${keyName} appears to be a placeholder value`);
   }
 }
