@@ -4,6 +4,7 @@ import { SystemHealthOverview } from '../system-health-overview';
 // Mock Convex
 jest.mock('convex/react', () => ({
   useQuery: jest.fn(),
+  useMutation: jest.fn(() => jest.fn()),
 }));
 
 const mockUseQuery = require('convex/react').useQuery;
