@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Mock for Convex generated API module
  * Using ESM exports for Jest compatibility

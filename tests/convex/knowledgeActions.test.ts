@@ -19,37 +19,37 @@ import {
   createMockResponse,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   createMockErrorResponse,
-} from '@convex-tests/fixtures/testData';
+} from './fixtures/testData';
 
 // Mock modules at the top level - CRITICAL for Jest hoisting
-jest.mock('@convex/lib/config', () => ({
+jest.mock('../../apps/convex/lib/config', () => ({
   getConfig: jest.fn(),
 }));
 
-jest.mock('@convex/lib/textProcessing', () => ({
+jest.mock('../../apps/convex/lib/textProcessing', () => ({
   chunkText: jest.fn(),
   calculateTextStats: jest.fn(),
   generateEmbeddingsForChunks: jest.fn(),
   generateEmbeddingForText: jest.fn(),
 }));
 
-jest.mock('@convex/lib/vectorize', () => ({
+jest.mock('../../apps/convex/lib/vectorize', () => ({
   createVectorizeClient: jest.fn(),
 }));
 
 // Mock Convex modules at top level before imports
-import { createMockCtx } from './__mocks__/_generated/server.js';
+import { createMockCtx } from './__mocks__/_generated/server';
 
 // Import handler functions to test
 import {
   addDocumentHandler,
   queryVectorSimilarityHandler,
-} from '@convex/knowledgeActions';
+} from '../../apps/convex/knowledgeActions';
 
 // Import mocked modules for type safety
-import * as textProcessing from '@convex/lib/textProcessing';
-import * as config from '@convex/lib/config';
-import * as vectorize from '@convex/lib/vectorize';
+import * as textProcessing from '../../apps/convex/lib/textProcessing';
+import * as config from '../../apps/convex/lib/config';
+import * as vectorize from '../../apps/convex/lib/vectorize';
 
 describe('Knowledge Actions', () => {
   let mockCtx: any;

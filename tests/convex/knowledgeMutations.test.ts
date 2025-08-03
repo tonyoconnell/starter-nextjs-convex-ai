@@ -8,10 +8,10 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 import { mockDocuments, mockChunks } from './fixtures/testData';
 
 // Mock Convex modules
-jest.mock('@convex/_generated/server');
-jest.mock('@convex/_generated/api');
+jest.mock('../../apps/convex/_generated/server');
+jest.mock('../../apps/convex/_generated/api');
 
-import { createMockCtx } from './__mocks__/_generated/server.js';
+import { createMockCtx } from './__mocks__/_generated/server';
 
 // Import functions to test
 import {
@@ -21,7 +21,7 @@ import {
   deleteDocument,
   deleteChunksBySource,
   getDocumentByPath,
-} from '@convex/knowledgeMutations';
+} from '../../apps/convex/knowledgeMutations';
 
 describe('Knowledge Mutations', () => {
   let mockCtx: any;
@@ -44,7 +44,8 @@ describe('Knowledge Mutations', () => {
         // No existing document found
         mockCtx.db._setMockData('source_documents_first', null);
 
-        const result = await createOrUpdateDocument(mockCtx, validArgs);
+        // Access the handler function from the wrapped Convex function
+        const result = await createOrUpdateDocument.handler(mockCtx, validArgs);
 
         expect(typeof result).toBe('string');
         expect(result).toMatch(/^source_documents_\d+$/);
