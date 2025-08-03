@@ -60,7 +60,12 @@ jobs:
       - name: Build web application
         run: |
           cd apps/web
-          bun run build
+          bun run build:pages
+        env:
+          CI: true
+          NEXT_PUBLIC_CONVEX_URL: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}
+          NEXT_PUBLIC_LOG_WORKER_URL: ${{ secrets.NEXT_PUBLIC_LOG_WORKER_URL }}
+          NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
 
       - name: Build Convex backend
         run: |
