@@ -71,8 +71,12 @@
     "migrate:logging-verify": "cd apps/convex && bunx convex run migrations/cleanupLoggingTables:verifyCleanupComplete",
     "deploy:worker": "./scripts/deploy-worker.sh",
     "pages:build": "cd apps/web && bun run build:pages",
+    "pages:build:fast": "cd apps/web && bun run build:pages:fast", 
     "build:pages": "cd apps/web && bun run build:pages",
-    "pages:deploy": "echo '🚀 Cloudflare Pages auto-deploys from GitHub. Use: git push origin main'",
+    "pages:deploy": "./scripts/deploy-pages-lightning.sh",
+    "pages:deploy:simple": "./scripts/deploy-pages-simple.sh", 
+    "pages:deploy:advanced": "./scripts/deploy-pages-optimized.sh",
+    "pages:deploy:manual": "cd apps/web && bun run pages:deploy",
     "deploy": "git add . && git commit -m 'Deploy to Cloudflare Pages' && git push origin main",
     "prepare": "echo 'Skipping husky in CI' && exit 0"
   },

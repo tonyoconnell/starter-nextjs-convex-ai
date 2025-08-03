@@ -17,9 +17,12 @@
     "test:coverage:watch": "jest --coverage --watch",
     "test:coverage:watch:all": "jest --coverage --watch --all",
     "test:ci": "jest --config jest.config.ci.js --ci --coverage --maxWorkers=2",
-    "pages:build": "npx @cloudflare/next-on-pages --outdir=dist",
-    "pages:deploy": "bun run build:pages && wrangler pages deploy dist --project-name=starter-nextjs-convex-ai",
-    "build:pages": "bun run build && npx @cloudflare/next-on-pages --outdir=dist",
+    "pages:build": "CI=true npx @cloudflare/next-on-pages --outdir=dist",
+    "pages:deploy": "cd ../../ && ./scripts/deploy-pages-optimized.sh",
+    "build:pages": "CI=true NEXT_TELEMETRY_DISABLED=1 bun run build && npx @cloudflare/next-on-pages --outdir=dist",
+    "build:pages:fast": "CI=true NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' bun run build && npx @cloudflare/next-on-pages --outdir=dist",
+    "build:lightning": "CI=true SKIP_TYPE_CHECK=true NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' bun run build --no-lint",
+    "pages:lightning": "cd ../../ && ./scripts/deploy-pages-lightning.sh",
     "pages:dev": "npx @cloudflare/next-on-pages --watch"
   },
   "dependencies": {
