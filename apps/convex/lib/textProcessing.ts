@@ -125,7 +125,12 @@ export async function generateEmbedding(text: string, apiKey: string): Promise<n
       throw new Error('No embedding data returned from OpenAI API');
     }
 
-    return response.data[0].embedding;
+    const firstEmbedding = response.data[0];
+    if (!firstEmbedding || !firstEmbedding.embedding) {
+      throw new Error('Invalid embedding data structure returned from OpenAI API');
+    }
+
+    return firstEmbedding.embedding;
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error generating embedding:', error);

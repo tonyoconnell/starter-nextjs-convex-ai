@@ -12,7 +12,12 @@
   "scripts": {
     "build": "node scripts/debug-env-build.cjs && turbo build",
     "build:debug": "node scripts/debug-env-build.cjs",
-    "dev": "turbo dev",
+    "dev": "NODE_NO_WARNINGS=1 AWS_SDK_JS_SUPPRESS_MAINTENANCE_MODE_MESSAGE=1 turbo dev",
+    "dev:amazing": "bun scripts/turbo-orchestrator.js",
+    "dev:orchestrated": "bun scripts/amazing-dev.js",
+    "dev:raw": "turbo dev",
+    "dev:production": "NODE_ENV=production bun scripts/clean-turbo-dev.js",
+    "dev:staging": "CONVEX_DEPLOYMENT=staging bun scripts/clean-turbo-dev.js",
     "web:dev": "cd apps/web && bun dev",
     "storybook:dev": "cd packages/storybook && bun run storybook",
     "lint": "turbo lint",
@@ -70,29 +75,37 @@
     "prepare": "echo 'Skipping husky in CI' && exit 0"
   },
   "dependencies": {
-    "convex": "^1.25.4"
+    "convex": "^1.25.4",
+    "chalk": "^5.4.1",
+    "figlet": "^1.8.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@types/bun": "latest",
     "@types/minimatch": "^6.0.0",
-    "@typescript-eslint/eslint-plugin": "^8.37.0",
-    "@typescript-eslint/parser": "^8.37.0",
-    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^8.57.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.1.4",
     "prettier": "^3.6.2",
     "tsx": "^4.20.3",
-    "turbo": "^2.0.0"
+    "turbo": "^2.5.5"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.2"
   },
-  "packageManager": "bun@1.1.0",
+  "overrides": {
+    "aws-sdk": "npm:@aws-sdk/client-s3@^3.0.0"
+  },
+  "resolutions": {
+    "aws-sdk": "npm:@aws-sdk/client-s3@^3.0.0"
+  },
+  "packageManager": "bun@1.2.19",
   "engines": {
     "node": ">=18.0.0",
-    "bun": ">=1.1.0"
+    "bun": ">=1.2.19"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

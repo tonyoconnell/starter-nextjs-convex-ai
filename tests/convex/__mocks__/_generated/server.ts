@@ -1,8 +1,10 @@
 /**
  * Mock for Convex generated server module
+ * Using ESM exports for Jest compatibility
  */
 
-// Jest is already available globally, no need to re-declare
+// Import Jest globals explicitly
+import { jest } from '@jest/globals';
 
 // Mock database context with comprehensive CRUD operations
 const createMockDb = () => {
@@ -80,14 +82,12 @@ const createMockCtx = () => ({
   runAction: jest.fn(),
 });
 
-// Export mock functions
-module.exports = {
-  query: jest.fn((config) => config.handler),
-  mutation: jest.fn((config) => config.handler),
-  internalMutation: jest.fn((config) => config.handler),
-  action: jest.fn((config) => config.handler),
-  httpAction: jest.fn((config) => config.handler),
-  
-  // Helper to create mock context for tests
-  createMockCtx,
-};
+// Export mock functions using ESM syntax
+export const query = jest.fn((config) => config.handler);
+export const mutation = jest.fn((config) => config.handler);
+export const internalMutation = jest.fn((config) => config.handler);
+export const action = jest.fn((config) => config.handler);
+export const httpAction = jest.fn((config) => config.handler);
+
+// Helper to create mock context for tests
+export { createMockCtx };

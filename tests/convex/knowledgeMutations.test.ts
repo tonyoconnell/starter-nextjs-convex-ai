@@ -11,7 +11,7 @@ import { mockDocuments, mockChunks } from './fixtures/testData';
 jest.mock('@convex/_generated/server');
 jest.mock('@convex/_generated/api');
 
-const { createMockCtx } = require('./__mocks__/_generated/server');
+import { createMockCtx } from './__mocks__/_generated/server.js';
 
 // Import functions to test
 import {
