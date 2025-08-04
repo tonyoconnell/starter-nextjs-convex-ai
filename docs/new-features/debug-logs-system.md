@@ -70,6 +70,7 @@
   - Sync operation logs (`syncAllLogs`, `clearRedisAndSync`, `clearRedisLogs`)
   - Data organization messages (`Clearing existing debug logs`, `Synced X logs from Redis`)
   - Administrative status updates (`Failed to insert log`, `logs for trace`)
+  - **Claude logging system meta-logs** (`Claude logging provider initialized`, `Claude logging user context updated`)
   - **Self-referential noise prevention** - sync operations don't pollute their own data
 
 ### Git Ignore Improvements
@@ -183,3 +184,5 @@
 - **Development workflow enhanced** - server restart notifications and better error handling
 - **Terminology clarification** - renamed from "admin" to "debug-logs" to prevent production confusion
 - **Environment safety** - debug logs restricted to development mode only, eliminating production access concerns
+- **Scrolling functionality restored** - fixed overflow CSS to enable proper log table scrolling
+- **Meta-log noise elimination** - suppressed Claude logging system administrative messages for cleaner debugging experience

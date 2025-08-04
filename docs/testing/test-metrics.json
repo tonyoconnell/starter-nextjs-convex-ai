@@ -1,9 +1,104 @@
 {
-  "lastUpdated": "2025-08-01T03:07:00.000Z",
-  "version": "2.1.0",
+  "lastUpdated": "2025-08-04T14:15:00.000Z",
+  "version": "2.2.0",
   "visualReportLink": "https://claude.ai/chat/6f1cb39c-7f63-4093-876a-33d27f6f3838",
   "reportDescription": "Interactive visual dashboard showing test metrics trends, coverage analysis, and failure patterns across all apps",
   "historicalMetrics": [
+    {
+      "timestamp": "2025-08-04T14:15:00.000Z",
+      "version": "2.2.0",
+      "totalApps": 3,
+      "testingSessions": {
+        "web": {
+          "testSuites": {
+            "passed": 31,
+            "failed": 5,
+            "total": 36
+          },
+          "tests": {
+            "passed": 319,
+            "failed": 25,
+            "skipped": 24,
+            "total": 368
+          },
+          "coverage": {
+            "statements": "Not specified",
+            "branches": "Not specified", 
+            "functions": "Not specified",
+            "lines": "Not specified"
+          },
+          "status": "MOSTLY_PASSING",
+          "issues": [
+            "5 test suites failing with 25 failing tests (regression from previous 17)",
+            "24 tests skipped - consistent with previous runs",
+            "Test regression likely due to debug-logs refactoring and suppression pattern changes"
+          ]
+        },
+        "convex": {
+          "testSuites": {
+            "passed": 2,
+            "failed": 4,
+            "total": 6
+          },
+          "tests": {
+            "passed": 167,
+            "failed": 149,
+            "total": 316
+          },
+          "coverage": {
+            "statements": "0%",
+            "branches": "0%",
+            "functions": "0%",
+            "lines": "0%"
+          },
+          "status": "FAILING",
+          "issues": [
+            "Consistent with previous runs - no change in test health",
+            "149 test failures across 4 failed test suites (unchanged)",
+            "Zero coverage reported - ongoing configuration issues"
+          ]
+        },
+        "workers": {
+          "testSuites": {
+            "passed": 6,
+            "failed": 2,
+            "total": 8
+          },
+          "tests": {
+            "passed": 223,
+            "failed": 4,
+            "total": 227
+          },
+          "coverage": {
+            "statements": "90.64%",
+            "branches": "91.8%",
+            "functions": "87.5%",
+            "lines": "92.42%"
+          },
+          "status": "MOSTLY_PASSING",
+          "issues": [
+            "Stable performance - no change from previous runs",
+            "4 failed tests consistent with Aug 1 metrics",
+            "Coverage maintained at 90.64% statements"
+          ]
+        }
+      },
+      "aggregated": {
+        "testSuites": {
+          "passed": 39,
+          "failed": 11,
+          "total": 50,
+          "successRate": "78.0%"
+        },
+        "tests": {
+          "passed": 709,
+          "failed": 178,
+          "skipped": 24,
+          "total": 911,
+          "successRate": "77.8%"
+        }
+      }
+    },
     {
       "timestamp": "2025-08-01T03:07:00.000Z",
       "version": "2.1.0",
