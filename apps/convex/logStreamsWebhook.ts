@@ -1,5 +1,4 @@
 import { httpAction } from './_generated/server';
-import { v } from 'convex/values';
 import { api } from './_generated/api';
 
 // Convex Log Streams webhook types (based on Convex documentation)
@@ -169,7 +168,7 @@ function mapConvexLogLevel(convexLevel: ConvexLogEntry['level']): string {
 }
 
 // Health check endpoint for webhook verification
-export const logStreamsHealth = httpAction(async (ctx, request) => {
+export const logStreamsHealth = httpAction(async () => {
   return new Response(JSON.stringify({
     status: 'healthy',
     endpoint: 'logStreamsWebhook',
@@ -184,7 +183,7 @@ export const logStreamsHealth = httpAction(async (ctx, request) => {
 });
 
 // Configuration endpoint to get webhook URL for Convex Log Streams setup
-export const getWebhookConfig = httpAction(async (ctx, request) => {
+export const getWebhookConfig = httpAction(async () => {
   // This would typically be configured via environment variables
   const baseUrl = process.env.CONVEX_SITE_URL || 'https://your-deployment.convex.site';
   

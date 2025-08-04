@@ -41,7 +41,9 @@ import {
   RefreshCw,
   Calendar,
   User,
-  Activity
+  Activity,
+  ArrowUp,
+  ArrowDown
 } from 'lucide-react';
 
 interface DebugLog {
@@ -63,7 +65,7 @@ interface DebugLogsTableProps {
   refreshTrigger?: number;
 }
 
-export function DebugLogsTable({ refreshTrigger }: DebugLogsTableProps) {
+export function DebugLogsTable({}: DebugLogsTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [systemFilter, setSystemFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -71,14 +73,16 @@ export function DebugLogsTable({ refreshTrigger }: DebugLogsTableProps) {
   const [userFilter, setUserFilter] = useState('');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [limit, setLimit] = useState(100);
+  const [chronological, setChronological] = useState(false); // false = newest first, true = oldest first
 
   // Build query args based on filters
   const queryArgs = {
     limit,
+    chronological,
     ...(traceFilter && { trace_id: traceFilter }),
     ...(userFilter && { user_id: userFilter }),
-    ...(systemFilter !== 'all' && { system: systemFilter as any }),
-    ...(levelFilter !== 'all' && { level: levelFilter as any }),
+    ...(systemFilter !== 'all' && { system: systemFilter as 'browser' | 'convex' | 'worker' | 'manual' }),
+    ...(levelFilter !== 'all' && { level: levelFilter as 'log' | 'info' | 'warn' | 'error' }),
     ...(searchTerm && { search: searchTerm })
   };
 
@@ -101,6 +105,10 @@ export function DebugLogsTable({ refreshTrigger }: DebugLogsTableProps) {
     setLevelFilter('all');
     setTraceFilter('');
     setUserFilter('');
+  };
+
+  const toggleSortOrder = () => {
+    setChronological(!chronological);
   };
 
   const formatTimestamp = (timestamp: number) => {
@@ -146,7 +154,7 @@ export function DebugLogsTable({ refreshTrigger }: DebugLogsTableProps) {
           </div>
         </CardTitle>
         <CardDescription>
-          Chronological view of synced log data with filtering and search
+          {chronological ? 'Chronological' : 'Reverse chronological'} view of synced log data with filtering and search
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -207,6 +215,29 @@ export function DebugLogsTable({ refreshTrigger }: DebugLogsTableProps) {
 
           {/* Actions */}
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleSortOrder}
+              title={chronological ? 'Sort: Oldest First (click for Newest First)' : 'Sort: Newest First (click for Oldest First)'}
+            >
+              {chronological ? (
+                <ArrowUp className="h-4 w-4 mr-1" />
+              ) : (
+                <ArrowDown className="h-4 w-4 mr-1" />
+              )}
+              {chronological ? 'Oldest' : 'Newest'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setSystemFilter('browser')}
+              disabled={systemFilter === 'browser'}
+              title="Show only browser/application logs (exclude system logs)"
+            >
+              <User className="h-4 w-4 mr-1" />
+              App Only
+            </Button>
             <Button
               variant="outline"
               size="sm"

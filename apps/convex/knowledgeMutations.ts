@@ -1,7 +1,6 @@
 import { v } from 'convex/values';
 import { internalMutation, mutation, query } from './_generated/server';
 import { internal } from './_generated/api';
-import { Id } from './_generated/dataModel';
 
 /**
  * Simple unique ID generation for V8 runtime (without crypto dependency)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 // Migration script to safely remove old logging tables after Worker migration
 // Run this ONLY after confirming the Worker logging system is operational

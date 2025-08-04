@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 import { mutation, query, MutationCtx, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
@@ -310,7 +311,7 @@ async function recordMessageFingerprint(ctx: MutationCtx, fingerprint: string): 
     for (const old of oldFingerprints) {
       try {
         await ctx.db.delete(old._id);
-      } catch (deleteError) {
+      } catch {
         // If another operation already deleted this record, continue
         // This is expected in high-concurrency scenarios
         continue;
@@ -357,7 +358,6 @@ export const updateRateLimitState = mutation({
       throw new Error('Rate limit state not found. Run initializeRateLimitState first.');
     }
 
-    const now = Date.now();
     await ctx.db.patch(existing._id, {
       browser_limit: SYSTEM_LIMITS.browser,
       worker_limit: SYSTEM_LIMITS.worker,  

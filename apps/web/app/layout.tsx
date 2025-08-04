@@ -27,13 +27,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LoggingProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <LoggingProvider>
               <ConvexClientProvider>
                 {children}
               </ConvexClientProvider>
-            </AuthProvider>
-          </LoggingProvider>
+            </LoggingProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,0 +1,75 @@
+# New Features Index
+
+This directory contains documentation for features implemented in the template repository. Each feature document provides the information needed to understand, extract, and integrate functionality into other repositories.
+
+## Available Features
+
+### Admin & Development Tools
+
+- **[Admin Logging System](admin-logging-system.md)** - Redis Data Sync & Debug Interface
+  - **Epic**: [Epic 3: Resilient Real-time Logging](../template-development/prd/epic-3.md)
+  - **Story**: Story 3.6 - Redis Data Sync & Legacy Code Migration
+  - **Impact**: 19 files changed, 2,554 insertions
+  - **Key Features**: Redis buffer statistics, selective data sync, chronological debugging table, AI-optimized export formats
+
+## How to Use This Documentation
+
+### For Template Extension
+If you're building on this template, use these docs to understand what features are already implemented and how they work.
+
+### For Feature Extraction
+If you want to adopt specific features in another repository:
+
+1. **Browse Features**: Review this index to find functionality you need
+2. **Read Feature Documentation**: Each feature doc lists all files created/modified
+3. **Copy Files**: Extract the documented files to your target repository
+4. **Adapt Configuration**: Follow dependency and configuration notes
+5. **Test Integration**: Verify the feature works in your environment
+
+### For Development
+When implementing new features:
+
+1. **Follow Story Development**: Implement according to story requirements
+2. **Document Feature**: Create new feature doc using the template
+3. **Update Index**: Add feature to this index with summary information
+4. **Link Epic/Story**: Reference original requirements for context
+
+## Documentation Format
+
+Each feature document includes:
+
+- **New Features Added**: Bullet-point list of actual functionality implemented
+- **Files Added/Modified**: Complete manifest of all file changes
+- **Technical Impact**: Quantified metrics (files changed, insertions, etc.)
+- **Key Benefits**: User-facing value delivered by the feature
+
+## Cross-Repository Integration
+
+This documentation system enables:
+
+- **Selective Feature Adoption**: Extract specific functionality without full template duplication
+- **Implementation Awareness**: Understand what was actually built vs what was planned
+- **Dependency Management**: Clear documentation of external requirements
+- **Knowledge Transfer**: Efficient feature sharing between development teams
+
+## Templates and Standards
+
+- **Feature Template**: [templates/feature-template.md](templates/feature-template.md) - Standardized format for new feature documentation
+- **Naming Convention**: Use descriptive kebab-case names matching functionality
+- **File Manifests**: Must include complete list of new/modified files
+- **Story References**: Link to original Epic/Story but focus on implementation reality
+
+## Maintenance
+
+This documentation is maintained as part of the story development process:
+
+- Feature docs created during story completion
+- Index updated with each new feature
+- File manifests kept current with implementation changes
+- Cross-repository adoption workflows validated
+
+---
+
+**Repository**: [starter-nextjs-convex-ai](https://github.com/appydave-templates/starter-nextjs-convex-ai)
+**Template Purpose**: Next.js + Convex + AI development template with extractable features
+**Documentation System**: Part of BMAD (Breakthrough Method for Agile AI Driven Development) methodology

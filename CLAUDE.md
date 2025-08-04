@@ -368,6 +368,33 @@ NEVER proactively create documentation files (\*.md) or README files. Only creat
 
 **Documentation-First Protocol**: Search existing docs before implementing new solutions.
 
+## New Features Documentation
+
+When completing stories or implementing features:
+
+### Feature Documentation Process
+
+1. **Create Feature Documentation**: Add file to `docs/new-features/{feature-name}.md` using descriptive kebab-case naming
+2. **Update Feature Index**: Add entry to `docs/new-features/index.md` with feature summary  
+3. **File Manifest Accuracy**: Document ALL new/modified files for cross-repository adoption
+4. **Cross-Repository Value**: Focus on information needed for feature extraction and integration
+
+### Documentation Standards
+
+**Naming Convention**: Use descriptive names matching functionality
+- `admin-logging-system.md` (not `story-3-6.md`)
+- `user-authentication.md` (not `auth-feature.md`)
+
+**Required Content**:
+- **New Features Added**: Bullet points of actual functionality implemented
+- **Files Added/Modified**: Complete manifest with file paths and descriptions
+- **Technical Impact**: Quantified changes (files changed, insertions, etc.)
+- **Key Benefits**: User-facing value delivered
+
+**Purpose**: Enable other repositories to selectively adopt features from this template by providing complete implementation details and file manifests.
+
+**Template Location**: Reference `docs/methodology/new-features-documentation-kdd.md` for complete methodology.
+
 ## Specialized Agent Delegation
 
 ### Testing Infrastructure Work (MANDATORY)

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
 // Convex to Worker bridge for internal logging
 // Replaces the old loggingAction.ts to send logs to Worker instead of storing in Convex
@@ -187,7 +188,7 @@ export const logInternal = action({
 // Health check for Worker connectivity
 export const checkWorkerHealth = action({
   args: {},
-  handler: async (ctx: ActionCtx): Promise<{
+  handler: async (): Promise<{
     worker_healthy: boolean;
     worker_url_configured: boolean;
     last_check: number;

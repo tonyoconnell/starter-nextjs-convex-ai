@@ -21,12 +21,13 @@ export interface AuthenticatedUser {
  * Extract session token from Convex request context
  * This works when the token is passed via client.setAuth()
  */
-function getSessionTokenFromContext(ctx: QueryCtx | MutationCtx | ActionCtx): string | null {
-  // For now, we'll need to receive the token as a parameter
-  // Convex's setAuth() is designed for JWT tokens, not custom session tokens
-  // We'll implement this as middleware that expects a sessionToken parameter
-  return null;
-}
+// This function was unused and commented out to fix ESLint errors
+// function getSessionTokenFromContext(ctx: QueryCtx | MutationCtx | ActionCtx): string | null {
+//   // For now, we'll need to receive the token as a parameter
+//   // Convex's setAuth() is designed for JWT tokens, not custom session tokens
+//   // We'll implement this as middleware that expects a sessionToken parameter
+//   return null;
+// }
 
 /**
  * Validate session token and return user context
@@ -121,6 +122,7 @@ export function withAuth<Args extends Record<string, any>, Return>(
     };
 
     // Remove sessionToken from args before passing to handler
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { sessionToken, ...cleanArgs } = args;
     return handler(authenticatedCtx, cleanArgs as Omit<Args, 'sessionToken'>);
   };
@@ -151,6 +153,7 @@ export function withAuthMutation<Args extends Record<string, any>, Return>(
     };
 
     // Remove sessionToken from args before passing to handler
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { sessionToken, ...cleanArgs } = args;
     return handler(authenticatedCtx, cleanArgs as Omit<Args, 'sessionToken'>);
   };
@@ -181,6 +184,7 @@ export function withAuthAction<Args extends Record<string, any>, Return>(
     };
 
     // Remove sessionToken from args before passing to handler
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { sessionToken, ...cleanArgs } = args;
     return handler(authenticatedCtx, cleanArgs as Omit<Args, 'sessionToken'>);
   };
@@ -207,6 +211,7 @@ export function withOptionalAuth<Args extends Record<string, any>, Return>(
     };
 
     // Remove sessionToken from args before passing to handler
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { sessionToken, ...cleanArgs } = args;
     return handler(authenticatedCtx, cleanArgs as Omit<Args, 'sessionToken'>);
   };

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import { query, mutation, QueryCtx, MutationCtx } from './_generated/server';
+import { query, QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
 
 // Types for log correlation

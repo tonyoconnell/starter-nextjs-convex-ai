@@ -10,7 +10,7 @@ import {
 } from '@starter/ui';
 import { Button } from '@starter/ui';
 import { Badge } from '@starter/ui';
-import { RefreshCw, Database, Clock, Users, Activity } from 'lucide-react';
+import { RefreshCw, Database, Clock, Activity, AlertTriangle, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface RedisStats {
   status: string;
@@ -35,9 +35,10 @@ interface RedisStats {
 
 interface RedisStatsCardProps {
   refreshTrigger?: number;
+  onStatsUpdate?: (stats: RedisStats | null) => void;
 }
 
-export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
+export function RedisStatsCard({ refreshTrigger, onStatsUpdate }: RedisStatsCardProps) {
   const [stats, setStats] = useState<RedisStats | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +49,12 @@ export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
     setError(null);
     
     try {
-      const response = await fetch('/api/redis-stats/');
+      const response = await fetch(`/api/redis-stats/?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) {
         throw new Error(`Failed to fetch Redis stats: ${response.status}`);
       }
@@ -56,9 +62,12 @@ export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
       const data = await response.json();
       setStats(data);
       setLastRefresh(Date.now());
+      onStatsUpdate?.(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch Redis statistics');
+      // eslint-disable-next-line no-console
       console.error('Redis stats fetch error:', err);
+      onStatsUpdate?.(null);
     } finally {
       setLoading(false);
     }
@@ -82,6 +91,34 @@ export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
 
   const formatNumber = (num: number) => {
     return num.toLocaleString();
+  };
+
+  const getVolumeWarning = (totalLogs: number) => {
+    if (totalLogs < 1000) {
+      return {
+        level: 'safe' as const,
+        color: 'text-green-600 dark:text-green-400',
+        bgColor: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
+        message: 'Safe volume - quick sync recommended',
+        badge: 'default' as const
+      };
+    } else if (totalLogs < 5000) {
+      return {
+        level: 'moderate' as const,
+        color: 'text-yellow-600 dark:text-yellow-400',
+        bgColor: 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800',
+        message: 'Moderate volume - consider filtering or expect ~30-60s sync time',
+        badge: 'secondary' as const
+      };
+    } else {
+      return {
+        level: 'high' as const,
+        color: 'text-red-600 dark:text-red-400',
+        bgColor: 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800',
+        message: 'Large volume - filtering strongly recommended or expect 2-5 min sync time',
+        badge: 'destructive' as const
+      };
+    }
   };
 
   const getConnectionStatus = () => {
@@ -131,9 +168,17 @@ export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
           <>
             {/* Overview Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center p-3 border rounded-lg">
-                <div className="text-2xl font-bold">{formatNumber(stats.stats.total_logs)}</div>
+              <div className={`text-center p-3 border rounded-lg ${getVolumeWarning(stats.stats.total_logs).bgColor}`}>
+                <div className={`text-2xl font-bold ${getVolumeWarning(stats.stats.total_logs).color}`}>
+                  {formatNumber(stats.stats.total_logs)}
+                </div>
                 <div className="text-xs text-muted-foreground">Total Logs</div>
+                <Badge 
+                  variant={getVolumeWarning(stats.stats.total_logs).badge} 
+                  className="text-xs mt-1"
+                >
+                  {getVolumeWarning(stats.stats.total_logs).level.toUpperCase()}
+                </Badge>
               </div>
               <div className="text-center p-3 border rounded-lg">
                 <div className="text-2xl font-bold">{formatNumber(stats.stats.active_traces)}</div>
@@ -192,6 +237,34 @@ export function RedisStatsCard({ refreshTrigger }: RedisStatsCardProps) {
                 </div>
               </div>
             </div>
+
+            {/* Volume Warning Message */}
+            {stats.stats.total_logs > 0 && (
+              <div className={`border rounded-lg p-4 ${getVolumeWarning(stats.stats.total_logs).bgColor}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  {getVolumeWarning(stats.stats.total_logs).level === 'safe' && (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  )}
+                  {getVolumeWarning(stats.stats.total_logs).level === 'moderate' && (
+                    <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                  )}
+                  {getVolumeWarning(stats.stats.total_logs).level === 'high' && (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <span className={`font-medium ${getVolumeWarning(stats.stats.total_logs).color}`}>
+                    Sync Volume: {getVolumeWarning(stats.stats.total_logs).level.charAt(0).toUpperCase() + getVolumeWarning(stats.stats.total_logs).level.slice(1)}
+                  </span>
+                </div>
+                <p className={`text-sm ${getVolumeWarning(stats.stats.total_logs).color}`}>
+                  {getVolumeWarning(stats.stats.total_logs).message}
+                </p>
+                {getVolumeWarning(stats.stats.total_logs).level !== 'safe' && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    💡 Tip: Use trace or user filtering to sync only relevant data
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Last Updated */}
             {lastRefresh > 0 && (

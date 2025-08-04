@@ -1,7 +1,5 @@
 import { v } from 'convex/values';
 import { internalMutation, query } from './_generated/server';
-import { api } from './_generated/api';
-import { Id } from './_generated/dataModel';
 
 /**
  * Generate a simple unique ID without crypto dependency
