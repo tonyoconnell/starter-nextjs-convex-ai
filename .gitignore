@@ -138,3 +138,10 @@ test-coverage/
 
 # Sentry Config File
 .sentryclirc
+
+# Prevent PNG files in root directories (screenshots, temporary images)
+# Allow PNGs in deeper directories (assets, public, etc.)
+/*.png
+/apps/web/*.png
+/apps/convex/*.png
+/apps/workers/log-ingestion/*.png
