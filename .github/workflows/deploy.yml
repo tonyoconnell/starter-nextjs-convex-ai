@@ -113,12 +113,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Skip Worker Deployment (Auth Issue)
-        run: |
-          echo "⚠️  Worker deployment skipped due to API token permissions"
-          echo "   The CLOUDFLARE_API_TOKEN needs Workers:Edit permission"
-          echo "   Worker can be deployed manually with: wrangler deploy --env development"
-          echo "✅ Worker build test passed in previous job"
+      - name: Deploy Log Ingestion Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: apps/workers/log-ingestion
+          command: deploy --env development
 
   deploy-frontend:
     name: Deploy Next.js Frontend to Cloudflare Pages
@@ -175,8 +175,8 @@ jobs:
 
       - name: Check Log Ingestion Worker
         run: |
-          echo "⚠️  Checking worker health (may fail if not manually deployed)"
-          curl -f https://log-ingestion-worker-development.oneie.workers.dev/health || echo "❌ Log Worker not available - deploy manually"
+          curl -f https://log-ingestion-worker-development.oneie.workers.dev/health || exit 1
+          echo "✅ Log Worker healthy"
 
       - name: Check Frontend Pages Deployment
         run: |
@@ -190,19 +190,16 @@ jobs:
       - name: Notify deployment success
         if: success()
         run: |
-          echo "🎉 Two-service deployment successful!"
+          echo "🎉 Three-service deployment successful!"
           echo "📊 Convex Backend: ${{ secrets.NEXT_PUBLIC_CONVEX_URL }}"
-          echo "⚠️  Log Worker: Manual deployment needed (API token permissions)"
+          echo "🔄 Log Worker: https://log-ingestion-worker-development.oneie.workers.dev"
           echo "🌐 Frontend: https://starter-nextjs-convex-ai.pages.dev"
-          echo ""
-          echo "To deploy worker manually: cd apps/workers/log-ingestion && wrangler deploy --env development"
 
       - name: Notify deployment failure
         if: failure()
         run: |
-          echo "❌ Deployment health check failed!"
+          echo "❌ Multi-service deployment health check failed!"
           echo "Check individual service status and logs"
-          echo "Note: Worker deployment requires manual intervention due to API token permissions"
           exit 1
 
   observability:
