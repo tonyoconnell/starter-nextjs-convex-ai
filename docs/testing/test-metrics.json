@@ -12,14 +12,14 @@
         "web": {
           "testSuites": {
             "passed": 31,
-            "failed": 5,
-            "total": 36
+            "failed": 6,
+            "total": 37
           },
           "tests": {
             "passed": 319,
-            "failed": 25,
+            "failed": 31,
             "skipped": 24,
-            "total": 368
+            "total": 374
           },
           "coverage": {
             "statements": "Not specified",
@@ -29,7 +29,7 @@
           },
           "status": "MOSTLY_PASSING",
           "issues": [
-            "5 test suites failing with 25 failing tests (regression from previous 17)",
+            "6 test suites failing with 31 failing tests (regression from previous 17)",
             "24 tests skipped - consistent with previous runs",
             "Test regression likely due to debug-logs refactoring and suppression pattern changes"
           ]
@@ -41,8 +41,8 @@
             "total": 6
           },
           "tests": {
-            "passed": 167,
-            "failed": 149,
+            "passed": 181,
+            "failed": 135,
             "total": 316
           },
           "coverage": {
@@ -53,8 +53,8 @@
           },
           "status": "FAILING",
           "issues": [
-            "Consistent with previous runs - no change in test health",
-            "149 test failures across 4 failed test suites (unchanged)",
+            "Test health improvement: 135 failures (down from 149)",
+            "14 fewer failures but still 4 failed test suites",
             "Zero coverage reported - ongoing configuration issues"
           ]
         },
@@ -86,16 +86,16 @@
       "aggregated": {
         "testSuites": {
           "passed": 39,
-          "failed": 11,
-          "total": 50,
-          "successRate": "78.0%"
+          "failed": 12,
+          "total": 51,
+          "successRate": "76.5%"
         },
         "tests": {
-          "passed": 709,
-          "failed": 178,
+          "passed": 723,
+          "failed": 170,
           "skipped": 24,
-          "total": 911,
-          "successRate": "77.8%"
+          "total": 917,
+          "successRate": "78.8%"
         }
       }
     },
