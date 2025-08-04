@@ -30,7 +30,7 @@ import {
   type VectorizeConfig,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   type ModelInfo,
-} from '@convex/lib/config';
+} from '../../../apps/convex/lib/config';
 
 describe('Configuration Management', () => {
   let originalEnv: NodeJS.ProcessEnv;
@@ -47,8 +47,8 @@ describe('Configuration Management', () => {
 
     // Set up test environment variables
     process.env.NODE_ENV = 'test';
-    process.env.OPENROUTER_API_KEY = 'test-openrouter-key-1234567890';
-    process.env.OPENAI_API_KEY = 'test-openai-key-sk-1234567890';
+    process.env.OPENROUTER_API_KEY = 'sk-or-v1-abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
+    process.env.OPENAI_API_KEY = 'sk-1234567890abcdef1234567890abcdef1234567890abcdefghijklmnopqrstuvwxyz';
     process.env.CLOUDFLARE_ACCOUNT_ID = 'test-cloudflare-account-123';
     process.env.CLOUDFLARE_API_TOKEN = 'test-cloudflare-token-456';
     process.env.VECTORIZE_DATABASE_ID = 'test-vectorize-db-789';
@@ -91,7 +91,7 @@ describe('Configuration Management', () => {
 
         expect(config.llm.openAiApiKey).toBe('');
         expect(config.llm.openRouterApiKey).toBe(
-          'test-openrouter-key-1234567890'
+          'sk-or-v1-abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
         );
       });
 

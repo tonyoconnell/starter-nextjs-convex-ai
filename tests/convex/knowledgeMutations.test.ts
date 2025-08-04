@@ -21,7 +21,7 @@ import {
   deleteDocument,
   deleteChunksBySource,
   getDocumentByPath,
-} from '@convex/knowledgeMutations';
+} from '../../apps/convex/knowledgeMutations';
 
 describe('Knowledge Mutations', () => {
   let mockCtx: any;

@@ -125,7 +125,7 @@ export async function generateEmbedding(text: string, apiKey: string): Promise<n
       throw new Error('No embedding data returned from OpenAI API');
     }
 
-    return response.data[0].embedding;
+    return response.data[0]?.embedding || [];
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error generating embedding:', error);
