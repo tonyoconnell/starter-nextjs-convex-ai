@@ -114,11 +114,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy Log Ingestion Worker
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: apps/workers/log-ingestion
-          command: deploy --env development
+        run: |
+          cd apps/workers/log-ingestion
+          npx wrangler deploy --env development
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   deploy-frontend:
     name: Deploy Next.js Frontend to Cloudflare Pages
@@ -155,10 +155,10 @@ jobs:
           NEXT_PUBLIC_LOG_WORKER_URL: https://log-ingestion-worker.tonyoconnell.workers.dev
 
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: pages deploy apps/web/dist --project-name=starter-nextjs-convex-ai
+        run: |
+          npx wrangler pages deploy apps/web/dist --project-name=starter-nextjs-convex-ai
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   health-check:
     name: End-to-End Health Check
