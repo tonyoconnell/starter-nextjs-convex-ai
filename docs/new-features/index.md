@@ -4,13 +4,13 @@ This directory contains documentation for features implemented in the template r
 
 ## Available Features
 
-### Admin & Development Tools
+### Debug & Development Tools
 
-- **[Admin Logging System](admin-logging-system.md)** - Redis Data Sync & Debug Interface
+- **[Debug Logs System](debug-logs-system.md)** - Redis Data Sync & Development Debug Interface
   - **Epic**: [Epic 3: Resilient Real-time Logging](../template-development/prd/epic-3.md)
   - **Story**: Story 3.6 - Redis Data Sync & Legacy Code Migration
-  - **Impact**: 19 files changed, 2,554 insertions
-  - **Key Features**: Redis buffer statistics, selective data sync, chronological debugging table, AI-optimized export formats
+  - **Impact**: 29+ files changed, 3,800+ insertions
+  - **Key Features**: Redis buffer statistics, selective data sync, chronological debugging table, AI-optimized export formats, development environment restrictions
 
 ## How to Use This Documentation
 

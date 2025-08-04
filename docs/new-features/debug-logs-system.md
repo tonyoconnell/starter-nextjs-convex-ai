@@ -1,4 +1,4 @@
-# Admin Logging System (Story 3.6 + Dashboard Improvements)
+# Debug Logs System (Story 3.6 + Dashboard Improvements)
 
 **Epic**: [Epic 3: Resilient Real-time Logging](../template-development/prd/epic-3.md)
 
@@ -87,11 +87,11 @@
 
 ### 🆕 New Frontend Components (React)
 
-- `apps/web/components/admin/redis-stats-card.tsx` - **Enhanced** Redis buffer statistics with compact sidebar format and volume warnings
-- `apps/web/components/admin/sync-controls-card.tsx` - **Enhanced** Data sync controls with repositioned buttons, collapsible advanced options, and smart progress indicators
-- `apps/web/components/admin/debug-logs-table.tsx` - **Enhanced** Advanced log visualization with "App Only" filter, badge categorization, and improved sorting controls
-- `apps/web/components/admin/export-controls-card.tsx` - **Completely redesigned** Revolutionary single-button export system with target selection and full-width layout
-- `apps/web/components/admin/suppression-rules-panel.tsx` - **NEW** Read-only console suppression transparency panel with pattern testing and categorization
+- `apps/web/components/debug-logs/redis-stats-card.tsx` - **Enhanced** Redis buffer statistics with compact sidebar format and volume warnings
+- `apps/web/components/debug-logs/sync-controls-card.tsx` - **Enhanced** Data sync controls with repositioned buttons, collapsible advanced options, and smart progress indicators
+- `apps/web/components/debug-logs/debug-logs-table.tsx` - **Enhanced** Advanced log visualization with "App Only" filter, badge categorization, and improved sorting controls
+- `apps/web/components/debug-logs/export-controls-card.tsx` - **Completely redesigned** Revolutionary single-button export system with target selection and full-width layout
+- `apps/web/components/debug-logs/suppression-rules-panel.tsx` - **NEW** Read-only console suppression transparency panel with pattern testing and categorization
 
 ### 🆕 New API Routes
 
@@ -110,7 +110,8 @@
 
 ### 📝 Enhanced Frontend Files
 
-- `apps/web/app/admin/logs/page.tsx` - **Major redesign** to dashboard layout with collapsible 420px sidebar, repositioned export controls, and improved responsive design
+- `apps/web/app/debug-logs/page.tsx` - **Major redesign** to dashboard layout with collapsible 420px sidebar, repositioned export controls, improved responsive design, and **development environment restrictions**
+- `apps/web/app/page.tsx` and `apps/web/app/dev/page.tsx` - **Updated navigation links** from `/admin/logs` to `/debug-logs` with clearer "Debug" terminology
 - `apps/web/app/layout.tsx` - **CRITICAL FIX** for authentication integration - fixed provider order (AuthProvider now wraps LoggingProvider)
 - `apps/web/components/logging/logging-provider.tsx` - **Authentication integration** connected to AuthProvider via useAuth() hook with real-time user ID updates
 - `apps/web/lib/console-override.ts` - **Major enhancements** including:
@@ -132,19 +133,20 @@
 
 ## Technical Impact
 
-- **27+ files changed** (expanded from original 19)
-- **3,700+ insertions** (significant additions from dashboard improvements and authentication integration)
-- **Complete admin logs page functionality restored**
+- **29+ files changed** (expanded from original 19, includes recent refactoring)
+- **3,800+ insertions** (significant additions from dashboard improvements, authentication integration, and debug-logs refactoring)
+- **Complete debug logs functionality restored** - renamed from "admin" to clarify development-only purpose
 - **Redis-to-Convex sync system operational**
 - **Dashboard architecture modernized** with responsive sidebar layout
 - **Export system revolutionized** with user-first design patterns
 - **Console override transparency** implemented for debugging clarity
 - **Authentication integration completed** - real-time user tracking eliminates anonymous user issues
+- **Development environment restrictions** - debug logs only accessible in development mode, preventing production confusion
 
 ## Key Benefits
 
 ### Original Benefits (Maintained)
-- Admin page loads without errors (fixed 404)
+- Debug logs page loads without errors (fixed 404)
 - Selective data sync from Redis buffer to Convex
 - Chronological debugging workflow with expandable details
 - AI-optimized export formats for Claude Code analysis
@@ -179,3 +181,5 @@
 - **Anonymous user bug eliminated** - console logs now show authenticated user email instead of 'anonymous'
 - **Tab interface clarity** - replaced confusing radio buttons with clear ShadCN Tabs for export destination
 - **Development workflow enhanced** - server restart notifications and better error handling
+- **Terminology clarification** - renamed from "admin" to "debug-logs" to prevent production confusion
+- **Environment safety** - debug logs restricted to development mode only, eliminating production access concerns
