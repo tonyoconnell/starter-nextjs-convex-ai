@@ -112,7 +112,7 @@ export default function DebugLogsPage() {
         </div>
 
         {/* Logs Table */}
-        <div className="flex-1 overflow-hidden p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
           <DebugLogsTable refreshTrigger={refreshKey} />
           
           {/* Export Controls - Full Width */}

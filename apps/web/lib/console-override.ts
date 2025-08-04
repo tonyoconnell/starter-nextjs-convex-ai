@@ -59,6 +59,10 @@ const suppressedPatterns = new Set([
   'logs for user',
   'Clearing Redis logs',
   'Clearing existing logs for trace',
+  // Claude logging system meta-logs (administrative noise)
+  'Claude logging provider initialized',
+  'Claude logging user context updated',
+  'Claude logging user context reset',
   'Clearing existing logs for user',
   'Failed to insert log',
   'Failed to fetch logs for trace',
