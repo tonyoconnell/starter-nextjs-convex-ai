@@ -56,7 +56,7 @@ const suppressedPatterns = new Set([
   'Syncing current Redis state',
   'Synced',
   'logs for trace',
-  'logs for user', 
+  'logs for user',
   'Clearing Redis logs',
   'Clearing existing logs for trace',
   'Clearing existing logs for user',
@@ -171,12 +171,6 @@ declare global {
     CLAUDE_LOGGING_ENABLED?: string;
     location: Location;
   }
-  
-  const console: Console;
-  const navigator: Navigator;
-  const process: {
-    env: Record<string, string | undefined>;
-  };
 }
 
 export function initializeConsoleOverride() {
@@ -265,14 +259,14 @@ async function sendToWorker(level: string, args: unknown[]) {
 
   // Only capture stack traces for errors and warnings (not for log/info)
   const shouldCaptureStack = level === 'error' || level === 'warn';
-  
+
   const detectedSystem = detectSystemSource(args);
-  
+
   const payload = {
     trace_id: currentTraceId,
-    message: args.map(arg =>
-      typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-    ).join(' '),
+    message: args
+      .map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+      .join(' '),
     level: level as 'log' | 'info' | 'warn' | 'error',
     system: detectedSystem,
     user_id: currentUserId,
@@ -280,29 +274,33 @@ async function sendToWorker(level: string, args: unknown[]) {
     context: {
       timestamp: Date.now(),
       url: typeof window !== 'undefined' ? window.location.href : undefined,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
+      userAgent:
+        typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
     },
   };
 
   try {
     // Get Worker URL from environment
-    const workerUrl = process.env.NEXT_PUBLIC_LOG_WORKER_URL || 'https://log-ingestion.your-worker-domain.workers.dev';
-    
+    const workerUrl =
+      process.env.NEXT_PUBLIC_LOG_WORKER_URL ||
+      'https://log-ingestion.your-worker-domain.workers.dev';
+
     const response = await fetch(`${workerUrl}/log`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Origin': typeof window !== 'undefined' ? window.location.origin : 'unknown',
+        Origin:
+          typeof window !== 'undefined' ? window.location.origin : 'unknown',
       },
       body: JSON.stringify(payload),
     });
 
     const result = await response.json();
-    
+
     // Handle rate limiting responses
     if (!result.success && response.status === 429) {
       originalConsole.warn('Worker rate limit exceeded:', result.error);
-      
+
       // Update local tracking to reflect server-side limits
       if (result.remaining_quota !== undefined) {
         originalConsole.log('Remaining quota:', result.remaining_quota);

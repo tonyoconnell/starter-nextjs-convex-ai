@@ -11,19 +11,19 @@ import {
 import { Button } from '@starter/ui';
 import { Input } from '@starter/ui';
 import { Badge } from '@starter/ui';
-import { 
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@starter/ui';
-import { 
-  Settings, 
-  ChevronDown, 
-  ChevronRight, 
+import {
+  Settings,
+  ChevronDown,
+  ChevronRight,
   TestTube,
   Eye,
   EyeOff,
-  AlertCircle
+  AlertCircle,
 } from 'lucide-react';
 
 declare global {
@@ -40,20 +40,35 @@ interface SuppressionRulesPanelProps {
   className?: string;
 }
 
-export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps) {
+export function SuppressionRulesPanel({
+  className,
+}: SuppressionRulesPanelProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [patterns, setPatterns] = useState<string[]>([]);
   const [testMessage, setTestMessage] = useState('');
-  const [testResult, setTestResult] = useState<{ suppressed: boolean; matchedPattern?: string } | null>(null);
-  const [consoleStatus, setConsoleStatus] = useState<unknown>(null);
+  const [testResult, setTestResult] = useState<{
+    suppressed: boolean;
+    matchedPattern?: string;
+  } | null>(null);
+  const [consoleStatus, setConsoleStatus] = useState<{
+    enabled?: boolean;
+    traceId?: string;
+    userId?: string;
+  } | null>(null);
 
   const loadPatterns = () => {
     if (typeof window !== 'undefined' && window.ConsoleLogger) {
       const currentPatterns = window.ConsoleLogger.getSuppressedPatterns();
       setPatterns(currentPatterns);
-      
+
       const status = window.ConsoleLogger.getStatus();
-      setConsoleStatus(status);
+      setConsoleStatus(
+        status as {
+          enabled?: boolean;
+          traceId?: string;
+          userId?: string;
+        } | null
+      );
     }
   };
 
@@ -65,26 +80,32 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
 
   const handleTestMessage = () => {
     if (!testMessage.trim()) return;
-    
+
     // Simple client-side test - check if message matches any pattern
-    const matchedPattern = patterns.find(pattern => 
+    const matchedPattern = patterns.find(pattern =>
       testMessage.toLowerCase().includes(pattern.toLowerCase())
     );
-    
+
     setTestResult({
       suppressed: !!matchedPattern,
-      matchedPattern
+      matchedPattern,
     });
   };
 
   const getPatternCategory = (pattern: string) => {
     const devPatterns = ['[HMR]', 'webpack', '[Fast Refresh]', 'hot-update'];
     const reactPatterns = ['React DevTools', 'DevTools detected'];
-    const browserPatterns = ['Received an error', 'Non-Error promise rejection'];
-    
-    if (devPatterns.some(p => pattern.includes(p))) return { label: 'Development', color: 'secondary' as const };
-    if (reactPatterns.some(p => pattern.includes(p))) return { label: 'React', color: 'default' as const };
-    if (browserPatterns.some(p => pattern.includes(p))) return { label: 'Browser', color: 'outline' as const };
+    const browserPatterns = [
+      'Received an error',
+      'Non-Error promise rejection',
+    ];
+
+    if (devPatterns.some(p => pattern.includes(p)))
+      return { label: 'Development', color: 'secondary' as const };
+    if (reactPatterns.some(p => pattern.includes(p)))
+      return { label: 'React', color: 'default' as const };
+    if (browserPatterns.some(p => pattern.includes(p)))
+      return { label: 'Browser', color: 'outline' as const };
     return { label: 'Custom', color: 'destructive' as const };
   };
 
@@ -114,7 +135,7 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
             </CardDescription>
           </CardHeader>
         </CollapsibleTrigger>
-        
+
         <CollapsibleContent>
           <CardContent className="space-y-6">
             {/* Status Overview */}
@@ -124,15 +145,21 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                 <div className="text-xs text-muted-foreground">Patterns</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold">{isEnabled ? 'ON' : 'OFF'}</div>
+                <div className="text-lg font-semibold">
+                  {isEnabled ? 'ON' : 'OFF'}
+                </div>
                 <div className="text-xs text-muted-foreground">Override</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold">{consoleStatus?.traceId?.slice(-8) || 'N/A'}</div>
+                <div className="text-lg font-semibold">
+                  {consoleStatus?.traceId?.slice(-8) || 'N/A'}
+                </div>
                 <div className="text-xs text-muted-foreground">Trace ID</div>
               </div>
               <div className="text-center">
-                <div className="text-lg font-semibold">{consoleStatus?.userId || 'anonymous'}</div>
+                <div className="text-lg font-semibold">
+                  {consoleStatus?.userId || 'anonymous'}
+                </div>
                 <div className="text-xs text-muted-foreground">User ID</div>
               </div>
             </div>
@@ -144,13 +171,18 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                 Suppressed Patterns (Hardcoded)
               </h4>
               {patterns.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Loading suppression patterns...</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading suppression patterns...
+                </p>
               ) : (
                 <div className="space-y-2 max-h-60 overflow-y-auto">
                   {patterns.map((pattern, index) => {
                     const category = getPatternCategory(pattern);
                     return (
-                      <div key={index} className="flex items-center gap-2 p-2 border rounded">
+                      <div
+                        key={index}
+                        className="flex items-center gap-2 p-2 border rounded"
+                      >
                         <Badge variant={category.color} className="text-xs">
                           {category.label}
                         </Badge>
@@ -163,10 +195,10 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                 </div>
               )}
               <p className="text-xs text-muted-foreground mt-2">
-                These patterns are hardcoded in console-override.ts - modify source code to change them
+                These patterns are hardcoded in console-override.ts - modify
+                source code to change them
               </p>
             </div>
-
 
             {/* Test Message Suppression */}
             <div>
@@ -179,11 +211,11 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                   <Input
                     placeholder="Enter a test message to check if it would be suppressed..."
                     value={testMessage}
-                    onChange={(e) => setTestMessage(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleTestMessage()}
+                    onChange={e => setTestMessage(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleTestMessage()}
                     className="flex-1"
                   />
-                  <Button 
+                  <Button
                     onClick={handleTestMessage}
                     disabled={!testMessage.trim()}
                     variant="outline"
@@ -192,29 +224,38 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                     Test
                   </Button>
                 </div>
-                
+
                 {testResult && (
-                  <div className={`border rounded p-3 ${
-                    testResult.suppressed 
-                      ? 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'
-                      : 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800'
-                  }`}>
+                  <div
+                    className={`border rounded p-3 ${
+                      testResult.suppressed
+                        ? 'bg-red-50 border-red-200 dark:bg-red-950 dark:border-red-800'
+                        : 'bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800'
+                    }`}
+                  >
                     <div className="flex items-center gap-2 mb-1">
                       {testResult.suppressed ? (
                         <>
                           <EyeOff className="h-4 w-4 text-red-600" />
-                          <span className="font-medium text-red-600">This message would be SUPPRESSED</span>
+                          <span className="font-medium text-red-600">
+                            This message would be SUPPRESSED
+                          </span>
                         </>
                       ) : (
                         <>
                           <Eye className="h-4 w-4 text-green-600" />
-                          <span className="font-medium text-green-600">This message would be LOGGED</span>
+                          <span className="font-medium text-green-600">
+                            This message would be LOGGED
+                          </span>
                         </>
                       )}
                     </div>
                     {testResult.matchedPattern && (
                       <p className="text-sm text-muted-foreground">
-                        Blocked by pattern: <code className="bg-muted px-1 rounded font-medium">{testResult.matchedPattern}</code>
+                        Blocked by pattern:{' '}
+                        <code className="bg-muted px-1 rounded font-medium">
+                          {testResult.matchedPattern}
+                        </code>
                       </p>
                     )}
                   </div>
@@ -231,10 +272,20 @@ export function SuppressionRulesPanel({ className }: SuppressionRulesPanelProps)
                 </span>
               </div>
               <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                <li>• Patterns are checked before logs are sent to Redis/Convex</li>
-                <li>• If a log message contains any pattern, it&apos;s completely filtered out</li>
-                <li>• System logs (Convex) are auto-categorized, not suppressed</li>
-                <li>• To modify patterns, edit <code>console-override.ts</code> suppressedPatterns</li>
+                <li>
+                  • Patterns are checked before logs are sent to Redis/Convex
+                </li>
+                <li>
+                  • If a log message contains any pattern, it&apos;s completely
+                  filtered out
+                </li>
+                <li>
+                  • System logs (Convex) are auto-categorized, not suppressed
+                </li>
+                <li>
+                  • To modify patterns, edit <code>console-override.ts</code>{' '}
+                  suppressedPatterns
+                </li>
               </ul>
             </div>
           </CardContent>

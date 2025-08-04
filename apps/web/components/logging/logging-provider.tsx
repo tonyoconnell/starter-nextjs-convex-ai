@@ -12,7 +12,7 @@ import { useAuth } from '../auth/auth-provider';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 export function LoggingProvider({ children }: { children: React.ReactNode }) {
-  const { user, isLoading} = useAuth();
+  const { user, isLoading } = useAuth();
 
   // Initialize console override on mount
   useEffect(() => {
@@ -20,7 +20,6 @@ export function LoggingProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       window.CLAUDE_LOGGING_ENABLED = isDevelopment ? 'true' : 'false';
       // Make ConsoleLogger globally available for debugging
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).ConsoleLogger = ConsoleLogger;
     }
 

@@ -37,6 +37,9 @@ export default [
         Response: 'readonly',
         Request: 'readonly',
         Headers: 'readonly',
+        AbortSignal: 'readonly',
+        Location: 'readonly',
+        Navigator: 'readonly',
         // DOM types for React components
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',
@@ -350,6 +353,65 @@ export default [
       'no-restricted-syntax': 'off',
       'no-undef': 'off', // Turn off for test files since we're mocking globals
       'no-unused-vars': 'off', // Turn off basic ESLint unused vars rule for test files
+    },
+  },
+  // API routes and console-related files (Pragmatic for debugging/server-side logic)
+  {
+    files: [
+      'apps/web/app/api/**/*.ts',
+      'apps/web/lib/console-override.ts',
+      'apps/web/components/**/logging-provider.tsx',
+      'apps/web/components/**/suppression-rules-panel.tsx',
+    ],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        // Node.js-like globals for API routes
+        console: 'readonly',
+        process: 'readonly',
+        // Browser globals
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        Location: 'readonly',
+        Navigator: 'readonly',
+        // Standard Web APIs
+        fetch: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        AbortSignal: 'readonly',
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        FormData: 'readonly',
+        // React/JSX globals
+        React: 'readonly',
+        JSX: 'readonly',
+        // DOM types
+        HTMLElement: 'readonly',
+        Element: 'readonly',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': typescript,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn', // Allow any in API/logging contexts
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_' },
+      ],
+      '@typescript-eslint/ban-ts-comment': 'off', // Allow @ts-nocheck/@ts-ignore for debugging
+      'no-console': 'off', // Allow console in logging/API contexts
+      'no-restricted-syntax': 'off', // Allow process.env in API routes
+      'no-undef': 'off', // Turn off since we're defining globals
     },
   },
   {
