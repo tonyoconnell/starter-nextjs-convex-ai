@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/lib/convex-api';
 import {
   Card,
@@ -14,7 +14,6 @@ import { Button } from '@starter/ui';
 import { Badge } from '@starter/ui';
 import { Progress } from '@starter/ui';
 import { AlertTriangle, RefreshCw, Activity } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
 
 interface RateLimitStatusProps {
   refreshTrigger?: number;
@@ -22,18 +21,19 @@ interface RateLimitStatusProps {
 
 export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const rateLimitState = useQuery(api.rateLimiter.getRateLimitState);
-  const updateRateLimit = useMutation(api.rateLimiter.updateRateLimitState);
+  const monitoringData = useQuery(api.monitoring.usage);
+  // Note: Using monitoring data for system health instead of deprecated rate limiter
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
     try {
-      await updateRateLimit({});
+      // Just refresh the query - no mutation needed for monitoring data
+      window.location.reload();
     } finally {
       setIsRefreshing(false);
     }
   };
-  
+
   // Trigger refresh when refreshTrigger prop changes
   useEffect(() => {
     if (refreshTrigger !== undefined && refreshTrigger > 0) {
@@ -41,7 +41,7 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
     }
   }, [refreshTrigger]);
 
-  if (!rateLimitState) {
+  if (!monitoringData) {
     return (
       <Card>
         <CardHeader>
@@ -77,9 +77,27 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
   };
 
   const systems = [
-    { name: 'Browser', key: 'browser', ...rateLimitState.browser },
-    { name: 'Worker', key: 'worker', ...rateLimitState.worker },
-    { name: 'Backend', key: 'backend', ...rateLimitState.backend },
+    {
+      name: 'Database Storage',
+      key: 'storage',
+      current: Math.round(monitoringData.estimatedStorageBytes / 1024 / 1024), // MB
+      limit: 1000, // 1GB limit
+      requestsToday: monitoringData.totalLogEntries,
+    },
+    {
+      name: 'Log Queue',
+      key: 'queue',
+      current: monitoringData.logQueueCount,
+      limit: 10000,
+      requestsToday: monitoringData.logQueueCount,
+    },
+    {
+      name: 'Recent Entries',
+      key: 'entries',
+      current: monitoringData.recentLogEntriesCount,
+      limit: 5000,
+      requestsToday: monitoringData.recentLogEntriesCount,
+    },
   ];
 
   return (
@@ -88,7 +106,7 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Activity className="h-5 w-5" />
-            Rate Limiting Status
+            System Monitoring Status
           </div>
           <Button
             variant="ghost"
@@ -102,34 +120,18 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
           </Button>
         </CardTitle>
         <CardDescription>
-          Current usage across all logging systems
+          Database usage and system health monitoring
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Global Status */}
         <div className="border rounded-lg p-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="font-medium">Global Limit</span>
-            <Badge
-              variant={
-                getSystemStatus(
-                  rateLimitState.global.current,
-                  rateLimitState.global.limit
-                ).color
-              }
-            >
-              {rateLimitState.global.current}/{rateLimitState.global.limit}
-            </Badge>
+            <span className="font-medium">System Overview</span>
+            <Badge variant="default">Monitoring Active</Badge>
           </div>
-          <Progress
-            value={
-              (rateLimitState.global.current / rateLimitState.global.limit) *
-              100
-            }
-            className="h-2"
-          />
           <div className="text-xs text-muted-foreground mt-1">
-            Budget: {rateLimitState.global.budget.toLocaleString()} total writes
+            Total Records: {monitoringData.totalLogEntries.toLocaleString()}
           </div>
         </div>
 
@@ -140,9 +142,7 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
               system.current,
               system.limit
             );
-            const resetTime = system.resetTime
-              ? new Date(system.resetTime)
-              : null;
+            // No reset time for monitoring data
 
             return (
               <div key={system.key} className="border rounded-lg p-3">
@@ -161,11 +161,9 @@ export function RateLimitStatus({ refreshTrigger }: RateLimitStatusProps) {
                   value={(system.current / system.limit) * 100}
                   className="h-2"
                 />
-                {resetTime && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Resets {formatDistanceToNow(resetTime, { addSuffix: true })}
-                  </div>
-                )}
+                <div className="text-xs text-muted-foreground mt-1">
+                  Current usage: {system.current} / {system.limit}
+                </div>
               </div>
             );
           })}

@@ -195,6 +195,21 @@ Optimized for efficient resource usage:
    - Study [Implementation Examples](./examples/) for real-world patterns
    - Apply [Lessons Learned](./lessons-learned/) to avoid common pitfalls
 
+## Template Development Documentation
+
+If you're working on improving this **template itself** (not building an application with it), see:
+
+**[template-development/](./template-development/)**
+
+Template-specific documentation including:
+
+- **[Product Requirements](./template-development/prd/)** - Epic breakdown and template goals
+- **[Development Stories](./template-development/stories/)** - Story-by-story implementation tracking
+- **[Template Testing](./template-development/testing/uat/)** - Template-specific UAT plans
+- **[Development Lessons](./template-development/lessons-learned/stories/)** - Template development insights
+
+> ⚠️ **For Template Users**: If you're creating a new project from this template, you should **delete the entire `docs/template-development/` directory** from your project. That content is only relevant for those working on improving the template itself.
+
 ## Contributing to This Documentation
 
 This documentation evolves with the application. When implementing new features or solving problems:

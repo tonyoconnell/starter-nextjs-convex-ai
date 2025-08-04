@@ -87,3 +87,18 @@ _As a developer, I want a clean debugging interface that fetches logs on-demand 
 4.  Log correlation engine operates on fetched data to provide error chain analysis and performance insights.
 5.  **Claude Code Integration**: Structured log export functionality for AI debugging assistance and pattern analysis.
 6.  **Developer Experience**: Clean, focused interface optimized for debugging workflows rather than real-time monitoring.
+
+---
+
+## Story 3.6: Redis Data Sync & Legacy Code Migration
+
+_As a developer, I need to sync logging data from Redis buffer to Convex for analysis and export, while cleanly migrating valuable logic from the broken Convex logging system, so that I can efficiently debug issues and provide structured data to AI tools._
+
+**Acceptance Criteria:**
+
+1.  **Redis Summary Interface**: Admin page displays Redis statistics (log count, active traces, users) without importing data.
+2.  **Selective Data Sync**: Sync controls allow pulling all logs or filtering by trace_id, user_id, or time range from Redis to Convex debug tables.
+3.  **Flat Data Visualization**: Simple chronological table view of synced logs optimized for debugging workflows and pattern analysis.
+4.  **AI-Ready Export**: One-click export of raw log data in formats optimized for Claude Code consumption and analysis.
+5.  **Legacy Code Migration**: Systematic cleanup of broken Convex logging functions while preserving valuable correlation analysis patterns.
+6.  **Debug Table Management**: Convex debug table with cleanup controls and storage management for synced log data.
