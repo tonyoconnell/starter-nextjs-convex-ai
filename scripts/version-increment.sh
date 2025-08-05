@@ -165,29 +165,28 @@ update_version_manifest() {
     
     log_info "Updating version manifest with version $new_version"
     
-    # Create new version entry
-    local new_version_entry
-    new_version_entry=$(cat << EOF
-{
-  "version": "$new_version",
-  "commitHash": "$commit_hash",
-  "timestamp": $timestamp,
-  "description": "$commit_message",
-  "commitUrl": "$commit_url"
-}
-EOF
-)
+    # Clean commit message: remove control characters, limit length, and escape for JSON
+    local clean_message
+    clean_message=$(echo "$commit_message" | tr -d '\r\n\t' | head -c 500)
     
     # Create temporary file for jq operations
     local temp_file
     temp_file=$(mktemp)
     
-    # Add new version to the beginning of versions array and update current version
-    # Keep only the last 20 versions to prevent file from growing too large
-    jq --argjson new_entry "$new_version_entry" \
-       --arg new_version "$new_version" \
+    # Use jq to safely construct the new entry and update the manifest
+    # This avoids JSON injection issues by using jq's argument passing
+    jq --arg version "$new_version" \
+       --arg commit_hash "$commit_hash" \
        --arg timestamp "$timestamp" \
-       '.versions = [$new_entry] + .versions | .versions = .versions[:20] | .current = $new_version | .lastUpdated = ($timestamp | tonumber)' \
+       --arg description "$clean_message" \
+       --arg commit_url "$commit_url" \
+       '.versions = [{
+         "version": $version,
+         "commitHash": $commit_hash,
+         "timestamp": ($timestamp | tonumber),
+         "description": $description,
+         "commitUrl": $commit_url
+       }] + .versions | .versions = .versions[:20] | .current = $version | .lastUpdated = ($timestamp | tonumber)' \
        "$MANIFEST_FILE" > "$temp_file"
     
     # Replace original file
