@@ -89,6 +89,67 @@
       "health_endpoints": ["/health", "/logs (POST for ingestion)"]
     }
   },
+  "tests": {
+    "frontend": {
+      "files": [
+        "tests/web/components/debug-logs/debug-logs-page.test.tsx",
+        "tests/web/components/debug-logs/debug-logs-table.test.tsx",
+        "tests/web/lib/console-override.test.ts",
+        "tests/web/components/logging/logging-provider.test.tsx"
+      ],
+      "coverage": [
+        "Debug logs page component functionality and rendering",
+        "Debug logs table component with filtering and display logic",
+        "Browser console override functionality for log capture",
+        "Logging context provider with authentication integration"
+      ]
+    },
+    "backend": {
+      "files": [],
+      "missing_tests": [
+        "apps/convex/debugLogs.ts - Core CRUD operations (needs unit tests)",
+        "apps/convex/debugActions.ts - Advanced actions and export formatting (needs unit tests)",
+        "apps/convex/workerSync.ts - Redis-to-Convex synchronization (needs integration tests)"
+      ]
+    },
+    "worker": {
+      "unit_tests": [
+        "tests/workers/log-ingestion/src/index.test.ts",
+        "tests/workers/log-ingestion/src/log-processor.test.ts",
+        "tests/workers/log-ingestion/src/redis-client.test.ts",
+        "tests/workers/log-ingestion/src/rate-limiter.test.ts"
+      ],
+      "integration_tests": [
+        "tests/workers/log-ingestion/integration/cross-system.test.ts",
+        "tests/workers/log-ingestion/integration/integration.test.ts",
+        "tests/workers/log-ingestion/integration/load.test.ts",
+        "tests/workers/log-ingestion/integration/migration.test.ts"
+      ],
+      "coverage": [
+        "Main worker entry point, routing, and CORS handling",
+        "Log validation, processing, and Redis storage logic",
+        "Redis operations wrapper and connection management",
+        "Durable Object distributed rate limiting functionality",
+        "Multi-system log ingestion workflow testing",
+        "Complete browser → worker → Redis → retrieval workflow",
+        "Performance testing under high log volumes",
+        "Worker deployment and data migration testing"
+      ]
+    },
+    "test_summary": {
+      "total_files": 12,
+      "by_layer": {
+        "frontend": 4,
+        "backend": 0,
+        "worker": 8
+      },
+      "coverage_gaps": [
+        "Convex backend functions lack unit tests",
+        "Redis-to-Convex sync process needs integration tests",
+        "Export functionality needs end-to-end testing"
+      ]
+    }
+  },
   "validation": {
     "health_checks": [
       "Worker /health endpoint responds",
