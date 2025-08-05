@@ -10,6 +10,7 @@ export interface VersionStorageData {
   lastSeenVersion: string;
   lastChecked: number;
   flashNotificationShown: boolean;
+  indicatorAcknowledged: boolean; // Whether user has clicked on the indicator for current version
 }
 
 /**
@@ -34,6 +35,10 @@ export function getVersionStorageData(): VersionStorageData | null {
       typeof data.lastChecked === 'number' &&
       typeof data.flashNotificationShown === 'boolean'
     ) {
+      // Add default for new field if missing (backward compatibility)
+      if (typeof data.indicatorAcknowledged !== 'boolean') {
+        data.indicatorAcknowledged = false;
+      }
       return data;
     }
 
@@ -73,6 +78,7 @@ export function initializeVersionStorage(
     lastSeenVersion: currentVersion,
     lastChecked: Date.now(),
     flashNotificationShown: false,
+    indicatorAcknowledged: false,
   };
 
   saveVersionStorageData(data);
@@ -111,12 +117,14 @@ export function checkForNewVersion(currentVersion: string): {
 
 /**
  * Mark new version as seen and update storage
+ * This is called when a new version is first detected
  */
 export function markVersionAsSeen(currentVersion: string): boolean {
   const updatedData: VersionStorageData = {
     lastSeenVersion: currentVersion,
     lastChecked: Date.now(),
     flashNotificationShown: false, // Reset flash for future versions
+    indicatorAcknowledged: false, // Reset acknowledgment for new version (triggers prominence)
   };
 
   return saveVersionStorageData(updatedData);
@@ -252,4 +260,63 @@ export function migrateLegacyVersionStorage(): boolean {
     console.warn('Error migrating legacy version storage:', error);
     return false;
   }
+}
+
+/**
+ * Check if the version indicator should be visually prominent
+ * Returns true if there's a new version that hasn't been acknowledged
+ */
+export function shouldShowProminentIndicator(currentVersion: string): boolean {
+  const stored = getVersionStorageData();
+
+  if (!stored) {
+    return false; // No stored data, not prominent
+  }
+
+  // Show prominence if it's a new version and user hasn't acknowledged it
+  return (
+    stored.lastSeenVersion !== currentVersion || !stored.indicatorAcknowledged
+  );
+}
+
+/**
+ * Mark the version indicator as acknowledged (user has interacted with it)
+ * This removes the visual prominence
+ */
+export function markIndicatorAcknowledged(currentVersion: string): boolean {
+  const stored = getVersionStorageData();
+
+  if (!stored) {
+    // Initialize with acknowledged state
+    const data = initializeVersionStorage(currentVersion);
+    data.indicatorAcknowledged = true;
+    return saveVersionStorageData(data);
+  }
+
+  const updatedData: VersionStorageData = {
+    ...stored,
+    lastSeenVersion: currentVersion, // Update to current version
+    indicatorAcknowledged: true,
+    lastChecked: Date.now(),
+  };
+
+  return saveVersionStorageData(updatedData);
+}
+
+/**
+ * Reset indicator acknowledgment (for testing or when new version is detected)
+ */
+export function resetIndicatorAcknowledgment(): boolean {
+  const stored = getVersionStorageData();
+
+  if (!stored) {
+    return false;
+  }
+
+  const updatedData: VersionStorageData = {
+    ...stored,
+    indicatorAcknowledged: false,
+  };
+
+  return saveVersionStorageData(updatedData);
 }

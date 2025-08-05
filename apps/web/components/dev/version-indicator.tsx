@@ -40,6 +40,10 @@ import {
   getVersionNavigation,
   type VersionManifest,
 } from '@/lib/version-utils';
+import {
+  shouldShowProminentIndicator,
+  markIndicatorAcknowledged,
+} from '@/lib/version-storage';
 import { useAuth } from '@/components/auth/auth-provider';
 
 interface VersionIndicatorProps {
@@ -73,6 +77,7 @@ export function VersionIndicator({
   const [error, setError] = useState<string | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
   const [, setLastRefresh] = useState<number>(Date.now());
+  const [isProminent, setIsProminent] = useState(false);
 
   // Check owner access
   const ownerAccess = useQuery(
@@ -94,6 +99,12 @@ export function VersionIndicator({
         if (!selectedVersion) {
           setSelectedVersion(response.data.current);
         }
+
+        // Check if indicator should be prominent
+        const shouldBeProminent = shouldShowProminentIndicator(
+          response.data.current
+        );
+        setIsProminent(shouldBeProminent);
       } else {
         setError(response.error || 'Failed to fetch version manifest');
       }
@@ -113,6 +124,12 @@ export function VersionIndicator({
 
   const handleToggleExpanded = () => {
     setIsExpanded(!isExpanded);
+
+    // Mark indicator as acknowledged when user clicks on it
+    if (manifest && isProminent) {
+      markIndicatorAcknowledged(manifest.current);
+      setIsProminent(false);
+    }
   };
 
   const handleRefresh = () => {
@@ -244,7 +261,11 @@ export function VersionIndicator({
                     variant="outline"
                     size="sm"
                     onClick={handleToggleExpanded}
-                    className="bg-white hover:bg-gray-50 border-gray-200 shadow-md"
+                    className={`${
+                      isProminent
+                        ? 'bg-yellow-300 hover:bg-yellow-400 border-yellow-400 shadow-lg animate-pulse'
+                        : 'bg-white hover:bg-gray-50 border-gray-200 shadow-md'
+                    }`}
                   >
                     <div className="flex items-center space-x-2">
                       <Badge variant="secondary" className="font-mono text-xs">
@@ -256,7 +277,11 @@ export function VersionIndicator({
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Current version: v{manifest.current}</p>
-                  <p className="text-xs text-gray-500">Click to view history</p>
+                  <p className="text-xs text-gray-500">
+                    {isProminent
+                      ? 'New version deployed! Click to view'
+                      : 'Click to view history'}
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </motion.div>

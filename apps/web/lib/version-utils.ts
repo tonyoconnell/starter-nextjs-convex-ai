@@ -76,21 +76,23 @@ export function validateVersionManifest(manifest: unknown): {
     return { isValid: false, error: 'Manifest is not an object' };
   }
 
-  if (!Array.isArray(manifest.versions)) {
+  const manifestObj = manifest as Record<string, unknown>;
+
+  if (!Array.isArray(manifestObj.versions)) {
     return { isValid: false, error: 'Versions is not an array' };
   }
 
-  if (typeof manifest.current !== 'string') {
+  if (typeof manifestObj.current !== 'string') {
     return { isValid: false, error: 'Current version is not a string' };
   }
 
-  if (typeof manifest.lastUpdated !== 'number') {
+  if (typeof manifestObj.lastUpdated !== 'number') {
     return { isValid: false, error: 'Last updated is not a number' };
   }
 
   // Validate each version entry
-  for (let i = 0; i < manifest.versions.length; i++) {
-    const version = manifest.versions[i];
+  for (let i = 0; i < manifestObj.versions.length; i++) {
+    const version = manifestObj.versions[i];
     const versionValidation = validateVersionEntry(version, i);
     if (!versionValidation.isValid) {
       return versionValidation;
@@ -114,31 +116,33 @@ export function validateVersionEntry(
     return { isValid: false, error: `${prefix} Not an object` };
   }
 
-  if (typeof entry.version !== 'string') {
+  const entryObj = entry as Record<string, unknown>;
+
+  if (typeof entryObj.version !== 'string') {
     return { isValid: false, error: `${prefix} Version is not a string` };
   }
 
-  if (typeof entry.commitHash !== 'string') {
+  if (typeof entryObj.commitHash !== 'string') {
     return { isValid: false, error: `${prefix} Commit hash is not a string` };
   }
 
-  if (typeof entry.timestamp !== 'number') {
+  if (typeof entryObj.timestamp !== 'number') {
     return { isValid: false, error: `${prefix} Timestamp is not a number` };
   }
 
-  if (typeof entry.description !== 'string') {
+  if (typeof entryObj.description !== 'string') {
     return { isValid: false, error: `${prefix} Description is not a string` };
   }
 
-  if (typeof entry.commitUrl !== 'string') {
+  if (typeof entryObj.commitUrl !== 'string') {
     return { isValid: false, error: `${prefix} Commit URL is not a string` };
   }
 
   // Validate semantic version format
-  if (!isValidSemanticVersion(entry.version)) {
+  if (!isValidSemanticVersion(entryObj.version)) {
     return {
       isValid: false,
-      error: `${prefix} Invalid semantic version format: ${entry.version}`,
+      error: `${prefix} Invalid semantic version format: ${entryObj.version}`,
     };
   }
 
