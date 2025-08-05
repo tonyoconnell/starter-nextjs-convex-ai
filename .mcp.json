@@ -31,11 +31,6 @@
     "cloudflareObservability": {
       "command": "npx",
       "args": ["mcp-remote", "https://observability.mcp.cloudflare.com/sse"]
-    },
-    "sentry": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["mcp-remote@latest", "https://mcp.sentry.dev/sse"]
     }
   }
 }
