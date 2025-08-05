@@ -396,3 +396,57 @@ For complex features spanning Next.js + Convex + Cloudflare Workers architecture
 - Error handling propagates properly
 
 This multi-layer support maintains the "Template First, Copy Smart, Act Fast" philosophy while handling the complexity of features that span multiple deployment targets.
+
+## Simple Command Interface
+
+The repo-sync agent responds to these simple commands:
+
+### `list`
+
+```bash
+Task tool -> repo-sync agent: "list"
+```
+
+Shows all available features with manifests from template repository.
+
+### `pull <feature>`
+
+```bash
+Task tool -> repo-sync agent: "pull debug-logs-system"
+```
+
+Copies complete feature from template (all layers: worker → backend → frontend).
+
+### `analyze <feature>`
+
+```bash
+Task tool -> repo-sync agent: "analyze debug-logs-system"
+```
+
+Checks if target repo is ready for feature without making changes.
+
+### `compare <feature>`
+
+```bash
+Task tool -> repo-sync agent: "compare debug-logs-system"
+```
+
+Shows differences between existing implementation and template version.
+
+### `tests <feature>`
+
+```bash
+Task tool -> repo-sync agent: "tests debug-logs-system"
+```
+
+Pulls only test files for the specified feature.
+
+### `update manifest <feature>`
+
+```bash
+Task tool -> repo-sync agent: "update manifest debug-logs-system"
+```
+
+Creates or updates manifest file from current feature state.
+
+These commands automatically use the appropriate sync strategy (copy/merge/analyze) and handle all multi-layer complexity internally.

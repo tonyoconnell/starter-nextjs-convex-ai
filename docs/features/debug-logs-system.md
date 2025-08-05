@@ -316,6 +316,230 @@
 - **Authentication integration completed** - real-time user tracking eliminates anonymous user issues
 - **Development environment restrictions** - debug logs only accessible in development mode, preventing production confusion
 
+## Cross-Repository Setup & Troubleshooting
+
+**Key Takeaway**: This is a complex distributed system requiring exact infrastructure deployment - UI components alone are insufficient.
+
+### Critical Architecture Understanding
+
+#### 1. Architecture Misunderstanding ❌→✅
+
+**❌ Initial Assumption**: Durable Objects store log data  
+**✅ Reality**: Durable Objects only store rate limiting counters; Redis stores actual logs
+
+**Key Learning**: Always read the code first to understand data flow before debugging.
+
+**Data Flow Clarification**:
+
+```
+Browser → Worker → {
+  Durable Object: Rate limiting counters only
+  Redis: Actual log storage with TTL
+}
+Redis → Convex Sync → Database → UI
+```
+
+#### 2. Silent Redis Write Failures ❌→✅
+
+**❌ Problem**: Durable objects updated correctly but Redis writes failed silently  
+**✅ Solution**: Rate limiting succeeded but log storage failed, causing sync to find 0 logs
+
+**Key Learning**: Logs showing success doesn't mean all operations succeeded - check each step.
+
+**Debugging Steps**:
+
+1. Check Durable Object counters (rate limiting)
+2. Verify Redis key existence: `KEYS logs:*`
+3. Check Redis log content: `LRANGE logs:{trace_id} 0 -1`
+4. Validate worker Redis credentials and connectivity
+
+#### 3. Multiple Data Sources Confusion ❌→✅
+
+**❌ Problem**: UI showed "2 logs" but sync found 0 logs  
+**✅ Reality**: UI read from Durable Objects (rate limiting data), sync read from Redis (storage data)
+
+**Key Learning**: Know exactly which data source each component uses.
+
+**Component Data Sources**:
+
+- **Rate Limit Status**: Durable Objects counters
+- **Redis Stats**: Redis key counts and TTL
+- **Log Sync**: Redis storage with `logs:{trace_id}` keys
+- **Debug Table**: Convex database after sync
+
+### Configuration Requirements
+
+#### 4. Configuration Precision Matters ❌→✅
+
+**❌ Problem**: Worker deployed but Durable Objects weren't consistent  
+**✅ Solution**: Missing build command in `wrangler.toml` caused state inconsistency
+
+**Key Learning**: Template configurations must be matched exactly, even seemingly minor settings.
+
+**Critical `wrangler.toml` Settings**:
+
+```toml
+[build]
+command = "npm run build"
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiterDO"
+script_name = "log-ingestion"
+
+[vars]
+REDIS_URL = "your-redis-url"
+REDIS_TOKEN = "your-redis-token"
+```
+
+#### 5. Template vs Implementation Gap ❌→✅
+
+**❌ Problem**: Features worked in template but not in target repository  
+**✅ Reality**: Missing deployed worker - template had working infrastructure, target didn't
+
+**Key Learning**: Can't copy UI code without copying the entire supporting infrastructure.
+
+**Required Infrastructure Checklist**:
+
+- [ ] Cloudflare Worker deployed with correct Durable Objects
+- [ ] Redis database configured with proper credentials
+- [ ] Convex functions for sync operations
+- [ ] Environment variables synchronized across all systems
+- [ ] Worker endpoints accessible from browser and Convex
+
+#### 6. Environment Variable Synchronization ❌→✅
+
+**❌ Problem**: Multiple environment files (`.env.local`, Convex env) needed updates  
+**✅ Solution**: Both browser and server needed same worker URLs
+
+**Key Learning**: Environment changes must be propagated to all components in the system.
+
+**Environment Sync Checklist**:
+
+- [ ] `.env.local` - Browser-accessible variables (`NEXT_PUBLIC_*`)
+- [ ] Convex environment - Server-side worker URLs
+- [ ] Worker environment - Redis credentials and rate limits
+- [ ] Deployment secrets - Production URLs and tokens
+
+### Step-by-Step Cross-Repository Setup
+
+#### Phase 1: Infrastructure Deployment
+
+1. **Deploy Cloudflare Worker**:
+
+   ```bash
+   cd apps/workers/log-ingestion
+   wrangler deploy
+   ```
+
+2. **Configure Redis Database**:
+   - Set up Upstash Redis instance
+   - Configure TTL settings (1 hour recommended)
+   - Test connectivity from worker
+
+3. **Deploy Convex Functions**:
+   ```bash
+   bunx convex deploy
+   bunx convex env set WORKER_ENDPOINT https://your-worker.workers.dev
+   ```
+
+#### Phase 2: Environment Configuration
+
+1. **Update `.env.local`**:
+
+   ```env
+   NEXT_PUBLIC_WORKER_ENDPOINT=https://your-worker.workers.dev
+   NEXT_PUBLIC_REDIS_ENDPOINT=your-redis-url
+   ```
+
+2. **Configure Convex Environment**:
+
+   ```bash
+   bunx convex env set WORKER_ENDPOINT https://your-worker.workers.dev
+   bunx convex env set REDIS_URL your-redis-url
+   ```
+
+3. **Verify Worker Environment**:
+   ```toml
+   [vars]
+   REDIS_URL = "your-redis-url"
+   REDIS_TOKEN = "your-redis-token"
+   ```
+
+#### Phase 3: Component Integration
+
+1. **Copy Debug Components**:
+   - All files from `apps/web/components/debug-logs/`
+   - Console override: `apps/web/lib/console-override.ts`
+   - Logging provider: `apps/web/components/logging/`
+
+2. **Copy Convex Functions**:
+   - `apps/convex/debugLogs.ts`
+   - `apps/convex/debugActions.ts`
+   - `apps/convex/workerSync.ts`
+   - Update `apps/convex/schema.ts` with debug_logs table
+
+3. **Add Navigation**:
+   - Update main navigation with debug logs link
+   - Add dev center card (if applicable)
+   - Ensure authentication checks
+
+#### Phase 4: Validation Testing
+
+1. **Test Log Ingestion**:
+
+   ```javascript
+   console.log('Test log message');
+   // Check worker logs and Redis storage
+   ```
+
+2. **Test Redis Sync**:
+
+   ```bash
+   # In debug logs UI, click "Sync All"
+   # Verify logs appear in Convex database
+   ```
+
+3. **Test Export Functions**:
+   - Export to clipboard
+   - Export to download
+   - Verify Claude Code format
+
+### Common Error Patterns
+
+#### Redis Connection Failures
+
+**Symptom**: Worker responds but no logs in Redis  
+**Check**: Worker environment variables and Redis credentials  
+**Fix**: Verify `REDIS_URL` and `REDIS_TOKEN` in `wrangler.toml`
+
+#### Durable Object Inconsistency
+
+**Symptom**: Rate limiting shows different counts than expected  
+**Check**: Build command in `wrangler.toml`  
+**Fix**: Add `command = "npm run build"` to `[build]` section
+
+#### Environment Variable Mismatch
+
+**Symptom**: UI shows "undefined" for worker endpoints  
+**Check**: `NEXT_PUBLIC_*` variables in `.env.local`  
+**Fix**: Ensure browser-accessible variables have correct prefix
+
+#### Convex Sync Failures
+
+**Symptom**: Redis has logs but Convex sync finds nothing  
+**Check**: Convex environment variables and worker endpoint accessibility  
+**Fix**: Update Convex env with correct worker URLs
+
+### Best Practices for Template Extraction
+
+1. **Start with Infrastructure**: Deploy worker and Redis before copying UI components
+2. **Verify Each Layer**: Test worker → Redis → Convex → UI individually
+3. **Match Configuration Exactly**: Don't skip seemingly minor config details
+4. **Use Development Mode**: Start with development endpoints before production
+5. **Test Data Flow**: Manually verify each step of the data pipeline
+6. **Document Deviations**: Note any changes from template configuration
+
 ## Key Benefits
 
 ### Original Benefits (Maintained)
