@@ -8,6 +8,7 @@ import {
 } from '@starter/ui';
 import { Button } from '@starter/ui';
 import { ExternalLink, Github, Code2, Settings, Globe } from 'lucide-react';
+import { VersionDebug } from '../../components/dev/version-debug';
 
 export default function DevPage() {
   return (
@@ -184,6 +185,11 @@ export default function DevPage() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Version System Debug */}
+          <div className="mt-8">
+            <VersionDebug />
           </div>
 
           {/* Quick Actions */}

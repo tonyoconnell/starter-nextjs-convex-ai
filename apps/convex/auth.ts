@@ -1002,7 +1002,9 @@ export const findSessionByToken = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query('sessions')
-      .withIndex('by_session_token', q => q.eq('sessionToken', args.sessionToken))
+      .withIndex('by_session_token', q =>
+        q.eq('sessionToken', args.sessionToken)
+      )
       .first();
   },
 });
@@ -1030,11 +1032,12 @@ export const checkUserLLMAccess = query({
   handler: async (ctx, args) => {
     try {
       const user = await ctx.db.get(args.userId);
-      
+
       if (!user) {
         return {
           hasLLMAccess: false,
-          fallbackMessage: 'User not found. Please sign in to access chat features.',
+          fallbackMessage:
+            'User not found. Please sign in to access chat features.',
         };
       }
 
@@ -1052,7 +1055,10 @@ export const checkUserLLMAccess = query({
         fallbackMessage: null,
       };
     } catch (error) {
-      console.error('Error checking user LLM access:', (error as Error).message);
+      console.error(
+        'Error checking user LLM access:',
+        (error as Error).message
+      );
       return {
         hasLLMAccess: false,
         fallbackMessage: 'Unable to verify access. Please try again later.',
@@ -1076,12 +1082,16 @@ export const updateUserLLMAccess = mutation({
       });
 
       const user = await ctx.db.get(args.userId);
-      console.log(`Updated LLM access for user ${user?.email}: ${args.hasLLMAccess}`);
+      console.log(
+        `Updated LLM access for user ${user?.email}: ${args.hasLLMAccess}`
+      );
 
       return { success: true };
     } catch (error) {
       console.error('Error updating user LLM access:', error);
-      throw new ConvexError(`Failed to update user access: ${(error as Error).message}`);
+      throw new ConvexError(
+        `Failed to update user access: ${(error as Error).message}`
+      );
     }
   },
 });
@@ -1101,7 +1111,7 @@ export const logAccessEvent = mutation({
   },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.userId);
-    
+
     console.log(`Access event: ${args.eventType} for user ${user?.email}`, {
       userId: args.userId,
       eventType: args.eventType,
@@ -1111,5 +1121,62 @@ export const logAccessEvent = mutation({
 
     // In a production system, you might want to store these events
     // in a dedicated access_logs table for security analysis
+  },
+});
+
+// =======================
+// Version System Access Control (Story 2.5)
+// =======================
+
+/**
+ * Verify owner access for version tracking system
+ * Only allows access to david@ideasmen.com.au
+ */
+export const verifyOwnerAccess = query({
+  args: {
+    sessionToken: v.optional(v.string()),
+  },
+  handler: async (ctx: QueryCtx, args: { sessionToken?: string }) => {
+    // No session token means no access
+    if (!args.sessionToken) {
+      return { hasAccess: false, reason: 'No session token provided' };
+    }
+
+    try {
+      // Get current user from session
+      const session = await ctx.db
+        .query('sessions')
+        .withIndex('by_session_token', q =>
+          q.eq('sessionToken', args.sessionToken!)
+        )
+        .first();
+
+      if (!session || session.expires < Date.now()) {
+        return { hasAccess: false, reason: 'Invalid or expired session' };
+      }
+
+      const user = await ctx.db.get(session.userId);
+      if (!user) {
+        return { hasAccess: false, reason: 'User not found' };
+      }
+
+      // Check if user email matches the owner email
+      const ownerEmail = 'david@ideasmen.com.au';
+      const hasAccess = user.email === ownerEmail;
+
+      return {
+        hasAccess,
+        reason: hasAccess
+          ? 'Access granted'
+          : 'Access restricted to owner only',
+        userEmail: user.email,
+      };
+    } catch (error) {
+      console.error('Error verifying owner access:', error);
+      return {
+        hasAccess: false,
+        reason: 'Error verifying access',
+      };
+    }
   },
 });

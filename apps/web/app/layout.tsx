@@ -5,6 +5,7 @@ import { ConvexClientProvider } from './providers';
 import { AuthProvider } from '../components/auth/auth-provider';
 import { ThemeProvider } from '../components/theme/theme-provider';
 import { LoggingProvider } from '../components/logging/logging-provider';
+import { VersionProvider } from '../components/dev/version-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,7 +31,14 @@ export default function RootLayout({
           <AuthProvider>
             <LoggingProvider>
               <ConvexClientProvider>
-                {children}
+                <VersionProvider
+                  showIndicator={true}
+                  showFlashNotifications={true}
+                  indicatorPosition="bottom-left"
+                  maxVersions={20}
+                >
+                  {children}
+                </VersionProvider>
               </ConvexClientProvider>
             </LoggingProvider>
           </AuthProvider>

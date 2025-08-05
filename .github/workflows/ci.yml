@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write
   deployments: write
   pull-requests: read
 
@@ -194,6 +194,8 @@ jobs:
     needs: [build, test-e2e]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
+    outputs:
+      new_version: ${{ steps.version.outputs.NEW_VERSION }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -212,6 +214,23 @@ jobs:
           projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
           directory: apps/web/dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install jq for version management
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Increment version after successful deployment
+        id: version
+        run: |
+          chmod +x ./scripts/version-increment.sh
+          ./scripts/version-increment.sh "${{ github.sha }}" "${{ github.event.head_commit.message }}"
+
+      - name: Commit updated version manifest
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add apps/web/public/version-manifest.json
+          git commit -m "ci: update version manifest to v${{ steps.version.outputs.NEW_VERSION }}" || echo "No changes to commit"
+          git push || echo "No changes to push"
 
       # Note: Required GitHub Secrets for Cloudflare Pages deployment:
       # - CLOUDFLARE_API_TOKEN: API token with Pages:Edit permission

@@ -1,0 +1,356 @@
+{
+  "versions": [
+    {
+      "version": "0.1.0",
+      "commitHash": "283016a11b08cecd99637657f8c103b7b3bb9bda",
+      "timestamp": 1754190023,
+      "description": "feat: add development environment notice for GitHub OAuth",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/283016a11b08cecd99637657f8c103b7b3bb9bda"
+    },
+    {
+      "version": "0.2.0",
+      "commitHash": "e674b8f4cd1ea08ad4642c25a1e57a337a8f6b3f",
+      "timestamp": 1754192066,
+      "description": "feat: add wrangler.toml with environment variables for Cloudflare Pages",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/e674b8f4cd1ea08ad4642c25a1e57a337a8f6b3f"
+    },
+    {
+      "version": "0.2.1",
+      "commitHash": "3864fc9099e389eb27c2713831b1ee45f62c0d72",
+      "timestamp": 1754192791,
+      "description": "fix: remove local build from Cloudflare Pages deployment",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/3864fc9099e389eb27c2713831b1ee45f62c0d72"
+    },
+    {
+      "version": "0.2.2",
+      "commitHash": "8174c7ca943ca67f371ce79e013b83352c7375bb",
+      "timestamp": 1754195448,
+      "description": "fix: trigger rebuild to use Cloudflare dashboard environment variables",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/8174c7ca943ca67f371ce79e013b83352c7375bb"
+    },
+    {
+      "version": "0.2.3",
+      "commitHash": "714460719bbd828aed8d144a501451b18fd8c4b8",
+      "timestamp": 1754195825,
+      "description": "build: add environment variable debugging to build process",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/714460719bbd828aed8d144a501451b18fd8c4b8"
+    },
+    {
+      "version": "0.2.4",
+      "commitHash": "fbdb4195efae29b3007d4e34604d0590cdeeb59f",
+      "timestamp": 1754196297,
+      "description": "fix: remove CI=true override blocking environment variables",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/fbdb4195efae29b3007d4e34604d0590cdeeb59f"
+    },
+    {
+      "version": "0.2.5",
+      "commitHash": "41d6178b1bcfaaa9f05e987765aedd1014a8861f",
+      "timestamp": 1754200417,
+      "description": "chore: improve development workflow and file management",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/41d6178b1bcfaaa9f05e987765aedd1014a8861f"
+    },
+    {
+      "version": "0.2.6",
+      "commitHash": "ee36b7d694af58359aa13192ee820cbf7ad6dbce",
+      "timestamp": 1754202322,
+      "description": "docs: implement KDD process for environment variable management",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/ee36b7d694af58359aa13192ee820cbf7ad6dbce"
+    },
+    {
+      "version": "0.2.7",
+      "commitHash": "11804eb8003bdb89dffc9c032b45e2f83171347f",
+      "timestamp": 1754203009,
+      "description": "ci: add missing environment variables to build workflow",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/11804eb8003bdb89dffc9c032b45e2f83171347f"
+    },
+    {
+      "version": "0.2.8",
+      "commitHash": "1694683f54028a102d3b70ad8c7eb1bf74d73d7d",
+      "timestamp": 1754212075,
+      "description": "fix: update debug page title",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/1694683f54028a102d3b70ad8c7eb1bf74d73d7d"
+    },
+    {
+      "version": "0.2.9",
+      "commitHash": "ca0ae24549db8f52e3911c586154b781ec91c46a",
+      "timestamp": 1754213249,
+      "description": "build: add bundle analyzer and clean up configuration",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/ca0ae24549db8f52e3911c586154b781ec91c46a"
+    },
+    {
+      "version": "0.2.10",
+      "commitHash": "fef453e6e8dd249f98bdd80082b299653b86b369",
+      "timestamp": 1754213628,
+      "description": "build: remove --force flag from turbo build command",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/fef453e6e8dd249f98bdd80082b299653b86b369"
+    },
+    {
+      "version": "0.2.11",
+      "commitHash": "68ee97e56c63531b3d8b2cfb60e7e4c56628245a",
+      "timestamp": 1754214029,
+      "description": "fix: configure turborepo to invalidate cache on environment variable changes",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/68ee97e56c63531b3d8b2cfb60e7e4c56628245a"
+    },
+    {
+      "version": "0.2.12",
+      "commitHash": "0390a70099441496d3cebf815b648ec9b1eedc75",
+      "timestamp": 1754214194,
+      "description": "fix: use correct turborepo env configuration for cache invalidation",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0390a70099441496d3cebf815b648ec9b1eedc75"
+    },
+    {
+      "version": "0.2.13",
+      "commitHash": "3a1da51c4515b63ac549340281599ab3f5579efa",
+      "timestamp": 1754214492,
+      "description": "build: re-add --force flag for cache invalidation",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/3a1da51c4515b63ac549340281599ab3f5579efa"
+    },
+    {
+      "version": "0.2.14",
+      "commitHash": "e5dcdb8b487f8416672d68527141020cf0a44471",
+      "timestamp": 1754220655,
+      "description": "docs: trigger deployment test after Cloudflare Pages config update",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/e5dcdb8b487f8416672d68527141020cf0a44471"
+    },
+    {
+      "version": "0.2.15",
+      "commitHash": "0b0640fa861141a951e0e54d2f208db185a8cfc5",
+      "timestamp": 1754221025,
+      "description": "fix: restore original debug page title",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0b0640fa861141a951e0e54d2f208db185a8cfc5"
+    },
+    {
+      "version": "0.2.16",
+      "commitHash": "615c085c0991ceb6933ef56bfcf3edc67e732a77",
+      "timestamp": 1754221615,
+      "description": "fix: expose environment variables in Next.js static build",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/615c085c0991ceb6933ef56bfcf3edc67e732a77"
+    },
+    {
+      "version": "0.2.17",
+      "commitHash": "87eaacb0bf80499f61eeb67733a596eb1bf9e07e",
+      "timestamp": 1754222094,
+      "description": "test: verify single deployment process",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/87eaacb0bf80499f61eeb67733a596eb1bf9e07e"
+    },
+    {
+      "version": "0.2.18",
+      "commitHash": "19d1616e90e12c5ea1943a958a60c76e34146970",
+      "timestamp": 1754222439,
+      "description": "test: second deployment verification",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/19d1616e90e12c5ea1943a958a60c76e34146970"
+    },
+    {
+      "version": "0.2.19",
+      "commitHash": "f89c2988b052e5fb5f1401cb34d6089dec1f984c",
+      "timestamp": 1754223323,
+      "description": "test: verify single deployment after disabling Cloudflare auto-deploy",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/f89c2988b052e5fb5f1401cb34d6089dec1f984c"
+    },
+    {
+      "version": "0.2.20",
+      "commitHash": "7181ab3b367891229f19d7def8f7f8886378ea55",
+      "timestamp": 1754224052,
+      "description": "ci: add environment variable logging to GitHub Actions",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/7181ab3b367891229f19d7def8f7f8886378ea55"
+    },
+    {
+      "version": "0.2.21",
+      "commitHash": "86366d548d9350647f19c445ebddc358516b7ef9",
+      "timestamp": 1754224216,
+      "description": "ci: improve debug logging to work around GitHub secrets masking",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/86366d548d9350647f19c445ebddc358516b7ef9"
+    },
+    {
+      "version": "0.2.22",
+      "commitHash": "6c547528bc301392959ed7b1027422852769c784",
+      "timestamp": 1754224757,
+      "description": "test: trigger deployment with updated GitHub secrets",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/6c547528bc301392959ed7b1027422852769c784"
+    },
+    {
+      "version": "0.2.23",
+      "commitHash": "666d7624b5f55bc05fdcd568d2a79ea10372f79c",
+      "timestamp": 1754225236,
+      "description": "docs: complete KDD documentation for dual deployment and environment variable troubleshooting",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/666d7624b5f55bc05fdcd568d2a79ea10372f79c"
+    },
+    {
+      "version": "0.2.24",
+      "commitHash": "454171e65c58f0c16d3bb69143b2f3458b49f73a",
+      "timestamp": 1754226932,
+      "description": "docs: complete OAuth environment variable configuration KDD and update setup guides",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/454171e65c58f0c16d3bb69143b2f3458b49f73a"
+    },
+    {
+      "version": "0.2.25",
+      "commitHash": "86f878a72c2497855b91870b699de50c89eda8fa",
+      "timestamp": 1754227692,
+      "description": "test: trigger deployment to check admin logs page routing",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/86f878a72c2497855b91870b699de50c89eda8fa"
+    },
+    {
+      "version": "0.2.26",
+      "commitHash": "5e60250da395be89e38496e141dc930858f4b7b7",
+      "timestamp": 1754229164,
+      "description": "docs: redact API keys from OAuth configuration documentation",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/5e60250da395be89e38496e141dc930858f4b7b7"
+    },
+    {
+      "version": "0.2.27",
+      "commitHash": "0ad7c649da60ca1dff3835910afc233811156583",
+      "timestamp": 1754231390,
+      "description": "trigger: force redeployment to fix admin logs page",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0ad7c649da60ca1dff3835910afc233811156583"
+    },
+    {
+      "version": "0.2.28",
+      "commitHash": "cf6131b2ce2e7064ed92f6ed895458957ec9808c",
+      "timestamp": 1754232278,
+      "description": "trigger: force rebuild with environment variables",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/cf6131b2ce2e7064ed92f6ed895458957ec9808c"
+    },
+    {
+      "version": "0.2.29",
+      "commitHash": "629b46228a86cedf94df301883a139fdc527403d",
+      "timestamp": 1754266950,
+      "description": "docs: add Story 3.6 Redis Data Sync & Legacy Code Migration",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/629b46228a86cedf94df301883a139fdc527403d"
+    },
+    {
+      "version": "0.3.0",
+      "commitHash": "a719fd5c22fd592dcfcc772a8028128e46308c7f",
+      "timestamp": 1754302860,
+      "description": "feat: complete Story 3.6 Phase 1 - Redis Data Sync & Admin Interface",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/a719fd5c22fd592dcfcc772a8028128e46308c7f"
+    },
+    {
+      "version": "0.3.1",
+      "commitHash": "773f9e486d1c70c2b8a2355ef025a5967291cb88",
+      "timestamp": 1754303616,
+      "description": "docs: add Admin Logging System to new features documentation",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/773f9e486d1c70c2b8a2355ef025a5967291cb88"
+    },
+    {
+      "version": "0.3.2",
+      "commitHash": "68e5208a1d0d7b4c7fc14ed10a9ec6f8d896bf77",
+      "timestamp": 1754311007,
+      "description": "fix: prevent PNG files from being committed to root directories",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/68e5208a1d0d7b4c7fc14ed10a9ec6f8d896bf77"
+    },
+    {
+      "version": "0.3.3",
+      "commitHash": "d4a76056f089ccaa7b0150ed0ec3194d8d1dedcf",
+      "timestamp": 1754315417,
+      "description": "fix: resolve critical ESLint errors blocking commits",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/d4a76056f089ccaa7b0150ed0ec3194d8d1dedcf"
+    },
+    {
+      "version": "0.3.4",
+      "commitHash": "78f9ee3b6cdab46a44a03a5339ddd9962a9cdca1",
+      "timestamp": 1754315880,
+      "description": "fix: resolve CI-blocking ESLint and TypeScript errors",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/78f9ee3b6cdab46a44a03a5339ddd9962a9cdca1"
+    },
+    {
+      "version": "0.3.5",
+      "commitHash": "6ff6f6cfaf26466f98b604dfe7db79e7ac4fc4de",
+      "timestamp": 1754316815,
+      "description": "refactor: rename admin logs to debug-logs with development restrictions",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/6ff6f6cfaf26466f98b604dfe7db79e7ac4fc4de"
+    },
+    {
+      "version": "0.3.6",
+      "commitHash": "866becee509c4ad200915d26fc6be46074ae6c15",
+      "timestamp": 1754317315,
+      "description": "fix: suppress Claude logging system meta-logs",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/866becee509c4ad200915d26fc6be46074ae6c15"
+    },
+    {
+      "version": "0.3.7",
+      "commitHash": "9345a4e27c9fbd7e1a565fbf5fe950aaba720307",
+      "timestamp": 1754317999,
+      "description": "test: add Aug 4 audit entry to test metrics and update debug-logs docs",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/9345a4e27c9fbd7e1a565fbf5fe950aaba720307"
+    },
+    {
+      "version": "0.3.8",
+      "commitHash": "31e2c62a7906573c6d4c2c045d02c539bc68f993",
+      "timestamp": 1754319567,
+      "description": "test: add comprehensive test coverage for debug-logs system",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/31e2c62a7906573c6d4c2c045d02c539bc68f993"
+    },
+    {
+      "version": "0.3.9",
+      "commitHash": "622b9c043c70d254c6526ddc041e09bc9101bd37",
+      "timestamp": 1754320596,
+      "description": "docs: update test metrics with latest comprehensive test results",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/622b9c043c70d254c6526ddc041e09bc9101bd37"
+    },
+    {
+      "version": "0.3.10",
+      "commitHash": "0de759f3dff247f069bf50005cdb3a01dd56c2e3",
+      "timestamp": 1754358592,
+      "description": "docs: update debug logs system documentation with accurate test file inventory",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0de759f3dff247f069bf50005cdb3a01dd56c2e3"
+    },
+    {
+      "version": "0.3.11",
+      "commitHash": "54a00078ecc9b04201cc35992e5013b9bc2c5975",
+      "timestamp": 1754372938,
+      "description": "refactor: restructure features system and enhance repo-sync agent",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/54a00078ecc9b04201cc35992e5013b9bc2c5975"
+    },
+    {
+      "version": "0.3.12",
+      "commitHash": "b3cd8fbfdc8c489e34573155bc11bcd1609fd6e0",
+      "timestamp": 1754395475,
+      "description": "docs: consolidate debug logs troubleshooting into main feature documentation",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/b3cd8fbfdc8c489e34573155bc11bcd1609fd6e0"
+    },
+    {
+      "version": "0.3.13",
+      "commitHash": "0e6d80c5f328c6b60690280d0e0c78b7846e637f",
+      "timestamp": 1754396121,
+      "description": "docs: update debug logs system manifest with comprehensive test inventory",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0e6d80c5f328c6b60690280d0e0c78b7846e637f"
+    },
+    {
+      "version": "0.4.0",
+      "commitHash": "f2e3134baf8eb218084e4a182db2095e325f36b4",
+      "timestamp": 1754397755,
+      "description": "feat: implement comprehensive Gitleaks secret detection system",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/f2e3134baf8eb218084e4a182db2095e325f36b4"
+    },
+    {
+      "version": "0.4.1",
+      "commitHash": "d74cfffc29fa19e8bb83baf3a02818cc6ae087ad",
+      "timestamp": 1754397828,
+      "description": "fix: replace Gitleaks GitHub Action with manual installation to avoid license requirement",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/d74cfffc29fa19e8bb83baf3a02818cc6ae087ad"
+    },
+    {
+      "version": "0.4.2",
+      "commitHash": "40874f58de4e87a8ada3a44a8065bf3199166bcb",
+      "timestamp": 1754397873,
+      "description": "fix: improve Gitleaks installation with explicit version and architecture",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/40874f58de4e87a8ada3a44a8065bf3199166bcb"
+    },
+    {
+      "version": "0.4.3",
+      "commitHash": "98e642a4cf60c1ace3a3da44ca771b179925db2f",
+      "timestamp": 1754398468,
+      "description": "docs: enhance testing documentation with comprehensive system overview",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/98e642a4cf60c1ace3a3da44ca771b179925db2f"
+    },
+    {
+      "version": "0.5.0",
+      "commitHash": "17eeb97b18689ac9d9edceaec8422eef8f69e249",
+      "timestamp": 1754401216,
+      "description": "feat: create Story 2.5 - Automated Version Display & History System",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/17eeb97b18689ac9d9edceaec8422eef8f69e249"
+    }
+  ],
+  "current": "0.5.0",
+  "lastUpdated": 1754402088
+}
