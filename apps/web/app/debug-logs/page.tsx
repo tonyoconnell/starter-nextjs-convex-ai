@@ -15,11 +15,31 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
+// Import the RedisStats type from the component
+interface RedisStats {
+  status: string;
+  redis_connected: boolean;
+  stats: {
+    total_logs: number;
+    active_traces: number;
+    unique_users: number;
+    oldest_log_hours: number;
+  };
+  system_breakdown: {
+    browser: number;
+    convex: number;
+    worker: number;
+    manual: number;
+  };
+  ttl_info: {
+    default_ttl_hours: number;
+    expires_in_hours: number;
+  };
+}
+
 export default function DebugLogsPage() {
   const [refreshKey, setRefreshKey] = useState(0);
-  const [redisStats, setRedisStats] = useState<Record<string, unknown> | null>(
-    null
-  );
+  const [redisStats, setRedisStats] = useState<RedisStats | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const handleRefresh = () => {
@@ -31,12 +51,9 @@ export default function DebugLogsPage() {
     setRefreshKey(prev => prev + 1);
   };
 
-  const handleRedisStatsUpdate = useCallback(
-    (stats: Record<string, unknown>) => {
-      setRedisStats(stats);
-    },
-    []
-  );
+  const handleRedisStatsUpdate = useCallback((stats: RedisStats | null) => {
+    setRedisStats(stats);
+  }, []);
 
   // Development environment check
   // eslint-disable-next-line no-undef, no-restricted-syntax
@@ -92,7 +109,7 @@ export default function DebugLogsPage() {
           {/* Sync Controls */}
           <SyncControlsCard
             onSyncComplete={handleSyncComplete}
-            redisStats={redisStats}
+            redisStats={redisStats ? { stats: redisStats.stats } : undefined}
           />
 
           {/* Suppression Rules Panel */}
