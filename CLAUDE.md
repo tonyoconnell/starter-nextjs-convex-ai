@@ -57,11 +57,13 @@ bun lint             # Run ESLint
 bun format           # Run Prettier
 bun typecheck        # Run TypeScript compiler checks
 
-# CI Monitoring & Smart Push
+# CI Monitoring & Smart Push with Auto-Sync
 bun run ci:status    # Check CI status for current branch
 bun run ci:watch     # Monitor CI runs with real-time updates
 bun run ci:logs      # View detailed CI logs
-bun run push         # Smart push with pre-validation and CI monitoring
+bun run sync         # Sync with remote (handles CI version increment conflicts)
+bun run sync:force   # Sync even with uncommitted changes
+bun run push         # Smart push with auto-sync, pre-validation and CI monitoring
 bun run push:no-ci   # Smart push without CI monitoring
 
 # Systematic CI Verification (MANDATORY)
@@ -184,6 +186,59 @@ This project follows the BMAD (Before, Model, After, Document) method with integ
 - **CI failures block story completion** - fix before documenting
 - **Document CI lessons** - maintain institutional CI knowledge
 - **Use tester agent** for complex CI debugging during any phase
+
+### Git Sync Workflow (CI Version Conflict Resolution)
+
+**Problem Solved**: CI automatically commits version manifest updates after deployment, causing developers to get "behind remote" errors when trying to push their work.
+
+#### Smart Push with Auto-Sync
+
+The enhanced `bun run push` command now automatically handles sync conflicts:
+
+```bash
+# Enhanced workflow - handles sync automatically
+bun run push    # Auto-syncs + validates + pushes + monitors CI
+```
+
+**What happens automatically:**
+
+1. **Auto-fetch**: Gets latest remote changes
+2. **Smart sync**: Attempts rebase (preferred) or merge
+3. **Conflict resolution**: Auto-resolves version manifest conflicts
+4. **Validation**: Full TypeScript/ESLint/Build checks
+5. **Push & monitor**: Pushes and monitors CI completion
+
+#### Standalone Sync Commands
+
+For sync-only operations without pushing:
+
+```bash
+# Sync without pushing
+bun run sync           # Standard sync with conflict resolution
+bun run sync:force     # Sync even with uncommitted changes
+```
+
+#### Version Manifest Conflict Handling
+
+**Automatic Resolution**: Version manifest conflicts are automatically resolved by taking the remote version (always newer from CI).
+
+**Manual Conflicts**: For other files, the process stops with clear resolution guidance:
+
+```bash
+# When manual resolution is needed:
+# 1. Fix conflicts in reported files
+# 2. Mark resolved: git add <files>
+# 3. Complete merge: git commit
+# 4. Continue: bun run push
+```
+
+#### Benefits
+
+- ✅ **Seamless workflow**: Push "just works" even after CI deployments
+- ✅ **Zero configuration**: No workflow changes required
+- ✅ **Smart handling**: Auto-resolves CI version conflicts
+- ✅ **Safety first**: Manual resolution for important conflicts
+- ✅ **Clear guidance**: Helpful error messages and recovery steps
 
 ### BMAD Documentation Structure
 

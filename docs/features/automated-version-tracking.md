@@ -40,6 +40,14 @@ The Automated Version Display & History System provides comprehensive version tr
 - **Persistence Control**: Prevents repeated flashing for same version
 - **Auto-Hide**: Configurable timeout for notification dismissal
 
+### 6. Visual Prominence System
+
+- **Pulsating Indicator**: Version indicator displays with bright yellow background when new version is deployed
+- **User Acknowledgment**: Clicking the prominent indicator dismisses the visual prominence
+- **Persistent Prominence**: Visual prominence persists across page refreshes until user acknowledges
+- **Smart Detection**: Automatically detects new versions and triggers prominence state
+- **Local Storage Integration**: Tracks acknowledgment state to prevent re-showing for same version
+
 ## Technical Architecture
 
 ### Core Components
@@ -75,7 +83,10 @@ The Automated Version Display & History System provides comprehensive version tr
   - Local storage management for version tracking
   - New version detection logic
   - Flash notification persistence
+  - **Visual prominence tracking** with acknowledgment state
+  - **Smart prominence detection** based on version changes
   - SSR-safe browser compatibility
+  - Backward compatibility for storage schema updates
 
 - **Version Flash Notification** (`apps/web/components/dev/version-flash-notification.tsx`)
   - Animated flash notification for new versions
@@ -85,9 +96,13 @@ The Automated Version Display & History System provides comprehensive version tr
 
 - **Version Indicator** (`apps/web/components/dev/version-indicator.tsx`)
   - Compact footer indicator with version display
+  - **Visual prominence system** with pulsating yellow background
+  - **User acknowledgment handling** with click interaction
   - Expandable version history modal
   - Previous/Next navigation controls
+  - **Dynamic tooltip content** based on prominence state
   - Loading states and error handling
+  - Conditional styling based on acknowledgment state
 
 - **Version Provider** (`apps/web/components/dev/version-provider.tsx`)
   - React context for version system integration
@@ -347,25 +362,255 @@ const versionConfig = {
 
 - Verify file exists at `/public/version-manifest.json`
 - Check static asset serving configuration
-- Validate JSON structure
+- Validate JSON structure with `./scripts/version-increment.sh --validate`
+
+**Solution Pattern**:
+
+```bash
+# Check manifest exists and is valid JSON
+ls -la apps/web/public/version-manifest.json
+jq empty apps/web/public/version-manifest.json
+```
 
 #### Flash Notifications Not Showing
 
 - Verify localStorage is available and writable
 - Check browser console for JavaScript errors
 - Ensure user has proper access permissions
+- Verify visual prominence state hasn't been acknowledged
+
+**Debug Pattern**:
+
+```javascript
+// Check localStorage state in browser console
+JSON.parse(localStorage.getItem('version-tracking') || '{}');
+
+// Reset prominence state for testing
+localStorage.removeItem('version-tracking');
+```
 
 #### CI/CD Version Updates Failing
 
-- Verify git permissions for automated commits
-- Check jq installation in CI environment
-- Validate GitHub Actions workflow configuration
+**Critical JSON Injection Fix**: The version increment script was vulnerable to JSON injection when commit messages contained special characters, line breaks, or emojis.
+
+**Symptoms**:
+
+- `jq: invalid JSON text passed to --argjson` error in CI logs
+- Version increment script failing with exit code 2
+- Deployments succeeding but version manifest not updating
+
+**Root Cause**: Commit messages with special characters breaking JSON parsing:
+
+```bash
+# Problematic pattern (vulnerable to injection)
+new_version_entry=$(cat << EOF
+{
+  "description": "$commit_message"  # ← Line breaks/quotes break JSON
+}
+EOF
+)
+jq --argjson new_entry "$new_version_entry" ...
+```
+
+**Solution Applied**: Secure jq argument passing with message sanitization:
+
+```bash
+# Secure pattern (prevents injection)
+clean_message=$(echo "$commit_message" | tr -d '\r\n\t' | head -c 500)
+jq --arg description "$clean_message" \
+   '.versions = [{
+     "description": $description  # ← Safe argument passing
+   }] + .versions ...' "$MANIFEST_FILE"
+```
+
+**Prevention Checklist**:
+
+- ✅ Sanitize commit messages by removing control characters
+- ✅ Use jq argument passing (`--arg`) instead of string interpolation
+- ✅ Limit message length to prevent excessive data
+- ✅ Test with various commit message formats including emojis
+
+#### Missing Dependencies Issues
+
+**Radix UI Components Missing**: Development server may fail with module resolution errors.
+
+**Symptoms**:
+
+```
+Module not found: Can't resolve '@radix-ui/react-separator'
+Module not found: Can't resolve '@radix-ui/react-tooltip'
+```
+
+**Solution**:
+
+```bash
+# Install missing Radix UI dependencies
+cd packages/ui
+bun add @radix-ui/react-separator@1.1.7
+bun add @radix-ui/react-tooltip@1.2.7
+```
+
+**Prevention**: Always verify UI package dependencies when using new Radix components.
+
+#### Import Path Resolution Errors
+
+**Symptoms**: Build compilation errors with "Module not found" for UI components.
+
+**Common Anti-Pattern**:
+
+```typescript
+// ❌ Wrong - causes build failures
+import { Button } from '@/components/ui/button';
+```
+
+**Correct Pattern**:
+
+```typescript
+// ✅ Correct - follows project conventions
+import { Button } from '@starter/ui';
+```
+
+**Solution Checklist**:
+
+- Follow CLAUDE.md import path guidelines
+- Use configured aliases: `@starter/ui`, `@/lib/*`, `@/components/*`
+- Check `tsconfig.json` path mappings for reference
+- Avoid relative imports like `../../../../apps/`
 
 #### Access Control Issues
 
 - Verify email configuration matches user's authenticated email
 - Check Convex auth system integration
 - Validate session token handling
+- Ensure user has owner-level access
+
+**Debug Pattern**:
+
+```typescript
+// Check auth state in browser console
+const { sessionToken } = useAuth();
+console.log('Session token:', sessionToken);
+
+// Verify owner access response
+const ownerAccess = useQuery(api.auth.verifyOwnerAccess, { sessionToken });
+console.log('Owner access:', ownerAccess);
+```
+
+#### Visual Prominence Not Working
+
+**Symptoms**: Version indicator not showing pulsating yellow background for new versions.
+
+**Debug Checklist**:
+
+- Check if indicator has been acknowledged: `shouldShowProminentIndicator(currentVersion)`
+- Verify local storage state for acknowledgment tracking
+- Ensure `isProminent` state is being updated correctly
+- Test with fresh browser session to reset acknowledgment state
+
+**Reset Pattern**:
+
+```javascript
+// Reset prominence state for testing
+localStorage.removeItem('version-tracking');
+location.reload();
+```
+
+### CI/CD Pipeline Debugging
+
+#### GitHub Actions Environment Issues
+
+**Symptoms**: Scripts failing in CI but working locally.
+
+**Common Causes**:
+
+- Missing environment variables in GitHub Secrets
+- Different shell behavior in CI environment
+- Git configuration missing for automated commits
+- jq not installed in CI runner
+
+**Solution Pattern**:
+
+```yaml
+# Ensure proper CI environment setup
+- name: Install dependencies
+  run: |
+    sudo apt-get update
+    sudo apt-get install -y jq
+
+- name: Configure git
+  run: |
+    git config --global user.name "GitHub Actions"
+    git config --global user.email "actions@github.com"
+
+- name: Set script permissions
+  run: chmod +x ./scripts/version-increment.sh
+```
+
+#### Script Validation Commands
+
+**Pre-deployment Validation**:
+
+```bash
+# Validate script syntax
+bash -n ./scripts/version-increment.sh
+
+# Test with sample data
+./scripts/version-increment.sh --validate
+
+# Check current version
+./scripts/version-increment.sh --current
+
+# Test increment with safe message
+./scripts/version-increment.sh "abc123" "feat: test message"
+```
+
+### Security Considerations
+
+#### JSON Injection Prevention
+
+**Critical Security Pattern**: Always sanitize user input before JSON operations.
+
+**Vulnerability Pattern** (DO NOT USE):
+
+```bash
+# ❌ VULNERABLE - allows JSON injection
+user_input="$1"
+json_data="{\"message\": \"$user_input\"}"
+jq --argjson data "$json_data" ...
+```
+
+**Secure Pattern** (USE THIS):
+
+```bash
+# ✅ SECURE - prevents injection
+user_input="$1"
+clean_input=$(echo "$user_input" | tr -d '\r\n\t' | head -c 500)
+jq --arg message "$clean_input" '{"message": $message}' ...
+```
+
+**Security Checklist**:
+
+- ✅ Always use jq argument passing (`--arg`, `--argjson` with pre-constructed JSON)
+- ✅ Sanitize input by removing control characters
+- ✅ Limit input length to prevent DoS
+- ✅ Never interpolate user input directly into JSON strings
+- ✅ Test with malicious input: `'"; rm -rf /; echo "'`, `\n\r\t`, etc.
+
+#### Access Control Security
+
+**Email-Based Access Control**:
+
+- Store owner emails in secure configuration
+- Validate email format and existence
+- Use session-based authentication
+- Implement proper error handling without information leakage
+
+**Local Storage Security**:
+
+- Only store non-sensitive version tracking data
+- Implement data validation on retrieval
+- Handle malformed data gracefully
+- Clear sensitive data on logout
 
 ### Debug Tools
 
@@ -373,6 +618,8 @@ const versionConfig = {
 - **Manifest Validation**: Built-in validation with detailed error messages
 - **Console Logging**: Comprehensive logging for development debugging
 - **Error Boundaries**: Graceful error handling in React components
+- **Script Validation**: `./scripts/version-increment.sh --validate` for manifest integrity
+- **CI Debug Mode**: Enable verbose logging in GitHub Actions for troubleshooting
 
 ## Future Enhancements
 
