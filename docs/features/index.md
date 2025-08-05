@@ -1,4 +1,4 @@
-# New Features Index
+# Features Index
 
 This directory contains documentation for features implemented in the template repository. Each feature document provides the information needed to understand, extract, and integrate functionality into other repositories.
 
@@ -65,9 +65,19 @@ This documentation system enables:
 ## Templates and Standards
 
 - **Feature Template**: [templates/feature-template.md](templates/feature-template.md) - Standardized format for new feature documentation
+- **Feature Manifests**: [manifests/](manifests/) - Machine-readable JSON files for multi-layer feature synchronization
 - **Naming Convention**: Use descriptive kebab-case names matching functionality
 - **File Manifests**: Must include complete list of new/modified files
 - **Story References**: Link to original Epic/Story but focus on implementation reality
+
+### Feature Manifests
+
+For complex features spanning multiple layers (Next.js + Convex + Workers), create structured manifest files:
+
+- **Location**: `manifests/{feature-name}.manifest.json`
+- **Purpose**: Enable automated repository synchronization via repo-sync agent
+- **Structure**: JSON format defining frontend, backend, and worker layer files and dependencies
+- **Usage**: Referenced by repo-sync agent for intelligent cross-repository feature adoption
 
 ## Maintenance
 

@@ -1,4 +1,4 @@
-# New Features Documentation KDD
+# Features Documentation KDD
 
 **Knowledge Discovery Document (KDD)** - Feature Documentation System for Template Repositories
 
@@ -26,6 +26,7 @@ Without systematic feature documentation, knowledge transfer between repositorie
 ### Current Documentation Gap
 
 **Existing Documentation Structure**:
+
 - `docs/template-development/stories/` - Story specifications and implementation details
 - `docs/architecture/` - Technical architecture components
 - `docs/methodology/` - Development methodologies
@@ -43,11 +44,12 @@ Without systematic feature documentation, knowledge transfer between repositorie
 
 ### New Features Documentation System
 
-**Core Concept**: `docs/new-features/` directory containing feature-specific documentation files.
+**Core Concept**: `docs/features/` directory containing feature-specific documentation files.
 
 **Documentation Structure**:
+
 ```
-docs/new-features/
+docs/features/
 ├── index.md                     # Feature catalog and navigation
 ├── {feature-name}.md            # Individual feature documentation
 └── templates/
@@ -55,37 +57,46 @@ docs/new-features/
 ```
 
 **Feature Documentation Format**:
+
 ```markdown
 # Feature Name (Story X.Y)
 
 **Epic**: [Link to Epic]
 
 ## New Features Added
+
 - Bullet points of actual functionality implemented
 
 ## Files Added/Modified
+
 ### 🆕 New Files
+
 - Complete file paths with brief descriptions
 
-### 📝 Modified Files  
+### 📝 Modified Files
+
 - Complete file paths with modification descriptions
 
 ## Technical Impact
+
 - Quantified changes (files changed, insertions, etc.)
 
 ## Key Benefits
+
 - User-facing value delivered
 ```
 
 ### Integration with Development Workflow
 
 **Story Completion Process**:
+
 1. Implement story requirements
-2. Document feature in `docs/new-features/{feature-name}.md`
-3. Update `docs/new-features/index.md` with new feature entry
+2. Document feature in `docs/features/{feature-name}.md`
+3. Update `docs/features/index.md` with new feature entry
 4. Reference in CLAUDE.md for AI agent awareness
 
 **KDD Application**:
+
 - **Knowledge**: What features exist and how they're implemented
 - **Discovery**: File manifests enable feature extraction
 - **Documentation**: Standardized format for consistent documentation
@@ -95,10 +106,12 @@ docs/new-features/
 ### Feature Documentation Standards
 
 **Naming Convention**: Use descriptive kebab-case names matching functionality
+
 - `admin-logging-system.md` (not `story-3-6.md`)
 - `user-authentication.md` (not `auth-feature.md`)
 
 **Content Requirements**:
+
 - **Feature Description**: What was actually built (not planned)
 - **File Manifest**: Complete list of new/modified files
 - **Technical Impact**: Quantified changes and integration points
@@ -109,7 +122,8 @@ docs/new-features/
 ### Cross-Repository Adoption Workflow
 
 **Feature Extraction Process**:
-1. Browse `docs/new-features/index.md` to find desired functionality
+
+1. Browse `docs/features/index.md` to find desired functionality
 2. Review feature documentation for file manifest
 3. Copy identified files to target repository
 4. Adapt configuration and dependencies as documented
@@ -120,6 +134,7 @@ docs/new-features/
 ### Maintenance Integration
 
 **During Story Development**:
+
 - Create feature documentation as part of Definition of Done
 - Update feature docs when modifying existing features
 - Maintain file manifests as single source of truth
@@ -131,17 +146,18 @@ docs/new-features/
 ### AI Agent Workflow
 
 **New Features Documentation Protocol**:
+
 ```markdown
 ## New Features Documentation
 
 When completing stories or implementing features:
 
-1. **Create Feature Documentation**: Add file to `docs/new-features/{feature-name}.md`
-2. **Update Feature Index**: Add entry to `docs/new-features/index.md`
+1. **Create Feature Documentation**: Add file to `docs/features/{feature-name}.md`
+2. **Update Feature Index**: Add entry to `docs/features/index.md`
 3. **File Manifest Accuracy**: Ensure all new/modified files are documented
 4. **Cross-Repository Value**: Focus on information needed for feature adoption
 
-**Template Location**: Use `docs/new-features/templates/feature-template.md` for consistency.
+**Template Location**: Use `docs/features/templates/feature-template.md` for consistency.
 ```
 
 ### Documentation First Approach
@@ -153,17 +169,20 @@ When completing stories or implementing features:
 ## Success Metrics
 
 ### Documentation Quality
+
 - ✅ Each feature has complete file manifest
 - ✅ Benefits clearly articulated for adoption decisions
 - ✅ Technical impact quantified (files, insertions, complexity)
 - ✅ Cross-repository adoption workflow validated
 
 ### Repository Value
+
 - ✅ Features can be extracted without full repository knowledge
 - ✅ Implementation details discoverable without code archaeology
 - ✅ Template repository serves as feature library for teams
 
 ### Developer Experience
+
 - ✅ Feature documentation creation integrated into story completion
 - ✅ AI agents understand and maintain feature documentation
 - ✅ Knowledge transfer between repositories streamlined

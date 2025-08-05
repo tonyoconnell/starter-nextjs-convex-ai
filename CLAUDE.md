@@ -374,18 +374,20 @@ When completing stories or implementing features:
 
 ### Feature Documentation Process
 
-1. **Create Feature Documentation**: Add file to `docs/new-features/{feature-name}.md` using descriptive kebab-case naming
-2. **Update Feature Index**: Add entry to `docs/new-features/index.md` with feature summary  
+1. **Create Feature Documentation**: Add file to `docs/features/{feature-name}.md` using descriptive kebab-case naming
+2. **Update Feature Index**: Add entry to `docs/features/index.md` with feature summary
 3. **File Manifest Accuracy**: Document ALL new/modified files for cross-repository adoption
 4. **Cross-Repository Value**: Focus on information needed for feature extraction and integration
 
 ### Documentation Standards
 
 **Naming Convention**: Use descriptive names matching functionality
+
 - `admin-logging-system.md` (not `story-3-6.md`)
 - `user-authentication.md` (not `auth-feature.md`)
 
 **Required Content**:
+
 - **New Features Added**: Bullet points of actual functionality implemented
 - **Files Added/Modified**: Complete manifest with file paths and descriptions
 - **Technical Impact**: Quantified changes (files changed, insertions, etc.)
@@ -393,7 +395,7 @@ When completing stories or implementing features:
 
 **Purpose**: Enable other repositories to selectively adopt features from this template by providing complete implementation details and file manifests.
 
-**Template Location**: Reference `docs/methodology/new-features-documentation-kdd.md` for complete methodology.
+**Template Location**: Reference `docs/methodology/features-documentation-kdd.md` for complete methodology.
 
 ## Specialized Agent Delegation
 
@@ -508,6 +510,14 @@ Task tool -> tester agent: "Review test coverage and patterns for [feature]"
 ```
 
 **Enforcement**: Any story involving testing MUST show evidence of tester agent delegation in story documentation.
+
+### Repository Synchronization Work
+
+**When syncing features between repositories**: Use the `repo-sync` agent for all cross-repository feature sharing and template updates.
+
+**Key capabilities**: Multi-layer feature sync (Next.js + Convex + Workers), feature manifest support, pull-based workflows.
+
+**Documentation**: See your separate repo-sync agent definition for complete specifications.
 
 ## Testing Documentation Priority
 
