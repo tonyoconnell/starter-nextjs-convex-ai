@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.2",
+      "commitHash": "7deaa98db910f75e9b3a5ed4f1ebb072e76a9d9b",
+      "timestamp": 1754410817,
+      "description": "fix: resolve TypeScript type errors in debug-logs page- Import proper RedisStats interface type definition- Fix handleRedisStatsUpdate callback to accept RedisStats | null- Convert redisStats to expected partial type for SyncControlsCard- Ensure type compatibility between components and their propsResolves CI unit test failures caused by type mismatches.🤖 Generated with [Claude Code](https://claude.ai/code)Co-Authored-By: Claude <noreply@anthropic.com>",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/7deaa98db910f75e9b3a5ed4f1ebb072e76a9d9b"
+    },
+    {
       "version": "0.5.1",
       "commitHash": "6dbda394f712a86c68e1a5f4d4b95dabd51e59c4",
       "timestamp": 1754407829,
@@ -132,15 +139,8 @@
       "timestamp": 1754221615,
       "description": "fix: expose environment variables in Next.js static build",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/615c085c0991ceb6933ef56bfcf3edc67e732a77"
-    },
-    {
-      "version": "0.2.17",
-      "commitHash": "87eaacb0bf80499f61eeb67733a596eb1bf9e07e",
-      "timestamp": 1754222094,
-      "description": "test: verify single deployment process",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/87eaacb0bf80499f61eeb67733a596eb1bf9e07e"
     }
   ],
-  "current": "0.5.1",
-  "lastUpdated": 1754407829
+  "current": "0.5.2",
+  "lastUpdated": 1754410817
 }
