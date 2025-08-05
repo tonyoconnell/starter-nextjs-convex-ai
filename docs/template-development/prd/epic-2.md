@@ -1,6 +1,6 @@
-# Epic 2: UI Toolkit & Component Showcase
+# Epic 2: UI Toolkit & Development Operations
 
-**Goal:** To integrate the full UI toolkit (ShadCN, Tailwind) and Storybook. This epic focuses on building out the component showcase page with a functional light/dark mode theme toggle, creating a living library for all future UI development.
+**Goal:** To integrate the full UI toolkit (ShadCN, Tailwind) and Storybook while establishing development operations visibility. This epic focuses on building out the component showcase page with a functional light/dark mode theme toggle, creating a living library for all future UI development, and implementing automated version tracking for deployment visibility.
 
 ---
 
@@ -54,3 +54,21 @@ _As a user, I want to be able to switch between light and dark modes, so that I 
 3.  Clicking the control instantly toggles the application's color scheme between light and dark mode.
 4.  The user's theme preference is persisted across sessions (e.g., using local storage).
 5.  All components on the `/showcase` page render correctly in both light and dark modes.
+
+---
+
+## Story 2.5: Automated Version Display & History System
+
+_As a website owner (david@ideasmen.com.au), I want an automated version tracking and display system that shows the current website version with historical navigation capabilities, so that I can track deployment history, understand what changes were made, and easily navigate between different versions of the website._
+
+**Acceptance Criteria:**
+
+1.  **Automated Version Increment**: Every successful CI deployment to main branch automatically increments the version using semantic versioning based on conventional commit message parsing (feat:, fix:, docs:, etc.)
+2.  **Version Manifest System**: A machine-readable JSON file (`public/version-manifest.json`) is created and updated automatically during CI/CD pipeline containing version, commit hash, timestamp, description, and commit URL
+3.  **Historical Git Analysis Script**: Create a rerunnable bootstrap script that analyzes existing commit history using conventional commit patterns, generates semantic versions for historical commits, and creates/updates the initial version manifest. Script must be repository-agnostic and handle different git histories gracefully
+4.  **UI Display Component**: A footer indicator (similar to existing log tracing indicator) displays the current version and provides click-to-expand functionality showing version history modal/dropdown with navigation for the last 20 versions
+5.  **New Version Flash Notification**: When a new version is detected (compared to local storage), display a prominent but non-intrusive flash/highlight notification to draw attention to the version change, with persistence to avoid repeated flashing
+6.  **GitHub Integration**: Each version entry includes direct links to the corresponding GitHub commit for easy reference and troubleshooting
+7.  **Access Control**: Version display and history are only visible when the authenticated user email matches david@ideasmen.com.au using the existing Convex auth system
+8.  **Navigation Controls**: Previous/Next version browsing capability within the version history interface
+9.  **Template Reusability**: Code architecture designed for template reuse where versioning logic and components can be copied to other applications, while each application maintains its own version manifest based on its specific commit history and development lifecycle
