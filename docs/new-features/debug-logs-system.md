@@ -79,20 +79,101 @@
 - **Strategic ignoring** allows assets in deeper directories while blocking temp files
 - **Multi-directory coverage** for all app roots
 
-## Files Added/Modified
+## Complete File Inventory & Architecture
 
-### 🆕 New Backend Files (Convex)
+### 📁 Frontend Components (Next.js/React)
 
-- `apps/convex/workerSync.ts` - **Enhanced** Redis sync operations with argument validation fixes, clear+sync functionality, and volume-aware processing
-- `apps/convex/debugLogs.ts` - **Enhanced** Debug table queries with advanced filtering, chronological sorting, and system categorization
+#### **Main Navigation & Pages**
 
-### 🆕 New Frontend Components (React)
+- **`apps/web/app/page.tsx:54-59`** - Main homepage navigation bar with "Debug" link (authenticated users only)
+- **`apps/web/app/dev/page.tsx:74-91`** - Developer center page with Debug Logs card and link
+- **`apps/web/app/debug-logs/page.tsx`** - Main debug logs dashboard page with sidebar layout and development environment restriction
 
-- `apps/web/components/debug-logs/redis-stats-card.tsx` - **Enhanced** Redis buffer statistics with compact sidebar format and volume warnings
-- `apps/web/components/debug-logs/sync-controls-card.tsx` - **Enhanced** Data sync controls with repositioned buttons, collapsible advanced options, and smart progress indicators
-- `apps/web/components/debug-logs/debug-logs-table.tsx` - **Enhanced** Advanced log visualization with "App Only" filter, badge categorization, and improved sorting controls
-- `apps/web/components/debug-logs/export-controls-card.tsx` - **Completely redesigned** Revolutionary single-button export system with target selection and full-width layout
-- `apps/web/components/debug-logs/suppression-rules-panel.tsx` - **NEW** Read-only console suppression transparency panel with pattern testing and categorization
+#### **Debug Logs Components (`apps/web/components/debug-logs/`)**
+
+- **`debug-logs-table.tsx`** - Core table component with filtering, search, sorting, and expandable rows
+- **`redis-stats-card.tsx`** - Displays Redis buffer statistics, connection status, and TTL info
+- **`sync-controls-card.tsx`** - Sync operations (All, by Trace, by User, Clear+Sync) with progress tracking
+- **`export-controls-card.tsx`** - Data export functionality for structured and markdown formats
+- **`suppression-rules-panel.tsx`** - Log filtering and suppression configuration
+- **`cleanup-controls.tsx`** - Database cleanup operations and maintenance
+- **`cost-monitoring.tsx`** - Database usage statistics and cost tracking
+- **`database-health.tsx`** - Database performance metrics and health indicators
+- **`log-search.tsx`** - Advanced search functionality with filters
+- **`rate-limit-status.tsx`** - Rate limiting status and quota information
+- **`system-health-overview.tsx`** - Overall system status dashboard
+
+#### **Supporting Components**
+
+- **`apps/web/lib/console-override.ts`** - Browser console logging override for development
+- **`apps/web/components/logging/logging-provider.tsx`** - Context provider for logging functionality
+- **`apps/web/components/logging/logging-status.tsx`** - Status indicator for logging system
+
+### 🗄️ Backend Functions (Convex)
+
+#### **Core Debug Logs (`apps/convex/`)**
+
+- **`debugLogs.ts`** - Primary CRUD operations (insertLog, listLogs) with filtering and pagination
+- **`debugActions.ts`** - Advanced actions for session management and Claude export formatting
+- **`workerSync.ts`** - Redis-to-Convex synchronization with health checks and batch processing
+- **`schema.ts`** - Database schema definition for debug_logs table
+- **`monitoring.ts`** - Database usage statistics and cleanup monitoring
+
+#### **Supporting Backend**
+
+- **`lib/redisLogFetcher.ts`** - Redis data fetching and log correlation analysis
+- **`cleanupLoggingTables.ts`** - Automated cleanup functions for log maintenance
+- **`loggingAction.ts`** - Core logging action for various system events
+
+### ⚡ Cloudflare Worker (`apps/workers/log-ingestion/`)
+
+#### **Core Worker Files**
+
+- **`src/index.ts`** - Main worker entry point with routing and CORS handling
+- **`src/log-processor.ts`** - Log processing, validation, and Redis storage logic
+- **`src/redis-client.ts`** - Redis operations wrapper with connection management
+- **`src/rate-limiter.ts`** - Durable Object for distributed rate limiting
+- **`src/types.ts`** - TypeScript interfaces for worker data structures
+
+#### **Worker Configuration**
+
+- **`wrangler.toml`** - Cloudflare deployment configuration
+- **`package.json`** - Worker dependencies and build scripts
+
+### 🧪 Test Files (12 test files)
+
+#### **Frontend Component Tests (`tests/web/components/debug-logs/`)**
+
+- **`debug-logs-page.test.tsx`** - Debug logs page component functionality and rendering
+- **`debug-logs-table.test.tsx`** - Debug logs table component with filtering and display logic
+
+#### **Frontend Library Tests (`tests/web/lib/`)**
+
+- **`console-override.test.ts`** - Browser console override functionality for log capture
+
+#### **Cloudflare Worker Tests (`tests/workers/log-ingestion/`)**
+
+**Unit Tests (`src/`)**:
+
+- **`index.test.ts`** - Main worker entry point, routing, and CORS handling
+- **`log-processor.test.ts`** - Log validation, processing, and Redis storage logic
+- **`redis-client.test.ts`** - Redis operations wrapper and connection management
+- **`rate-limiter.test.ts`** - Durable Object distributed rate limiting functionality
+
+**Integration Tests (`integration/`)**:
+
+- **`cross-system.test.ts`** - Multi-system log ingestion workflow testing
+- **`integration.test.ts`** - Complete browser → worker → Redis → retrieval workflow
+- **`load.test.ts`** - Performance testing under high log volumes
+- **`migration.test.ts`** - Worker deployment and data migration testing
+
+#### **Missing Convex Tests**
+
+**Note**: No Convex-specific test files exist for debug logs backend functions:
+
+- `debugLogs.ts` - Core CRUD operations (needs unit tests)
+- `debugActions.ts` - Advanced actions and export formatting (needs unit tests)
+- `workerSync.ts` - Redis-to-Convex synchronization (needs integration tests)
 
 ### 🆕 New API Routes
 
@@ -125,16 +206,107 @@
 ### 📝 Enhanced Configuration Files
 
 - `packages/ui/index.ts` - Added exports for Table, Textarea, Collapsible components
-- `apps/web/next.config.js` - **CRITICAL FIX**: Removed redundant env section that was overriding Next.js automatic NEXT_PUBLIC_* variable handling
+- `apps/web/next.config.js` - **CRITICAL FIX**: Removed redundant env section that was overriding Next.js automatic NEXT*PUBLIC*\* variable handling
 - `.gitignore` - **NEW RULES** Added PNG file protection for root directories while allowing assets in deeper folders
 
 ### 📝 Modified Worker Configuration
 
 - `apps/workers/log-ingestion/wrangler.toml` - Added SQLite-based Durable Objects migration for free plan compatibility
 
+## 🏗️ Architecture Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          USER INTERACTION                       │
+└─────────────┬───────────────────────────────────────────────────┘
+                  │
+    ┌─────────────▼──────────────┐
+    │   MAIN NAVIGATION          │
+    │  • apps/web/app/page.tsx   │ ── Settings Icon "Debug" Link
+    │  • apps/web/app/dev/page.tsx │ ── Dev Center Debug Card
+    └─────────────┬──────────────┘
+                  │
+    ┌─────────────▼──────────────┐
+    │     DEBUG LOGS PAGE        │
+    │ apps/web/app/debug-logs/   │
+    │          page.tsx          │ ── Development Only Restriction
+    └─────────────┬──────────────┘
+                  │
+    ┌─────────────▼──────────────┐
+    │    SIDEBAR COMPONENTS      │ ┌─────────────────────────────┐
+    │ • redis-stats-card         │ │    MAIN CONTENT AREA        │
+    │ • sync-controls-card       │ │ • debug-logs-table          │
+    │ • suppression-rules-panel  │ │ • export-controls-card      │
+    └─────────────┬──────────────┘ └─────────────┬───────────────┘
+                  │                              │
+    ┌─────────────▼──────────────────────────────▼───────────────┐
+    │                CONVEX BACKEND                               │
+    │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐   │
+    │  │ debugLogs.ts│ │workerSync.ts│ │   debugActions.ts   │   │
+    │  │   CRUD Ops  │ │ Redis Sync  │ │  Export/Sessions    │   │
+    │  └─────────────┘ └─────────────┘ └─────────────────────┘   │
+    └─────────────┬───────────────────────┬─────────────────────┘
+                  │                       │
+    ┌─────────────▼──────────────┐       │
+    │     CONVEX DATABASE        │       │
+    │    debug_logs table        │       │
+    │  (Structured Storage)      │       │
+    └────────────────────────────┘       │
+                                         │
+    ┌────────────────────────────────────▼─────────────────────┐
+    │              CLOUDFLARE WORKER                           │
+    │              log-ingestion                               │
+    │  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐ │
+    │  │   index.ts  │ │log-processor│ │   rate-limiter      │ │
+    │  │   Routing   │ │ Validation  │ │ Durable Object      │ │
+    │  └─────────────┘ └─────────────┘ └─────────────────────┘ │
+    └─────────────┬───────────────────────────────────────────┘
+                  │
+    ┌─────────────▼──────────────┐
+    │        REDIS BUFFER        │
+    │     (Temporary Storage)    │
+    │    Key-based TTL System    │
+    └────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════
+
+              DATA FLOW PATTERNS:
+
+🔵 Browser Logs → Console Override → Worker → Redis → Convex → UI
+🔴 Convex Logs → Internal Logging → Direct Database → UI
+🟡 Manual Logs → Debug Components → Worker → Redis → Convex → UI
+🟢 Redis Stats → Worker Health Check → Convex Action → UI Components
+```
+
+## 🎯 Key Reactive Components & Data Flow
+
+### **1. Real-time Data Sync**
+
+- **Redis ↔ Convex**: `workerSync.ts` handles bidirectional data flow
+- **UI ↔ Convex**: React Query hooks for real-time updates
+- **Browser ↔ Worker**: Direct HTTP calls for log ingestion
+
+### **2. Authentication Integration**
+
+- **LoggingProvider** connected to **AuthProvider** via `useAuth()` hook
+- Real-time user ID updates in logs when auth state changes
+- User email tracking instead of anonymous logging
+
+### **3. Smart State Management**
+
+- **Refresh triggers**: Cascade updates across all components
+- **Volume awareness**: Smart warnings for large data operations
+- **Progress tracking**: Real-time feedback for sync operations
+
+### **4. Development Restrictions**
+
+- **Environment gating**: Debug logs only available in development
+- **Authentication required**: All debug features require user login
+- **Worker validation**: Rate limiting and request validation
+
 ## Technical Impact
 
-- **29+ files changed** (expanded from original 19, includes recent refactoring)
+- **47+ files total** (35+ core system files + 12 test files, expanded from original 19, includes recent refactoring)
 - **3,800+ insertions** (significant additions from dashboard improvements, authentication integration, and debug-logs refactoring)
 - **Complete debug logs functionality restored** - renamed from "admin" to clarify development-only purpose
 - **Redis-to-Convex sync system operational**
@@ -147,6 +319,7 @@
 ## Key Benefits
 
 ### Original Benefits (Maintained)
+
 - Debug logs page loads without errors (fixed 404)
 - Selective data sync from Redis buffer to Convex
 - Chronological debugging workflow with expandable details
@@ -154,18 +327,21 @@
 - Clean separation between Redis buffer (volatile) and debug storage (persistent)
 
 ### New Dashboard Benefits
+
 - **Responsive design** with 420px collapsible sidebar for optimal space utilization
 - **Better UX patterns** with buttons underneath descriptions, not cramped to the side
 - **Export controls repositioned** to full-width area underneath table for proper configuration space
 - **Smart log categorization** preserves all data while enabling intelligent browser vs system filtering
 
 ### New Export Benefits
+
 - **Revolutionary UX**: Select target first (clipboard/download), single button does everything
 - **Default to clipboard** for immediate Claude Code analysis workflow
 - **Dynamic button labels** show exactly what's happening ("Copying..." vs "Preparing Download...")
 - **No more 3-step process** - one click exports and delivers to chosen destination
 
 ### New Transparency Benefits
+
 - **Console suppression visibility** - no more mystery about why logs disappear
 - **Pattern testing tool** - check if messages would be suppressed before logging
 - **Educational interface** - understand how filtering works without accidentally changing it
@@ -174,6 +350,7 @@
 - **Clean debugging experience** - see only application logs, not data organization operations
 
 ### Development Quality Benefits
+
 - **Git hygiene improved** - PNG screenshots no longer accidentally committed
 - **Argument validation fixed** - Clear & Sync button now works without errors
 - **User authentication improved** - better user ID detection for authenticated sessions

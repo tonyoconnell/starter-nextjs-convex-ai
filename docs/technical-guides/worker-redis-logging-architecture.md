@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document defines the new logging architecture using **Cloudflare Workers + Upstash Redis** to replace the broken Convex-based logging system. The new architecture addresses race conditions, cost issues, and reliability problems while preserving trace correlation capabilities.
+This document defines the logging architecture using **Cloudflare Workers + Upstash Redis + Convex Database** that powers the debug logs system. The architecture addresses race conditions, cost issues, and reliability problems while preserving trace correlation capabilities.
+
+> **📋 Note**: For complete implementation details, component inventory, and user interface features, see the **[Debug Logs System](../new-features/debug-logs-system.md)** documentation. This document focuses on the underlying technical architecture.
 
 ## Architecture Diagram
 
