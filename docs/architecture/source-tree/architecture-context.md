@@ -1,6 +1,6 @@
 # Architecture Context
 
-> **Generated:** 2025-08-06 04:04:45 UTC  
+> **Generated:** 2025-08-06 12:57:37 UTC  
 > **Source:** gpt_context.rb dynamic analysis  
 > **Description:** Code plus architectural documentation
 
@@ -242,16 +242,27 @@
 │ ├─ infrastructure-and-deployment.md
 │ ├─ introduction.md
 │ ├─ real-time-user-data-synchronization-kdd.md
+│ ├─ schema-ai-context.json
+│ ├─ schema-manifest-system.md
 │ ├─ security.md
 │ ├─ source-tree
 │ │ ├─ README.md
 │ │ ├─ all-files-no-hidden.md
 │ │ ├─ all-files-with-hidden.md
+│ │ ├─ architecture-context.md
+│ │ ├─ backend-only.md
 │ │ ├─ code-only.md
 │ │ ├─ code-plus-tests.md
 │ │ ├─ commands.md
+│ │ ├─ config-only.md
+│ │ ├─ deployment-files.md
+│ │ ├─ deprecation-cleanup.md
+│ │ ├─ docs-permanent.md
+│ │ ├─ docs-transient.md
+│ │ ├─ frontend-only.md
 │ │ ├─ generate-trees.sh
 │ │ ├─ hidden-only.md
+│ │ ├─ test-segmented.md
 │ ├─ tech-stack.md
 ├─ patterns
 │ ├─ architecture-patterns.md
@@ -268,4 +279,5 @@
 ├─ discovery-mode-kdd-protocol.md
 ├─ features-documentation-kdd.md
 ├─ kdd-integration-overview.md
+├─ multi-layer-manifest-architecture-kdd.md
 └─ youtube-brief-methodology.md

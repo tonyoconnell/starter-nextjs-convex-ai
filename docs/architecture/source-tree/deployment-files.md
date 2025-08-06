@@ -1,6 +1,6 @@
 # Deployment Files
 
-> **Generated:** 2025-08-06 04:04:45 UTC  
+> **Generated:** 2025-08-06 12:57:37 UTC  
 > **Source:** gpt_context.rb dynamic analysis  
 > **Description:** All deployment-related configurations
 
@@ -23,6 +23,9 @@
 │ │ ├─ cloudflare-pages-deployment-troubleshooting.md
 │ │ ├─ cloudflare-pages-setup.md
 │ │ ├─ cloudflare-vectorize-setup.md
+│ ├─ architecture
+│ │ ├─ source-tree
+│ │ │ └─ deployment-files.md
 │ ├─ lessons-learned
 │ │ └─ anti-patterns
 │ │ └─ deployment-anti-patterns.md

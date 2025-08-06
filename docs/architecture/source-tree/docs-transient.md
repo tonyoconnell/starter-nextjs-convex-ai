@@ -1,6 +1,6 @@
 # Docs Transient
 
-> **Generated:** 2025-08-06 04:04:45 UTC  
+> **Generated:** 2025-08-06 12:57:37 UTC  
 > **Source:** gpt_context.rb dynamic analysis  
 > **Description:** Stories/UAT/time-sensitive docs
 

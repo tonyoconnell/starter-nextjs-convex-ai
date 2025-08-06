@@ -1,6 +1,6 @@
 # All Files (With Hidden)
 
-> **Generated:** 2025-08-06 04:04:45 UTC  
+> **Generated:** 2025-08-06 12:57:37 UTC  
 > **Source:** gpt_context.rb dynamic analysis  
 > **Description:** Complete project including hidden folders
 
@@ -10,6 +10,7 @@
 ├─ -config.md
 ├─ -docs.md
 ├─ CLAUDE.md
+├─ GEMINI.md
 ├─ LICENSE
 ├─ README.md
 ├─ apps
@@ -620,12 +621,27 @@
 │ │ ├─ infrastructure-and-deployment.md
 │ │ ├─ introduction.md
 │ │ ├─ real-time-user-data-synchronization-kdd.md
+│ │ ├─ schema-ai-context.json
+│ │ ├─ schema-manifest-system.md
 │ │ ├─ security.md
 │ │ ├─ source-tree
 │ │ │ ├─ README.md
 │ │ │ ├─ all-files-no-hidden.md
+│ │ │ ├─ all-files-with-hidden.md
+│ │ │ ├─ architecture-context.md
+│ │ │ ├─ backend-only.md
+│ │ │ ├─ code-only.md
+│ │ │ ├─ code-plus-tests.md
 │ │ │ ├─ commands.md
+│ │ │ ├─ config-only.md
+│ │ │ ├─ deployment-files.md
+│ │ │ ├─ deprecation-cleanup.md
+│ │ │ ├─ docs-permanent.md
+│ │ │ ├─ docs-transient.md
+│ │ │ ├─ frontend-only.md
 │ │ │ ├─ generate-trees.sh
+│ │ │ ├─ hidden-only.md
+│ │ │ ├─ test-segmented.md
 │ │ ├─ tech-stack.md
 │ ├─ architecture.md
 │ ├─ development-guide.md
@@ -651,9 +667,11 @@
 │ ├─ features
 │ │ ├─ automated-version-tracking.md
 │ │ ├─ debug-logs-system.md
+│ │ ├─ dynamic-source-tree-system.md
 │ │ ├─ index.md
 │ │ ├─ manifests
 │ │ │ ├─ debug-logs-system.manifest.json
+│ │ │ ├─ dynamic-source-tree-system.manifest.json
 │ │ │ └─ testing-system.manifest.json
 │ ├─ guides
 │ │ ├─ index.md
@@ -683,6 +701,7 @@
 │ │ ├─ discovery-mode-kdd-protocol.md
 │ │ ├─ features-documentation-kdd.md
 │ │ ├─ kdd-integration-overview.md
+│ │ ├─ multi-layer-manifest-architecture-kdd.md
 │ │ ├─ youtube-brief-methodology.md
 │ ├─ patterns
 │ │ ├─ architecture-patterns.md
@@ -709,6 +728,7 @@
 │ │ ├─ cloudflare-vectorize-setup.md
 │ │ ├─ convex-components-guide.md
 │ │ ├─ convex-logging-cleanup-strategy.md
+│ │ ├─ convex-naming-conventions-kdd.md
 │ │ ├─ cost-effective-logging-in-convex-agentic-systems.md
 │ │ ├─ dev-error-pipeline.md
 │ │ ├─ environment-management.md
@@ -716,6 +736,7 @@
 │ │ ├─ file-system-exploration-and-segmentation-kdd.md
 │ │ ├─ github-oauth-setup.md
 │ │ ├─ google-oauth-setup.md
+│ │ ├─ implementing-manifest-systems-guide.md
 │ │ ├─ index.md
 │ │ ├─ llm-api-setup.md
 │ │ ├─ log-ingestion-worker-setup-kdd.md

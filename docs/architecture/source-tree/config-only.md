@@ -1,6 +1,6 @@
 # Config Only
 
-> **Generated:** 2025-08-06 04:04:45 UTC  
+> **Generated:** 2025-08-06 12:57:37 UTC  
 > **Source:** gpt_context.rb dynamic analysis  
 > **Description:** Configuration files across project
 
@@ -218,9 +218,12 @@
 │ │ ├─ prettify.js
 │ │ └─ sorter.js
 ├─ docs
+│ ├─ architecture
+│ │ ├─ schema-ai-context.json
 │ ├─ features
 │ │ ├─ manifests
 │ │ │ ├─ debug-logs-system.manifest.json
+│ │ │ ├─ dynamic-source-tree-system.manifest.json
 │ │ │ └─ testing-system.manifest.json
 │ ├─ testing
 │ │ ├─ test-metrics.json
