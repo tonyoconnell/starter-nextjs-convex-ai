@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.3",
+      "commitHash": "3d7b756f05852b1daa850a5c8702738772fdea0a",
+      "timestamp": 1754481646,
+      "description": "docs: implement dynamic source tree system with comprehensive documentation structure- Replace single source-tree.md with organized directory structure in docs/architecture/source-tree/- Add project structure overview section to CLAUDE.md with navigation links- Create new Dynamic Source Tree System feature documentation- Add comprehensive feature manifest for cross-repository adoption- Update features index with new Dynamic Source Tree System entry- Add Convex naming conventions KDD documentatio",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/3d7b756f05852b1daa850a5c8702738772fdea0a"
+    },
+    {
       "version": "0.5.2",
       "commitHash": "7deaa98db910f75e9b3a5ed4f1ebb072e76a9d9b",
       "timestamp": 1754410817,
@@ -132,15 +139,8 @@
       "timestamp": 1754221025,
       "description": "fix: restore original debug page title",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0b0640fa861141a951e0e54d2f208db185a8cfc5"
-    },
-    {
-      "version": "0.2.16",
-      "commitHash": "615c085c0991ceb6933ef56bfcf3edc67e732a77",
-      "timestamp": 1754221615,
-      "description": "fix: expose environment variables in Next.js static build",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/615c085c0991ceb6933ef56bfcf3edc67e732a77"
     }
   ],
-  "current": "0.5.2",
-  "lastUpdated": 1754410817
+  "current": "0.5.3",
+  "lastUpdated": 1754481646
 }
