@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.4",
+      "commitHash": "763c4b6ddc533a2fdda353133440572267028940",
+      "timestamp": 1754482699,
+      "description": "docs: implement Multi-Layer Manifest Architecture documentation system- Add comprehensive KDD for Multi-Layer Manifest Architecture Pattern- Create implementation guide for adopting manifest systems in template repositories- Document four-layer system: Feature Manifests, Dynamic Source Trees, Testing Manifests, Version Manifests- Provide step-by-step adoption workflow with validation checklists- Include AI agent integration patterns and cross-repository feature extraction guides- Establish found",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/763c4b6ddc533a2fdda353133440572267028940"
+    },
+    {
       "version": "0.5.3",
       "commitHash": "3d7b756f05852b1daa850a5c8702738772fdea0a",
       "timestamp": 1754481646,
@@ -132,15 +139,8 @@
       "timestamp": 1754220655,
       "description": "docs: trigger deployment test after Cloudflare Pages config update",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/e5dcdb8b487f8416672d68527141020cf0a44471"
-    },
-    {
-      "version": "0.2.15",
-      "commitHash": "0b0640fa861141a951e0e54d2f208db185a8cfc5",
-      "timestamp": 1754221025,
-      "description": "fix: restore original debug page title",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0b0640fa861141a951e0e54d2f208db185a8cfc5"
     }
   ],
-  "current": "0.5.3",
-  "lastUpdated": 1754481646
+  "current": "0.5.4",
+  "lastUpdated": 1754482699
 }
