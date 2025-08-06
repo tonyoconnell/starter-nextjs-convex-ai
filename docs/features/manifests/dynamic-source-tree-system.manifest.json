@@ -1,0 +1,171 @@
+{
+  "feature": "dynamic-source-tree-system",
+  "version": "1.0.0",
+  "sync_metadata": {
+    "last_sync": "2025-01-08T04:05:00Z",
+    "source_commit": "pending",
+    "sync_strategy": "copy",
+    "template_repo": "/Users/davidcruwys/dev/ad/appydave/appydave-templates/starter-nextjs-convex-ai"
+  },
+  "layers": {
+    "infrastructure": {
+      "files": [
+        "docs/architecture/source-tree/README.md",
+        "docs/architecture/source-tree/commands.md",
+        "docs/architecture/source-tree/generate-trees.sh"
+      ],
+      "generated_files": [
+        "docs/architecture/source-tree/all-files-no-hidden.md",
+        "docs/architecture/source-tree/all-files-with-hidden.md",
+        "docs/architecture/source-tree/hidden-only.md",
+        "docs/architecture/source-tree/code-only.md",
+        "docs/architecture/source-tree/code-plus-tests.md",
+        "docs/architecture/source-tree/architecture-context.md",
+        "docs/architecture/source-tree/docs-permanent.md",
+        "docs/architecture/source-tree/docs-transient.md",
+        "docs/architecture/source-tree/test-segmented.md",
+        "docs/architecture/source-tree/config-only.md",
+        "docs/architecture/source-tree/deployment-files.md",
+        "docs/architecture/source-tree/generated-artifacts.md",
+        "docs/architecture/source-tree/deprecation-cleanup.md",
+        "docs/architecture/source-tree/backend-only.md",
+        "docs/architecture/source-tree/frontend-only.md"
+      ],
+      "dependencies": {
+        "external_tools": ["gpt_context.rb"],
+        "shell_scripts": ["bash"],
+        "file_permissions": ["executable"]
+      },
+      "integration_points": [
+        "CLAUDE.md reference to dynamic source tree system",
+        "docs/features/index.md entry for feature listing",
+        "Replacement of static docs/architecture/source-tree.md"
+      ]
+    }
+  },
+  "tests": {
+    "infrastructure": {
+      "files": [],
+      "validation_tests": [
+        "Manual execution of generate-trees.sh",
+        "Verification of all 15 source tree files generated",
+        "Quality check of generated file content and formatting",
+        "Individual gpt_context command execution testing"
+      ],
+      "coverage": [
+        "All 15 gpt_context commands execute successfully",
+        "Generated files contain proper headers with timestamps",
+        "Tree structure formatting is clean and readable",
+        "Category filtering works correctly for each view type"
+      ]
+    },
+    "integration": {
+      "files": [],
+      "missing_tests": [
+        "Automated testing of generation script functionality",
+        "Cross-repository adoption validation testing",
+        "Error handling validation for missing dependencies"
+      ]
+    },
+    "test_summary": {
+      "total_files": 0,
+      "by_layer": {
+        "infrastructure": 0,
+        "integration": 0
+      },
+      "coverage_gaps": [
+        "No automated tests for source tree generation functionality",
+        "Manual validation only for cross-repository feature extraction",
+        "No CI integration tests for gpt_context.rb dependency verification"
+      ]
+    }
+  },
+  "validation": {
+    "health_checks": [
+      "gpt_context.rb tool availability check",
+      "generate-trees.sh script execution permissions",
+      "All 15 source tree view files generated successfully"
+    ],
+    "integration_tests": [
+      "Manual command execution for each of 15 categories",
+      "Batch generation script produces all expected outputs",
+      "Generated files contain current project state data"
+    ],
+    "cross_repository_tests": [
+      "Feature extraction workflow validation",
+      "Command customization for different project structures",
+      "Documentation integration in target repositories"
+    ]
+  },
+  "environment_requirements": {
+    "development_only": false,
+    "authentication_required": false,
+    "external_services": [],
+    "tools_required": [
+      "gpt_context.rb (appydave-tools)",
+      "bash shell",
+      "file system access"
+    ]
+  },
+  "architecture_notes": {
+    "data_flow": "Live File System → gpt_context.rb Analysis → Categorized Source Trees → Timestamped Markdown Files",
+    "key_patterns": [
+      "Dynamic generation over static documentation",
+      "Categorized views for different development contexts",
+      "Batch automation with individual command access",
+      "Always-current data through live file system analysis",
+      "Cross-repository feature extraction design"
+    ],
+    "technical_impact": {
+      "files_total": "18",
+      "system_files": "3",
+      "generated_files": "15",
+      "categories_covered": "5",
+      "commands_available": "15",
+      "maintenance_burden": "eliminated"
+    }
+  },
+  "adoption_guide": {
+    "prerequisites": [
+      "gpt_context.rb tool installed and accessible",
+      "bash shell environment available",
+      "Target repository with docs directory structure"
+    ],
+    "extraction_steps": [
+      "Copy docs/architecture/source-tree/ directory to target repo",
+      "Update GPT_CONTEXT path in generate-trees.sh and commands.md",
+      "Modify project root path in generate-trees.sh script",
+      "Update README.md with target project information",
+      "Test single command execution before batch generation",
+      "Run generate-trees.sh to create all 15 source tree views"
+    ],
+    "customization_options": [
+      "Modify gpt_context command patterns for project structure",
+      "Add/remove categories based on project needs",
+      "Adjust include/exclude patterns for project-specific files",
+      "Update documentation integration points"
+    ],
+    "integration_points": [
+      "Reference system from main documentation (CLAUDE.md equivalent)",
+      "Add feature entry to project features index",
+      "Consider CI integration for automatic regeneration"
+    ]
+  },
+  "maintenance_procedures": {
+    "regular_operations": [
+      "Run generate-trees.sh when project structure changes significantly",
+      "Verify all 15 files generated successfully after batch runs",
+      "Check timestamp headers to ensure data freshness"
+    ],
+    "updates": [
+      "Modify commands.md when adding new view categories",
+      "Update generate-trees.sh for new commands or enhanced functionality",
+      "Update README.md when system capabilities change"
+    ],
+    "troubleshooting": [
+      "Verify gpt_context.rb path and accessibility",
+      "Check file permissions on generate-trees.sh script",
+      "Validate project root path in script configuration"
+    ]
+  }
+}

@@ -12,6 +12,15 @@ This is a Next.js template designed for AI-first development using:
 - **Cloudflare** Pages/Workers for edge deployment
 - **Bun** as the package manager
 
+## Project Structure
+
+For detailed project structure views, see **[Dynamic Source Trees](docs/architecture/source-tree/README.md)**:
+
+- **Manual Commands**: Use `docs/architecture/source-tree/commands.md` for individual gpt_context commands
+- **Batch Generation**: Run `docs/architecture/source-tree/generate-trees.sh` to refresh all views
+- **15 Different Views**: Code-only, architecture-context, test-segmented, config-only, etc.
+- **Always Current**: Generated from live file system, never outdated
+
 ## Import Path Guidelines
 
 **CRITICAL**: Use configured path aliases instead of relative imports.

@@ -19,6 +19,21 @@ This directory contains documentation for features implemented in the template r
     - **Development Only**: Environment-restricted access, smart volume warnings
     - **Export System**: Claude-optimized formats for AI debugging workflows
 
+### Infrastructure & Developer Experience
+
+- **[Dynamic Source Tree System](dynamic-source-tree-system.md)** - Always-Current Project Navigation
+  - **Epic**: Infrastructure Enhancement (Ad-hoc)
+  - **Story**: Replace Static Documentation with Dynamic Views
+  - **Impact**: 18 files total (3 system + 15 generated views)
+  - **Architecture**: gpt_context.rb → Dynamic Analysis → Categorized Source Trees
+  - **Key Features**:
+    - **15 Categorized Views**: Code, docs, tests, config, deployment, module-specific
+    - **Dynamic Generation**: Always-current data from live file system
+    - **Manual Commands**: Direct gpt_context.rb access for individual views
+    - **Batch Automation**: Single script generates all views with timestamps
+    - **Zero Maintenance**: Eliminates stale static documentation burden
+    - **Cross-Repository Ready**: Designed for feature extraction and adoption
+
 ## How to Use This Documentation
 
 ### For Template Extension
