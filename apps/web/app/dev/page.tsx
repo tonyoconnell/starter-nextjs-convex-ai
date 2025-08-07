@@ -19,8 +19,37 @@ import {
 } from 'lucide-react';
 import { VersionDebug } from '../../components/dev/version-debug';
 import { config } from '../../lib/config';
+import { useAuth } from '../../components/auth/auth-provider';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function DevPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-400">Loading...</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Don't render content if not authenticated (user will be redirected)
+  if (!user) {
+    return null;
+  }
+
   const envVars = {
     NEXT_PUBLIC_APP_URL: config.appUrl || 'NOT SET',
     NEXT_PUBLIC_PROD_APP_URL: config.prodAppUrl || 'NOT SET',
