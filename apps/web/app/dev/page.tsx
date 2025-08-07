@@ -23,6 +23,7 @@ import { config } from '../../lib/config';
 export default function DevPage() {
   const envVars = {
     NEXT_PUBLIC_APP_URL: config.appUrl || 'NOT SET',
+    NEXT_PUBLIC_PROD_APP_URL: config.prodAppUrl || 'NOT SET',
     NEXT_PUBLIC_CONVEX_URL: config.convexUrl || 'NOT SET',
     NEXT_PUBLIC_LOG_WORKER_URL: config.logWorkerUrl || 'NOT SET',
     NEXT_PUBLIC_GITHUB_REPO: config.githubRepo || 'NOT SET',
@@ -56,14 +57,14 @@ export default function DevPage() {
               <CardContent>
                 <a
                   href={
-                    config.appUrl ||
+                    config.prodAppUrl ||
                     'https://starter-nextjs-convex-ai.pages.dev'
                   }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  {config.appUrl?.replace(/^https?:\/\//, '') ||
+                  {config.prodAppUrl?.replace(/^https?:\/\//, '') ||
                     'starter-nextjs-convex-ai.pages.dev'}
                   <ExternalLink className="h-4 w-4" />
                 </a>
