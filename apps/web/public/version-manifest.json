@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.9",
+      "commitHash": "b27d0909f44ce2c2693a49c58868f4b8a5368a47",
+      "timestamp": 1754536374,
+      "description": "fix: remove misleading fallback URLs in development center- Replace hardcoded fallback URLs with clear 'NOT SET' messages- Show environment variable name when configuration is missing- Use red text styling to highlight missing configuration- Maintain proper links when environment variables are configured- Improves debugging by clearly showing when NEXT_PUBLIC_PROD_APP_URL or NEXT_PUBLIC_GITHUB_REPO are not setThis prevents the misleading behavior where fallback URLs would hide missing environmen",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/b27d0909f44ce2c2693a49c58868f4b8a5368a47"
+    },
+    {
       "version": "0.5.8",
       "commitHash": "66374ea819611ce6b00fbf8078693310f2ce3561",
       "timestamp": 1754535580,
@@ -132,15 +139,8 @@
       "timestamp": 1754213249,
       "description": "build: add bundle analyzer and clean up configuration",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/ca0ae24549db8f52e3911c586154b781ec91c46a"
-    },
-    {
-      "version": "0.2.10",
-      "commitHash": "fef453e6e8dd249f98bdd80082b299653b86b369",
-      "timestamp": 1754213628,
-      "description": "build: remove --force flag from turbo build command",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/fef453e6e8dd249f98bdd80082b299653b86b369"
     }
   ],
-  "current": "0.5.8",
-  "lastUpdated": 1754535580
+  "current": "0.5.9",
+  "lastUpdated": 1754536374
 }
