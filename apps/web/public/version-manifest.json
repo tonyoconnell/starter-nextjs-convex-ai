@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.6.1",
+      "commitHash": "ccb052f2125e27f5651fce677b7dcea2a8c8a44f",
+      "timestamp": 1754580291,
+      "description": "docs: preserve React 19 + Next.js 15 upgrade research after repository reset- Recreate comprehensive React 19 research documentation suite from Story 1.10- Add React 19 Compatibility Patterns Library with SSR-safe hooks and context patterns- Add Deployment Strategy Decision Guide comparing Cloudflare Pages vs Workers- Add Troubleshooting KDD with complete error catalog and solutions- Add Timeline & Decision Matrix for strategic React 19 adoption planning- Add Migration Guide with battle-tested u",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/ccb052f2125e27f5651fce677b7dcea2a8c8a44f"
+    },
+    {
       "version": "0.6.0",
       "commitHash": "d1d2f11e928635ca2227a3078026ce58bc9234c4",
       "timestamp": 1754536627,
@@ -132,15 +139,8 @@
       "timestamp": 1754203009,
       "description": "ci: add missing environment variables to build workflow",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/11804eb8003bdb89dffc9c032b45e2f83171347f"
-    },
-    {
-      "version": "0.2.8",
-      "commitHash": "1694683f54028a102d3b70ad8c7eb1bf74d73d7d",
-      "timestamp": 1754212075,
-      "description": "fix: update debug page title",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/1694683f54028a102d3b70ad8c7eb1bf74d73d7d"
     }
   ],
-  "current": "0.6.0",
-  "lastUpdated": 1754536627
+  "current": "0.6.1",
+  "lastUpdated": 1754580291
 }
