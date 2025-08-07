@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.6.0",
+      "commitHash": "d1d2f11e928635ca2227a3078026ce58bc9234c4",
+      "timestamp": 1754536627,
+      "description": "feat: restrict dev menu and page to authenticated users only- Move Dev navigation link inside user authentication check in main navbar- Add authentication protection to /dev page with redirect to login- Show loading state while checking authentication- Prevent unauthorized access to development tools and environment debug information- Follows same pattern as other protected routes (Chat, Protected, Debug)Security improvement to prevent non-authenticated users from accessing development center.�",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/d1d2f11e928635ca2227a3078026ce58bc9234c4"
+    },
+    {
       "version": "0.5.9",
       "commitHash": "b27d0909f44ce2c2693a49c58868f4b8a5368a47",
       "timestamp": 1754536374,
@@ -132,15 +139,8 @@
       "timestamp": 1754212075,
       "description": "fix: update debug page title",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/1694683f54028a102d3b70ad8c7eb1bf74d73d7d"
-    },
-    {
-      "version": "0.2.9",
-      "commitHash": "ca0ae24549db8f52e3911c586154b781ec91c46a",
-      "timestamp": 1754213249,
-      "description": "build: add bundle analyzer and clean up configuration",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/ca0ae24549db8f52e3911c586154b781ec91c46a"
     }
   ],
-  "current": "0.5.9",
-  "lastUpdated": 1754536374
+  "current": "0.6.0",
+  "lastUpdated": 1754536627
 }
