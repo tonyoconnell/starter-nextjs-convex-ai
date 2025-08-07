@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.7",
+      "commitHash": "5b00c3a7324c2d47a0e27fe7432edc83b897bf60",
+      "timestamp": 1754533300,
+      "description": "refactor: consolidate environment debug functionality and remove redundant debug-env page- Remove redundant /debug-env page and consolidate functionality into /dev page- Add Environment Variables Debug section to development center with full-width display- Remove hardcoded Recent Updates section in favor of dynamic git version history- Make live app and GitHub repository URLs dynamic using environment variables- Add NEXT_PUBLIC_GITHUB_REPO to environment source of truth and sync system- Update d",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/5b00c3a7324c2d47a0e27fe7432edc83b897bf60"
+    },
+    {
       "version": "0.5.6",
       "commitHash": "a1711a2a1de11d48fe70ec9be3ed8791df48559c",
       "timestamp": 1754528247,
@@ -132,15 +139,8 @@
       "timestamp": 1754214029,
       "description": "fix: configure turborepo to invalidate cache on environment variable changes",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/68ee97e56c63531b3d8b2cfb60e7e4c56628245a"
-    },
-    {
-      "version": "0.2.12",
-      "commitHash": "0390a70099441496d3cebf815b648ec9b1eedc75",
-      "timestamp": 1754214194,
-      "description": "fix: use correct turborepo env configuration for cache invalidation",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0390a70099441496d3cebf815b648ec9b1eedc75"
     }
   ],
-  "current": "0.5.6",
-  "lastUpdated": 1754528247
+  "current": "0.5.7",
+  "lastUpdated": 1754533300
 }
