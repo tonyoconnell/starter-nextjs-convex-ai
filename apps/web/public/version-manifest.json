@@ -1,6 +1,13 @@
 {
   "versions": [
     {
+      "version": "0.5.6",
+      "commitHash": "a1711a2a1de11d48fe70ec9be3ed8791df48559c",
+      "timestamp": 1754528247,
+      "description": "fix: resolve bash syntax error in CI version increment scriptFix GitHub Actions passing commit messages with special characters.The commit message containing markdown links like [Claude Code](https://claude.ai/code)was causing bash syntax errors due to unescaped parentheses.Solution: Pass commit message through environment variable instead ofdirect command line argument to avoid shell interpretation issues.🤖 Generated with [Claude Code](https://claude.ai/code)Co-Authored-By: Claude <noreply@a",
+      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/a1711a2a1de11d48fe70ec9be3ed8791df48559c"
+    },
+    {
       "version": "0.5.5",
       "commitHash": "aaca938018476c2f51fb01980a268baf70946b1d",
       "timestamp": 1754485738,
@@ -132,15 +139,8 @@
       "timestamp": 1754214194,
       "description": "fix: use correct turborepo env configuration for cache invalidation",
       "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/0390a70099441496d3cebf815b648ec9b1eedc75"
-    },
-    {
-      "version": "0.2.13",
-      "commitHash": "3a1da51c4515b63ac549340281599ab3f5579efa",
-      "timestamp": 1754214492,
-      "description": "build: re-add --force flag for cache invalidation",
-      "commitUrl": "https://github.com/appydave-templates/starter-nextjs-convex-ai/commit/3a1da51c4515b63ac549340281599ab3f5579efa"
     }
   ],
-  "current": "0.5.5",
-  "lastUpdated": 1754485738
+  "current": "0.5.6",
+  "lastUpdated": 1754528247
 }
