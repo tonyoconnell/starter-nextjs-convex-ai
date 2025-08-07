@@ -200,7 +200,7 @@ env | grep PREFIX || echo "No variables found"
 **Verification Strategy**:
 
 - Add debug logging to CI that checks variable lengths/patterns
-- Use the debug-env page pattern for production verification
+- Use the Environment Variables Debug section in /dev page for production verification
 - Document expected values and their character lengths
 
 ### 4. Systematic Issue Isolation
@@ -270,7 +270,7 @@ Keep debug logging in CI for future troubleshooting:
 
 - **GitHub Actions Workflow**: `.github/workflows/ci.yml`
 - **Next.js Configuration**: `apps/web/next.config.js`
-- **Debug Environment Page**: `apps/web/app/debug-env/page.tsx`
+- **Debug Environment Section**: `/dev` page - Environment Variables Debug section
 - **Cloudflare Pages Dashboard**: Build settings and branch control
 - **GitHub Repository Secrets**: Security → Secrets and variables → Actions
 

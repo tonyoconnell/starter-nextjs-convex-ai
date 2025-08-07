@@ -561,8 +561,8 @@ build:
 bun run sync-env
 cat apps/web/.env.local | grep NEXT_PUBLIC
 
-# Production environment check (via debug page)
-# Create apps/web/app/debug-env/page.tsx for production verification
+# Production environment check (via dev center)
+# Environment variables are shown in /dev page under "Environment Variables Debug"
 ```
 
 #### 2. CI Debug Logging
@@ -589,9 +589,9 @@ Use string length to identify value source:
 
 ### Prevention Best Practices
 
-1. **Create Debug Environment Page**:
-   - Add `/debug-env` route to verify production environment variables
-   - Only show in development or to authenticated users
+1. **Use Debug Environment Section**:
+   - Environment variables are displayed in `/dev` page for verification
+   - Shows NEXT*PUBLIC*\* variables available in the browser
 
 2. **CI Validation**:
    - Add checks for localhost values in production builds

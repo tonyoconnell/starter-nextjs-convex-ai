@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import {
   Card,
@@ -7,10 +9,25 @@ import {
   CardTitle,
 } from '@starter/ui';
 import { Button } from '@starter/ui';
-import { ExternalLink, Github, Code2, Settings, Globe } from 'lucide-react';
+import {
+  ExternalLink,
+  Github,
+  Code2,
+  Settings,
+  Globe,
+  Terminal,
+} from 'lucide-react';
 import { VersionDebug } from '../../components/dev/version-debug';
+import { config } from '../../lib/config';
 
 export default function DevPage() {
+  const envVars = {
+    NEXT_PUBLIC_APP_URL: config.appUrl || 'NOT SET',
+    NEXT_PUBLIC_CONVEX_URL: config.convexUrl || 'NOT SET',
+    NEXT_PUBLIC_LOG_WORKER_URL: config.logWorkerUrl || 'NOT SET',
+    NEXT_PUBLIC_GITHUB_REPO: config.githubRepo || 'NOT SET',
+    NODE_ENV: config.nodeEnv || 'NOT SET',
+  };
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
@@ -38,12 +55,16 @@ export default function DevPage() {
               </CardHeader>
               <CardContent>
                 <a
-                  href="https://starter-nextjs-convex-ai.pages.dev"
+                  href={
+                    config.appUrl ||
+                    'https://starter-nextjs-convex-ai.pages.dev'
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
                 >
-                  starter-nextjs-convex-ai.pages.dev
+                  {config.appUrl?.replace(/^https?:\/\//, '') ||
+                    'starter-nextjs-convex-ai.pages.dev'}
                   <ExternalLink className="h-4 w-4" />
                 </a>
               </CardContent>
@@ -60,7 +81,10 @@ export default function DevPage() {
               </CardHeader>
               <CardContent>
                 <a
-                  href="https://github.com/appydave-templates/starter-nextjs-convex-ai"
+                  href={
+                    config.githubRepo ||
+                    'https://github.com/appydave-templates/starter-nextjs-convex-ai'
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -93,7 +117,7 @@ export default function DevPage() {
           </div>
 
           {/* Development Info */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="max-w-2xl mx-auto">
             {/* Tech Stack */}
             <Card>
               <CardHeader>
@@ -146,50 +170,37 @@ export default function DevPage() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Recent Updates */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Updates</CardTitle>
-                <CardDescription>
-                  Latest improvements and features
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 text-sm">
-                  <div className="border-l-2 border-green-500 pl-3">
-                    <div className="font-medium text-green-700 dark:text-green-400">
-                      ✅ ESLint Three-Tier Architecture
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      Solved recurring ESLint configuration conflicts with
-                      environment-specific rules
-                    </div>
-                  </div>
-                  <div className="border-l-2 border-blue-500 pl-3">
-                    <div className="font-medium text-blue-700 dark:text-blue-400">
-                      🔧 TypeScript Compilation Fixed
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      Resolved all TypeScript errors for stable CI pipeline
-                    </div>
-                  </div>
-                  <div className="border-l-2 border-purple-500 pl-3">
-                    <div className="font-medium text-purple-700 dark:text-purple-400">
-                      🚀 CI/CD Improvements
-                    </div>
-                    <div className="text-gray-600 dark:text-gray-400">
-                      Enhanced monitoring and smart push scripts
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Version System Debug */}
           <div className="mt-8">
             <VersionDebug />
+          </div>
+
+          {/* Environment Variables Debug */}
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Terminal className="h-5 w-5 text-orange-600" />
+                  Environment Variables Debug
+                </CardTitle>
+                <CardDescription>
+                  NEXT_PUBLIC_* variables available in browser
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
+                  <pre className="text-sm overflow-x-auto">
+                    {JSON.stringify(envVars, null, 2)}
+                  </pre>
+                </div>
+                <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                  This shows NEXT_PUBLIC_* environment variables exposed to the
+                  browser.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Quick Actions */}
