@@ -55,19 +55,21 @@ export default function DevPage() {
                 <CardDescription>Visit the public deployment</CardDescription>
               </CardHeader>
               <CardContent>
-                <a
-                  href={
-                    config.prodAppUrl ||
-                    'https://starter-nextjs-convex-ai.pages.dev'
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  {config.prodAppUrl?.replace(/^https?:\/\//, '') ||
-                    'starter-nextjs-convex-ai.pages.dev'}
-                  <ExternalLink className="h-4 w-4" />
-                </a>
+                {config.prodAppUrl ? (
+                  <a
+                    href={config.prodAppUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    {config.prodAppUrl.replace(/^https?:\/\//, '')}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-2 text-red-600 dark:text-red-400">
+                    NOT SET (NEXT_PUBLIC_PROD_APP_URL)
+                  </span>
+                )}
               </CardContent>
             </Card>
 
@@ -81,18 +83,21 @@ export default function DevPage() {
                 <CardDescription>View source code and issues</CardDescription>
               </CardHeader>
               <CardContent>
-                <a
-                  href={
-                    config.githubRepo ||
-                    'https://github.com/appydave-templates/starter-nextjs-convex-ai'
-                  }
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  GitHub Repository
-                  <ExternalLink className="h-4 w-4" />
-                </a>
+                {config.githubRepo ? (
+                  <a
+                    href={config.githubRepo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                  >
+                    GitHub Repository
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-2 text-red-600 dark:text-red-400">
+                    NOT SET (NEXT_PUBLIC_GITHUB_REPO)
+                  </span>
+                )}
               </CardContent>
             </Card>
 
