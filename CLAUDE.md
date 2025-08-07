@@ -592,9 +592,9 @@ When asked about testing or testing-related documentation:
    - **Writing tests**: Use `testing-patterns.md`
    - **Setup/standards**: Reference `test-strategy-and-standards.md`
 
-2. **Functional/UAT Testing**: Only include UAT files from `docs/testing/uat/` when specifically requested for functional testing
+2. **Story Acceptance Testing**: Only include Story Acceptance Test files from `docs/template-development/testing/stories/` when specifically requested for story validation
 
-3. **Key principle**: Technical testing docs are for developers writing/debugging tests. UAT docs are for product validation. Don't mix contexts unless explicitly asked.
+3. **Key principle**: Technical testing docs are for developers writing/debugging tests. Story Acceptance Tests are for story completion validation. Don't mix contexts unless explicitly asked.
 
 ## File Creation Discovery Protocol
 

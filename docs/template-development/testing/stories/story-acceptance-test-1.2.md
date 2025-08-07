@@ -1,4 +1,4 @@
-# User Acceptance Testing (UAT) Plan
+# Story Acceptance Test
 
 ## Story 1.2: Basic Next.js App Shell
 

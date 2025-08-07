@@ -561,7 +561,7 @@ Add any file to knowledge base:
 
 ---
 
-**UAT Completion Date**: ****\_\_\_****  
-**Tested By**: ****\_\_\_****  
-**Approved By**: ****\_\_\_****  
-**Notes**: ****\_\_\_****
+**UAT Completion Date**: \***\*\_\_\_\*\***  
+**Tested By**: \***\*\_\_\_\*\***  
+**Approved By**: \***\*\_\_\_\*\***  
+**Notes**: \***\*\_\_\_\*\***

@@ -35,33 +35,35 @@ This directory contains all testing-related documentation organized by purpose a
 - **Setting up testing infrastructure?** → Follow test-strategy-and-standards
 - **Migration guidance?** → See test-migration-and-configuration-kdd
 
-## For QA/Product (Functional Testing)
+## For QA/Product (Story Acceptance Testing)
 
-**User acceptance testing and functional verification:**
+**Story completion validation and acceptance verification:**
 
-### Functional Test Plans
+### Story Acceptance Tests
 
 **Epic 1 - Platform Foundation:**
 
-- [Story 1.2 - Basic Next.js App Shell](uat/functional-test-plan-1.2.md)
-- [Story 1.4 - Convex Backend Integration](uat/functional-test-plan-1.4.md)
-- [Story 1.5 - Authentication System](uat/functional-test-plan-1.5.md)
-- [Story 1.6 - User Dashboard](uat/functional-test-plan-1.6.md)
-- [Story 1.7 - GitHub OAuth](uat/functional-test-plan-1.7.md)
-- [Story 1.8 - Profile Management](uat/functional-test-plan-1.8.md)
+- [Story 1.2 - Basic Next.js App Shell](../template-development/testing/stories/story-acceptance-test-1.2.md)
+- [Story 1.4 - Convex Backend Integration](../template-development/testing/stories/story-acceptance-test-1.4.md)
+- [Story 1.5 - Authentication System](../template-development/testing/stories/story-acceptance-test-1.5.md)
+- [Story 1.6 - User Dashboard](../template-development/testing/stories/story-acceptance-test-1.6.md)
+- [Story 1.7 - GitHub OAuth](../template-development/testing/stories/story-acceptance-test-1.7.md)
+- [Story 1.8 - Profile Management](../template-development/testing/stories/story-acceptance-test-1.8.md)
 
 **Epic 2 - UI Toolkit & Component Showcase:**
 
-- [Story 2.1 - Integrate ShadCN/UI Library](uat/functional-test-plan-2.1.md)
+- [Story 2.1 - Integrate ShadCN/UI Library](../template-development/testing/stories/story-acceptance-test-2.1.md)
 
 **Epic 3 - Resilient Real-time Logging:**
 
-- [Story 3.1 - Browser Log Capture Foundation](uat/functional-test-plan-3.1.md)
-- [Story 3.2 - Multi-System Log Ingestion & Correlation](uat/functional-test-plan-3.2.md)
+- [Story 3.1 - Browser Log Capture Foundation](../template-development/testing/stories/story-acceptance-test-3.1.md)
+- [Story 3.2 - Multi-System Log Ingestion & Correlation](../template-development/testing/stories/story-acceptance-test-3.2.md)
+- [Story 3.4 - Log Filtering & Search](../template-development/testing/stories/story-acceptance-test-3.4.md)
+- [Story 3.6 - Admin Logging System](../template-development/testing/stories/story-acceptance-test-3.6.md)
 
 **Epic 4 - AI-Powered Chat Interface:**
 
-- [Story 4.2 - Knowledge Ingestion Service](uat/functional-test-plan-4.2.md)
+- [Story 4.2 - Knowledge Ingestion Service](../template-development/testing/stories/story-acceptance-test-4.2.md)
 
 ## Testing Commands Reference
 
@@ -96,17 +98,19 @@ docs/testing/
 │   ├── testing-patterns.md
 │   ├── testing-infrastructure-lessons-learned.md
 │   └── test-migration-and-configuration-kdd.md
-└── uat/                       # Functional testing documentation
-    ├── functional-test-plan-1.2.md
-    ├── functional-test-plan-1.4.md
-    ├── functional-test-plan-1.5.md
-    ├── functional-test-plan-1.6.md
-    ├── functional-test-plan-1.7.md
-    ├── functional-test-plan-1.8.md
-    ├── functional-test-plan-2.1.md
-    ├── functional-test-plan-3.1.md
-    ├── functional-test-plan-3.2.md
-    └── functional-test-plan-4.2.md
+└── ../template-development/testing/stories/  # Story acceptance testing documentation
+    ├── story-acceptance-test-1.2.md
+    ├── story-acceptance-test-1.4.md
+    ├── story-acceptance-test-1.5.md
+    ├── story-acceptance-test-1.6.md
+    ├── story-acceptance-test-1.7.md
+    ├── story-acceptance-test-1.8.md
+    ├── story-acceptance-test-2.1.md
+    ├── story-acceptance-test-3.1.md
+    ├── story-acceptance-test-3.2.md
+    ├── story-acceptance-test-3.4.md
+    ├── story-acceptance-test-3.6.md
+    └── story-acceptance-test-4.2.md
 ```
 
 ### Test File Organization
