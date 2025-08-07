@@ -220,9 +220,11 @@ jobs:
 
       - name: Increment version after successful deployment
         id: version
+        env:
+          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           chmod +x ./scripts/version-increment.sh
-          ./scripts/version-increment.sh "${{ github.sha }}" "${{ github.event.head_commit.message }}"
+          ./scripts/version-increment.sh "${{ github.sha }}" "$COMMIT_MESSAGE"
 
       - name: Commit updated version manifest
         run: |
