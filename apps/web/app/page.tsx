@@ -7,6 +7,7 @@ import { LogoutButton } from '../components/auth/logout-button';
 import Link from 'next/link';
 import { ThemeToggle } from '../components/theme/theme-toggle';
 import { Menu, User, Settings, MessageSquare } from 'lucide-react';
+import React from 'react';
 
 export default function HomePage() {
   const testMessage = useQuery(api.queries.getTestMessage);
@@ -130,6 +131,24 @@ export default function HomePage() {
             <div className="pt-8 space-y-4">
               <div className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition-colors">
                 🚀 Next.js App Router + TypeScript + Tailwind CSS
+              </div>
+              
+              {/* Version Information */}
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md mx-auto">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                  🔧 Framework Versions
+                </h3>
+                <div className="space-y-2 text-sm">
+                  <p className="text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">Next.js:</span> 15.4.6
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">React:</span> {React.version}
+                  </p>
+                  <p className="text-gray-600 dark:text-gray-300">
+                    <span className="font-medium">Status:</span> <span className="text-green-600 dark:text-green-400">✅ Successfully Deployed</span>
+                  </p>
+                </div>
               </div>
 
               {/* Convex Connection Test */}

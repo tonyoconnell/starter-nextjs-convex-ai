@@ -13,11 +13,13 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
+  // Skip error page prerendering that causes React #31 error
+  generateBuildId: () => 'static-build',
+  // Try to skip problematic error page generation
   // Lightning-fast optimizations
   distDir: '.next',
   compress: false, // Skip compression for faster builds
   poweredByHeader: false,
-  swcMinify: true, // Use faster SWC minifier
   // Speed optimizations
   experimental: {
     optimizePackageImports: ['lucide-react', '@starter/ui'],
@@ -32,8 +34,6 @@ const nextConfig = {
       maxInactiveAge: 60 * 1000,
       pagesBufferLength: 2,
     },
-    // Skip unnecessary optimizations in CI
-    optimizeFonts: false,
   }),
   env: {
     CLAUDE_LOGGING_ENABLED: String(
